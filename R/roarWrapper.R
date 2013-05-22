@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # First script to perform Roar analysis. 
-# Requires a gtf with _PRE and _POST gene_ids and bam files from the to 
+# Requires a gtf with _PRE and _POST gene_ids and bam files from the two 
 # conditions to be compared.
 # Will become a wrapper for our Bioconductor library?
 
@@ -52,6 +52,7 @@ if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
 }
 
 # Get counts
+counts <- CreateRoarDataset(rightBams, leftBams, opt$gtf)
 
 # Get m/M and Roar
 
