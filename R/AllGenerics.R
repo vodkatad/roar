@@ -1,5 +1,8 @@
 
-setGeneric("lines", signature=c("x","y")) # To define new method of a class
-setMethod("lines",c("ROC","missing"), function(x,y,...){
-   lines(x@mspec, x@sens,...)
-})
+# Do we need a generic?
+setGeneric("countPrePost", def=function(rds) { standardGeneric("countPrePost") }, valueClass="RoarDataset") 
+
+setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
+setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })
+#setGeneric("cores", def=function(rds, value) { standardGeneric("cores<-") }) # FOAD
+# HOWTO USE INTERFACE?

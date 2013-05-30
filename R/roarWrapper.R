@@ -53,7 +53,7 @@ if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
 
 # Get counts
 roar <- RoarDataset(rightBams, leftBams, opt$gtf)
-roar <- CountPrePost(roar)
+roar <- countPrePost(roar)
 
 # Get m/M and Roar
 
