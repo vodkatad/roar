@@ -1,10 +1,14 @@
 # Methods for the RoarDataset class.
 # R/AllGenerics.R contains the signature of the not overriding methods.
 
-CreateRoarDataset <- function(rightBams, leftBams, gtf) {
-   # TODO
-   gtfGenomicAnnot <- qualcosa(gtf)
-   new("RoarDataset", rightBams=rightBams, leftBams=leftBams, prePostCoords=gtfGenomicAnnot)
+RoarDataset <- function(rightBams, leftBams, gtf) {
+   genome = "hg19" # FIXME
+   # The format will be assumed using the file extension. Will work everytime?
+   # Do we force hg19?
+   gtfGRanges<- import(gtf, genome=genome, asRangedData=F)
+   rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
+   leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
+   new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, prePostCoords=gtfGRanges)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
