@@ -24,9 +24,6 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       summOv <- function(x) {
          summarizeOverlaps(features=rds@prePostCoords, reads=x, mode='Union', ignore.strand=T, mc.cores=rds@coresproa)
       } 
-      #summarizedRight <- lapply(rds@rightBamsGenomicAlignments, summOv)
-      #summarizedLeft <- lapply(rds@leftBamsGenomicAlignments, summOv)
-      
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.
       # In the simpler case with a single alignment for both conditions we just keep the counts.
       if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
@@ -36,12 +33,16 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
                               )
          assay(se,1)[,"right"] <- assays(summOv(rds@rightBams[[1]]))$counts
          assay(se,1)[,"left"] <- assays(summOv(rds@leftBams[[1]]))$counts
-         assays(rds) <- assays(se)
          rowData(rds) <- rowData(se)
          colData(rds) <- colData(se)
-         # rowData(p)[assays(p)[[1]][,"right"] == 1]
+         assays(rds) <- assays(se)
+         names(assays(rds)) <- "counts"
       } else {
          stop("TODO")
+         # Ideally here will wet counts for all right and left bams, compute means and totals
+         # and obtain a SE with 2 assays, called means and totals.
+         #summarizedRight <- lapply(rds@rightBamsGenomicAlignments, summOv)
+         #summarizedLeft <- lapply(rds@leftBamsGenomicAlignments, summOv)
       }
 
       return(rds)
