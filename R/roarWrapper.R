@@ -17,6 +17,7 @@ checkReadable <- function(filename) {
 options(error=traceback) 
 
 library(getopt)
+library(roar)
 
 arguments <- matrix(c(
    'help', 'h', 0, "logical",
@@ -62,6 +63,9 @@ roar <- computeRoars(roar)
 roar <- computePvals(roar) 
 
 # Filter results based on PRE counts and bonferroni p-value correction
-results <- formatResults(roar, p.cutoff=1, method="Bonferroni", expr.cutoff="median") 
+results <- totalResults(roar)
+write.table(results, sep="\t", quote=F)
+                        
+# filteredResults <- filteredResults(roar, p.cutoff=1, method="Bonferroni", expr.cutoff="median") 
 # Hopefully this will be more flexible that this, being able of getting a function and not 
 # a string to define the method to filter out not expressed genes.

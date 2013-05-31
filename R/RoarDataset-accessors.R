@@ -104,6 +104,18 @@ setMethod("computePvals", signature(rds="RoarDataset"),
    }
 )
 
+setMethod("totalResults", signature(rds="RoarDataset"),
+   function(rds){
+      return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
+                        mM_right=assay(rds,2)[,"right_pre"], 
+                        mM_left=assay(rds,2)[,"right_post"],
+                        roar=assay(rds,2)[,"left_pre"],
+                        pval=assay(rds,2)[,"left_post"]))
+   }
+)
+
+# TODO ADD check on order of function calls!
+
 # Simple getters and setters. Arf Arf!
 setMethod("cores",  signature(rds="RoarDataset"),
    function(rds) {
