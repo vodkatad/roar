@@ -56,7 +56,12 @@ roar <- RoarDataset(rightBams, leftBams, opt$gtf)
 roar <- countPrePost(roar)
 
 # Get m/M and Roar
+roar <- computeRoars(roar)
 
 # Fisher test
+roar <- computePvals(roar) 
 
 # Filter results based on PRE counts and bonferroni p-value correction
+results <- formatResults(roar, p.cutoff=1, method="Bonferroni", expr.cutoff="median") 
+# Hopefully this will be more flexible that this, being able of getting a function and not 
+# a string to define the method to filter out not expressed genes.
