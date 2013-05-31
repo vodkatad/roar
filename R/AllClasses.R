@@ -2,9 +2,10 @@
 setClass( "RoarDataset",
           contains = "SummarizedExperiment", # Superclasses
           representation = representation( # Slots
-             rightBams = "list", #list of GappedAlignments (were)
+             rightBams = "list",  #list of GappedAlignments 
              leftBams = "list",
              prePostCoords = "GRanges",
+             postCoords = "GRanges",
              cores = "numeric"
           )
 #validity=function(roc) length(roc@sens)==length(roc@mspec)
