@@ -66,18 +66,18 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       #roar = (m/M_right)/(m/M_left)
       # We must obtain the list of lengths from rds@postCoords and rowData(rds) (which is pre).
       preLen <- end(rowData(rds)) - start(rowData(rds))
-      postLen <- end(rds@postCoords) - end(rds@postCoords)
+      postLen <- end(rds@postCoords) - start(rds@postCoords)
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
       if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
-         corrRight <- mean(qwidth(r@rightBams[[1]]))
+         corrRight <- mean(qwidth(rds@rightBams[[1]]))
          # qwidth(x): Returns an integer vector of length length(x) containing the length 
          # of the query *after* hard clipping (i.e. the length of the query sequence 
          # that is stored in the corresponding SAM/BAM record).
-         corrLeft <- mean(qwidth(r@leftBams[[1]]))
+         corrLeft <- mean(qwidth(rds@leftBams[[1]]))
          postLenRight <- postLen + corrRight - 1
          postLenLeft <- postLen + corrLeft - 1
-         mMright <- (assay(rds,1)[,"right_pre"]*preLen)/(assay(rds,1)[,"right_post"]*postLenRight)-1
-         mMleft <- (assay(rds,1)[,"left_pre"]*preLen)/(assay(rds,1)[,"left_post"]*postLenLeft)-1
+         mMright <- (assay(rds,1)[,"right_pre"]*postLenRight)/(assay(rds,1)[,"right_post"]*preLen)-1
+         mMleft <- (assay(rds,1)[,"left_pre"]*postLenLeft)/(assay(rds,1)[,"left_post"]*preLen)-1
          roar <- mMright / mMleft
          pVal <- rep(1, length(roar))
          assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))

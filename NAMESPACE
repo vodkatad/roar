@@ -5,9 +5,15 @@ import(GenomicRanges, rtracklayer, Rsamtools) # importFrom(foo, f, g) to be more
 exportClasses("RoarDataset")
 
 export(
-  CreateRoarDataset 
+  RoarDataset 
 )
 
-#exportMethods(
-#)
+exportMethods(
+   countPrePost,
+   computeRoars,
+   computePvals,
+   totalResults,
+   cores,
+   "cores<-"
+)
 

@@ -1,9 +1,10 @@
 Package: roar
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Identify differential APA usage from RNAseq alignment data
+Version: 0.1.1
 Date: 2013-05-04
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Author: Elena Grassi
+Maintainer: Elena Grassi <grassi.e@gmail.com>
 Description: More about what it does (maybe more than one line)
-License: What license is it under?
+License: GPL
+Imports: GenomicRanges, Rsamtools, rtracklayer

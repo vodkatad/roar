@@ -4,6 +4,6 @@ get_fisher <- function(counts) {
    # Reminders:
    #colnames(mat) <- c('right', 'left')
    #rownames(mat) <- c('PRE', 'POST')
-   f <- fisher.test(as.table(mat), alt="two.sided")
+   f <- fisher.test(as.table(mat), alternative="two.sided")
    return(f$p.value)
 }
