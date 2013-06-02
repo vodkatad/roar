@@ -10,7 +10,8 @@ RoarDataset <- function(rightBams, leftBams, gtf) {
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    #rightBamsGenomicAlignments <- BamFileList(rightBams)
    #leftBamsGenomicAlignments <- BamFileList(leftBams)
-   new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, prePostCoords=gtfGRanges, cores=1)
+   new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 
+       prePostCoords=gtfGRanges, step = 0, cores=1)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
@@ -21,11 +22,14 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
       # To me it does not seem nedeed.
+      if (rds@step != 0) {
+         # Warning         
+      }
       summOv <- function(x) {
          summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=T, mc.cores=rds@cores)
       }
       
-      summOv <- function(x) {
+      summOvPost <- function(x) {
          summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=T, mc.cores=rds@cores)
       } 
       
@@ -45,9 +49,9 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          rightSEpost <- summOvPost(rds@rightBams[[1]])
          leftSEpost <- summOvPost(rds@leftBams[[1]])
          assay(se,1)[,"right_pre"] <- assays(rightSE)$counts[preElems,]
-         assay(se,1)[,"right_post"] <- assays(rightSEpost)$counts[postElems,] 
+         assay(se,1)[,"right_post"] <- assays(rightSEpost)$counts 
          assay(se,1)[,"left_pre"] <- assays(leftSE)$counts[preElems,]
-         assay(se,1)[,"left_post"] <- assays(leftSEpost)$counts[postElems,]
+         assay(se,1)[,"left_post"] <- assays(leftSEpost)$counts # is the order conserved?
          rowData(rds) <- rowData(se)
          colData(rds) <- colData(se)
          assays(rds) <- assays(se)
@@ -59,13 +63,18 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          #summarizedRight <- lapply(rds@rightBamsGenomicAlignments, summOv)
          #summarizedLeft <- lapply(rds@leftBamsGenomicAlignments, summOv)
       }
-      
+      rds@step <- 1;
       return(rds)
    }
 )
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
    function(rds){
+      if (rds@step < 1) {
+         rds <- countPrePost(rds)         
+      } else {
+         # warning
+      }
       # roar is the m/M of right condition divided by the m/M of the left one.
       # m/M = ((Lpost*Cpre)/(Lpre*Cpost))-1
       # Negative m/M are discarded.
@@ -91,12 +100,22 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          stop("TODO")
       }
       names(assays(rds)) <- c("counts", "stats")
+      rds@step <- 2
       return(rds)
    }
 )
 
 setMethod("computePvals", signature(rds="RoarDataset"),
    function(rds){
+      if (rds@step < 2) {
+         if (rds@step < 1) {
+            rds <- countPrePost(rds)         
+         }
+         rds <- computeRoars(rds)
+      } else {
+         # warning
+      }
+      # Or for results we want to be flexible?
       if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
          if (cores(rds) == 1) {
             assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, get_fisher)
@@ -106,12 +125,25 @@ setMethod("computePvals", signature(rds="RoarDataset"),
       } else {      
          stop("TODO")
       }
+      rds@step <- 3
       return(rds)
    }
 )
 
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds){
+      if (rds@step < 3) {
+         if (rds@step < 1) {
+            rds <- countPrePost(rds)         
+         }
+         if (rds@step < 2) {
+            rds <- computeRoars(rds)         
+         }
+         rds <- computePvals(rds)
+      } else {
+         # warning
+      }
+      rds@step <- 4
       return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
                         mM_right=assay(rds,2)[,"right_pre"], 
                         mM_left=assay(rds,2)[,"right_post"],

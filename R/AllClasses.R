@@ -6,6 +6,7 @@ setClass( "RoarDataset",
              leftBams = "list",
              prePostCoords = "GRanges",
              postCoords = "GRanges",
+             step = "numeric",
              cores = "numeric"
           )
 #validity=function(roc) length(roc@sens)==length(roc@mspec)
