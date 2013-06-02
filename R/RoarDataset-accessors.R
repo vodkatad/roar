@@ -22,7 +22,11 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       #} # Why is this needed? Is it needed?
       # To me it does not seem nedeed.
       summOv <- function(x) {
-         summarizeOverlaps(features=rds@prePostCoords, reads=x, mode='Union', ignore.strand=T, mc.cores=rds@coresproa)
+         summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=T, mc.cores=rds@cores)
+      }
+      
+      summOv <- function(x) {
+         summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=T, mc.cores=rds@cores)
       } 
       
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.
@@ -38,10 +42,12 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          )
          rightSE <- summOv(rds@rightBams[[1]])
          leftSE <- summOv(rds@leftBams[[1]])  
+         rightSEpost <- summOvPost(rds@rightBams[[1]])
+         leftSEpost <- summOvPost(rds@leftBams[[1]])
          assay(se,1)[,"right_pre"] <- assays(rightSE)$counts[preElems,]
-         assay(se,1)[,"right_post"] <- assays(rightSE)$counts[postElems,]
+         assay(se,1)[,"right_post"] <- assays(rightSEpost)$counts[postElems,] 
          assay(se,1)[,"left_pre"] <- assays(leftSE)$counts[preElems,]
-         assay(se,1)[,"left_post"] <- assays(leftSE)$counts[postElems,]
+         assay(se,1)[,"left_post"] <- assays(leftSEpost)$counts[postElems,]
          rowData(rds) <- rowData(se)
          colData(rds) <- colData(se)
          assays(rds) <- assays(se)
