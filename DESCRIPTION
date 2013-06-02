@@ -5,6 +5,7 @@ Version: 0.1.1
 Date: 2013-05-04
 Author: Elena Grassi
 Maintainer: Elena Grassi <grassi.e@gmail.com>
-Description: More about what it does (maybe more than one line)
-License: GPL
-Imports: GenomicRanges, Rsamtools, rtracklayer
+Description: More about what it does (maybe more than one line), only
+   one paragraph
+License: GPL-3
+Depends: GenomicRanges, Rsamtools, rtracklayer
