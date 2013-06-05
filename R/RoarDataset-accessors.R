@@ -22,9 +22,11 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
       # To me it does not seem nedeed.
-      if (rds@step != 0) {
-         # Warning         
+      goOn <- checkStep(rds, 0)
+      if (!goOn[[1]]) {
+         return(rds)
       }
+      rds <- goOn[[2]]
       summOv <- function(x) {
          summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=T, mc.cores=rds@cores)
       }
@@ -70,11 +72,16 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
    function(rds){
-      if (rds@step < 1) {
-         rds <- countPrePost(rds)         
-      } else {
-         # warning
+      #if (rds@step < 1) {
+      #   rds <- countPrePost(rds)         
+      #} else {
+      #   # warning
+      #}
+      goOn <- checkStep(rds, 1)
+      if (!goOn[[1]]) {
+         return(rds)
       }
+      rds <- goOn[[2]]
       # roar is the m/M of right condition divided by the m/M of the left one.
       # m/M = ((Lpost*Cpre)/(Lpre*Cpost))-1
       # Negative m/M are discarded.
@@ -107,15 +114,19 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
 
 setMethod("computePvals", signature(rds="RoarDataset"),
    function(rds){
-      if (rds@step < 2) {
-         if (rds@step < 1) {
-            rds <- countPrePost(rds)         
-         }
-         rds <- computeRoars(rds)
-      } else {
-         # warning
+#       if (rds@step < 2) {
+#          if (rds@step < 1) {
+#             rds <- countPrePost(rds)         
+#          }
+#          rds <- computeRoars(rds)
+#       } else {
+#          # warning
+#       }
+      goOn <- checkStep(rds, 2)
+      if (!goOn[[1]]) {
+         return(rds)
       }
-      # Or for results we want to be flexible?
+      rds <- goOn[[2]]
       if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
          if (cores(rds) == 1) {
             assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, get_fisher)
@@ -132,17 +143,19 @@ setMethod("computePvals", signature(rds="RoarDataset"),
 
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds){
-      if (rds@step < 3) {
-         if (rds@step < 1) {
-            rds <- countPrePost(rds)         
-         }
-         if (rds@step < 2) {
-            rds <- computeRoars(rds)         
-         }
-         rds <- computePvals(rds)
-      } else {
-         # warning
-      }
+#       if (rds@step < 3) {
+#          if (rds@step < 1) {
+#             rds <- countPrePost(rds)         
+#          }
+#          if (rds@step < 2) {
+#             rds <- computeRoars(rds)         
+#          }
+#          rds <- computePvals(rds)
+#       } else {
+#          # warning
+#       }
+      goOn <- checkStep(rds, 3)
+      rds <- goOn[[2]]
       rds@step <- 4
       return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
                         mM_right=assay(rds,2)[,"right_pre"], 
@@ -152,7 +165,11 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    }
 )
 
-# TODO ADD check on order of function calls!
+setMethod("filteredResults", signature(rds="RoarDataset"),
+   function(rds){
+      df <- totalResults(rds)
+   }
+)
 
 # Simple getters and setters. Arf Arf!
 setMethod("cores",  signature(rds="RoarDataset"),
