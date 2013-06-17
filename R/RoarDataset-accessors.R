@@ -2,10 +2,10 @@
 # R/AllGenerics.R contains the signature of the not overriding methods.
 
 RoarDataset <- function(rightBams, leftBams, gtf) {
-   genome = "hg19" # FIXME
+   # genome = "hg19" # FIXME
    # The format will be assumed using the file extension. Will work everytime?
    # Do we force hg19?
-   gtfGRanges<- import(gtf, genome=genome, asRangedData=F)
+   gtfGRanges<- import(gtf, asRangedData=F)
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    #rightBamsGenomicAlignments <- BamFileList(rightBams)
