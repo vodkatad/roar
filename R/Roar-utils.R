@@ -11,14 +11,20 @@ get_fisher <- function(counts) {
 checkStep <- function(rds, neededStep) {
    if (rds@step > neededStep) { # Already done, not repeating. Give a reset method?
       # Warning
+      warning("Not repeating a step already done")
       return(c(FALSE, rds)) # We hope in promotion.
    } else if (rds@step < neededStep) { # Something is missing
-      while (neededStep != rds@step) {
-         switch(neededStep,
-            1= { rds <- countPrePost(rds) },
-            2= { rds <- computeRoars(rds) },
-            3= { rds <- computePvals(rds) }
-         )
+      if (neededStep != rds@step) {
+         if (neededStep == 1) {
+            warning("Automatically calling countPrePost")
+            rds <- countPrePost(rds)    
+         } else if (neededStep == 2) {
+            warning("Automatically calling computeRoars")
+            rds <- computeRoars(rds)
+         } else if (neededStep == 3) {
+            warning("Automatically calling computePvals")
+            rds <- computePvals(rds)
+         }
       }
    } 
    return(c(TRUE, rds))

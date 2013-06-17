@@ -156,7 +156,6 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 #       }
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
-      rds@step <- 4
       return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
                         mM_right=assay(rds,2)[,"right_pre"], 
                         mM_left=assay(rds,2)[,"right_post"],
