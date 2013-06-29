@@ -2,9 +2,8 @@
 # R/AllGenerics.R contains the signature of the not overriding methods.
 
 RoarDataset <- function(rightBams, leftBams, gtf) {
-   # genome = "hg19" # FIXME
    # The format will be assumed using the file extension. Will work everytime?
-   # Do we force hg19?
+   # Do we need to force a genome(eg. hg19)? It doesn't seem so.
    gtfGRanges<- import(gtf, asRangedData=F)
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
@@ -72,11 +71,6 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
    function(rds){
-      #if (rds@step < 1) {
-      #   rds <- countPrePost(rds)         
-      #} else {
-      #   # warning
-      #}
       goOn <- checkStep(rds, 1)
       if (!goOn[[1]]) {
          return(rds)
@@ -114,14 +108,6 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
 
 setMethod("computePvals", signature(rds="RoarDataset"),
    function(rds){
-#       if (rds@step < 2) {
-#          if (rds@step < 1) {
-#             rds <- countPrePost(rds)         
-#          }
-#          rds <- computeRoars(rds)
-#       } else {
-#          # warning
-#       }
       goOn <- checkStep(rds, 2)
       if (!goOn[[1]]) {
          return(rds)
@@ -143,17 +129,6 @@ setMethod("computePvals", signature(rds="RoarDataset"),
 
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds){
-#       if (rds@step < 3) {
-#          if (rds@step < 1) {
-#             rds <- countPrePost(rds)         
-#          }
-#          if (rds@step < 2) {
-#             rds <- computeRoars(rds)         
-#          }
-#          rds <- computePvals(rds)
-#       } else {
-#          # warning
-#       }
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
       return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
@@ -164,11 +139,18 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    }
 )
 
-setMethod("filteredResults", signature(rds="RoarDataset"),
+# This function will add to the totalResults dataframe counts of the pre portions, then
+# the user will be able to apply its preferred filtering/pvalue correction strategy.
+setMethod("filteringInfoResults", signature(rds="RoarDataset"),
    function(rds){
       df <- totalResults(rds)
+      df$rightValue <- assay(rds, 1)[,"right_pre"]
+      df$leftValue <- assay(rds, 1)[,"left_pre"]
+      return(df)
    }
 )
+
+# Add a simple function to filter and compute corrected pvalues XXX?
 
 # Simple getters and setters. Arf Arf!
 setMethod("cores",  signature(rds="RoarDataset"),

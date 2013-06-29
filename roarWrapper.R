@@ -14,18 +14,17 @@ checkReadable <- function(filename) {
 
 # To understand at least something about occurred errors.
 # In this way it goes further on after the first error. TODO avoid this!
-options(error=traceback) 
-
-library(getopt)
-library(roar)
+# options(error=traceback) 
 
 arguments <- matrix(c(
    'help', 'h', 0, "logical",
+   'debug', 'd', 1, "character",
    'gtf' , 'a', 1, "character",
    'right'  , 'r', 1, "character",
    'left'  , 'l', 1, "character"
 ), ncol=4, byrow=T)
 
+library(getopt)
 opt <- getopt(arguments)
 
 if (!is.null(opt$help)) {
@@ -40,6 +39,7 @@ if (is.null(opt$right) | is.null(opt$left)) {
    stop("Missing right or left [-r, -l followed by comma separated bam files] param")
 }
 
+library(roar)
 rightBams = as.vector(unlist(strsplit(opt$right, ",")))
 leftBams = as.vector(unlist(strsplit(opt$left, ",")))
 
@@ -63,9 +63,15 @@ roar <- computeRoars(roar)
 roar <- computePvals(roar) 
 
 # Filter results based on PRE counts and bonferroni p-value correction
-results <- totalResults(roar)
+results <- filteringInfoResults(roar)
 write.table(results, sep="\t", quote=F)
-                        
+         
+
+if (!is.null(opt$debug)) {
+   save.image(file=opt$debug)
+}
+
 # filteredResults <- filteredResults(roar, p.cutoff=1, method="Bonferroni", expr.cutoff="median") 
 # Hopefully this will be more flexible that this, being able of getting a function and not 
 # a string to define the method to filter out not expressed genes.
+# XXX Do we need this?
