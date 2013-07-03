@@ -4,10 +4,13 @@ then test that function
 http://www.bioconductor.org/developers/unitTesting-guidelines/
 http://www.johnmyleswhite.com/notebook/2010/08/17/unit-testing-in-r-the-bare-minimum/
 
-         install.packages("RUnit")
-source("http://bioconductor.org/biocLite.R")
-biocLite("BiocGenerics")
+library(RUnit)
+library(MyPackage)
 
+source('../R/divideBy.R')
+source('unitTests/test_divideBy.R')
+test_divideBy()
+[1] TRUE
 
 write vignette
 
