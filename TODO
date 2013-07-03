@@ -1,0 +1,48 @@
+write .Rd foreach function 
+then test that function
+-> write tests!
+http://www.bioconductor.org/developers/unitTesting-guidelines/
+http://www.johnmyleswhite.com/notebook/2010/08/17/unit-testing-in-r-the-bare-minimum/
+
+         install.packages("RUnit")
+source("http://bioconductor.org/biocLite.R")
+biocLite("BiocGenerics")
+
+
+write vignette
+
+indagare:
+Warning: replacing previous import ‘coerce’ when loading ‘rtracklayer’
+Warning: replacing previous import ‘show’ when loading ‘rtracklayer’
+
+librerie strand specific:
+ignore.strand=FALSE
+basta metterlo a TRUE. Decidere come farlo architetturalmente.
+
+
+-> other RoarDataset constructors not from filenames?
+-> last results function (standard filtering..maybe in the wrapper/vignette)
+
+* checking for unstated dependencies in R code ... WARNING
+package ‘methods’ is used but not declared
+
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  ‘checkStep’ ‘computePvals’ ‘computeRoars’ ‘cores’ ‘cores<-’
+  ‘countPrePost’ ‘filteringInfoResults’ ‘get_fisher’ ‘totalResults’
+Undocumented S4 classes:
+  ‘RoarDataset’
+Undocumented S4 methods:
+  generic 'computePvals' and siglist 'RoarDataset'
+  generic 'computeRoars' and siglist 'RoarDataset'
+  generic 'cores' and siglist 'RoarDataset'
+  generic 'cores<-' and siglist 'RoarDataset,numeric'
+  generic 'countPrePost' and siglist 'RoarDataset'
+  generic 'filteringInfoResults' and siglist 'RoarDataset'
+  generic 'totalResults' and siglist 'RoarDataset'
+All user-level objects in a package (including S4 classes and methods)
+should have documentation entries.
+
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
