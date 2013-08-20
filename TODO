@@ -1,3 +1,22 @@
+The setClass function returns a special function called a constructor, that can
+be used to create an instance of the class.
+slots and not representation (deprecated)
+
+scrivere lo show per i RoarDataset
+aggiungere ... ai SetGeneric 
+
+The readGappedAlignments function takes an additional argument, param, allowing the user to specify
+regions of the BAM file (e.g., known gene coordinates)
+
+> strand(aln) <- "*"
+# protocol not strand-aware
+
+The counts in one BAM file are independent of counts in another BAM file. This encourages us to count
+reads in each BAM file in parallel, decreasing the length of time required to execute our program. 
+
+> param <- ScanBamParam(what=c("rname", "pos", "cigar"), which=gns)
+gns is a Granges object -----> write tests and then add this to check.
+
 write .Rd foreach function 
 then test that function
 -> write tests!

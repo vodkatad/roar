@@ -139,18 +139,23 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    }
 )
 
-# This function will add to the totalResults dataframe counts of the pre portions, then
+# This function will add to the totalResults dataframe RPKM gotten on the pre portions, then
 # the user will be able to apply its preferred filtering/pvalue correction strategy.
+# RPKM are gotten from counts over the PRE portions working on means across replicates.
+# As total number of mapped reads we use the total number of reads mapped over all PRE portions.
 setMethod("filteringInfoResults", signature(rds="RoarDataset"),
    function(rds){
       df <- totalResults(rds)
-      df$rightValue <- assay(rds, 1)[,"right_pre"]
-      df$leftValue <- assay(rds, 1)[,"left_pre"]
+      preLen <- end(rowData(rds)) - start(rowData(rds))
+      sumPreRight <- sum(assay(rds, 1)[,"right_pre"])
+      sumPreLeft <- sum(assay(rds, 1)[,"left_pre"])
+      df$rightValue <- (assay(rds, 1)[,"right_pre"]*1000000000)/(preLen*sumPreRight)
+      df$leftValue <- (assay(rds, 1)[,"left_pre"]*1000000000)/(preLen*sumPreLeft)
       return(df)
    }
 )
 
-# Add a simple function to filter and compute corrected pvalues XXX?
+# Add a simple function to filter and compute corrected pvalues TODO
 
 # Simple getters and setters. Arf Arf!
 setMethod("cores",  signature(rds="RoarDataset"),

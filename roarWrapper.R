@@ -44,8 +44,7 @@ rightBams = as.vector(unlist(strsplit(opt$right, ",")))
 leftBams = as.vector(unlist(strsplit(opt$left, ",")))
 
 if (length(rightBams) > 1 || length(leftBams) > 1) {
-   warning(c("Statistical analysis for replicates right now is not fully implemented.\n", 
-            "Simple sum of counts will be used to determine the p-value for the Fisher test."))
+   warning("Statistical analysis for replicates right now is not fully implemented.")
 }
 
 if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
@@ -62,16 +61,12 @@ roar <- computeRoars(roar)
 # Fisher test
 roar <- computePvals(roar) 
 
-# Filter results based on PRE counts and bonferroni p-value correction
+# Obtain results with FPKM info for filtering and p-value correction
 results <- filteringInfoResults(roar)
 write.table(results, sep="\t", quote=F)
          
+# XXX TODO FILTER AND CORRECTION.
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
 }
-
-# filteredResults <- filteredResults(roar, p.cutoff=1, method="Bonferroni", expr.cutoff="median") 
-# Hopefully this will be more flexible that this, being able of getting a function and not 
-# a string to define the method to filter out not expressed genes.
-# XXX Do we need this?
