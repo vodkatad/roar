@@ -64,8 +64,6 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          assays(rds) <- assays(se)
          names(assays(rds)) <- "counts"
       } else {
-         # Ideally here will wet counts for all right and left bams, compute means and totals
-         # and obtain a SE with 2 assays, called means and totals.
          # As long as we need all the raw counts for the Fisher tests it is better to
          # keep them here as separate assays and compute (and keep) means in the computeRoar function.
          # The structure here is different from the single sample case for each condition, we will
@@ -77,24 +75,27 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          # ma <- matrix(nrow=5, ncol=2)
          # test <- list(ma, ma)
          # testse <- SummarizedExperiment(assays=test, rowData=gtfGRanges[c(1,2,3,4,5)], colData=DataFrame(row.names=c("a","b")))
-         counts <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
-                                    rowData=preCoords, 
-                                    colData=DataFrame(row.names=c("pre","post"))
+         countsLeft <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
+                                            rowData=preCoords, 
+                                            colData=DataFrame(row.names=c("pre","post"))
+         countsRight <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
+                                             rowData=preCoords, 
+                                             colData=DataFrame(row.names=c("pre","post"))
          )
          for (i in 1:length(rds@rightBams)) {
             rightSE <- summOv(rds@rightBams[[i]])
             rightSEpost <- summOvPost(rds@rightBams[[i]])
-            assay(counts,i)[,"pre"] <- assays(rightSE)$counts[preElems,]
-            assay(counts,i)[,"post"] <- assays(rightSEpost)$counts 
+            assay(countsRight,i)[,"pre"] <- assays(rightSE)$counts[preElems,]
+            assay(countsRight,i)[,"post"] <- assays(rightSEpost)$counts 
          }
          for (i in 1:length(rds@leftBams)) {
             leftSE <- summOv(rds@leftBams[[i]])
             leftSEpost <- summOvPost(rds@leftBams[[i]])
-            assay(counts,i)[,"pre"] <- assays(leftSE)$counts[preElems,]
-            assay(counts,i)[,"post"] <- assays(leftSEpost)$counts 
+            assay(countsLeft,i)[,"pre"] <- assays(leftSE)$counts[preElems,]
+            assay(countsLeft,i)[,"post"] <- assays(leftSEpost)$counts 
          }
-         rds@counts <- counts
-         names(assays(rds@counts)) <- "multiple_counts"
+         rds@countsRight <- countsRight
+         rds@countsLeft <- countsLeft
       }
       rowData(rds) <- rowData(se)
       colData(rds) <- colData(se)
@@ -123,22 +124,29 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       preLen <- end(rowData(rds)) - start(rowData(rds))
       postLen <- end(rds@postCoords) - start(rds@postCoords)
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
-      if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
-         corrRight <- mean(qwidth(rds@rightBams[[1]]))
-         # qwidth(x): Returns an integer vector of length length(x) containing the length 
-         # of the query *after* hard clipping (i.e. the length of the query sequence 
-         # that is stored in the corresponding SAM/BAM record).
-         corrLeft <- mean(qwidth(rds@leftBams[[1]]))
-         postLenRight <- postLen + corrRight - 1
-         postLenLeft <- postLen + corrLeft - 1
-         mMright <- (assay(rds,1)[,"right_pre"]*postLenRight)/(assay(rds,1)[,"right_post"]*preLen)-1
-         mMleft <- (assay(rds,1)[,"left_pre"]*postLenLeft)/(assay(rds,1)[,"left_post"]*preLen)-1
-         roar <- mMright / mMleft
-         pVal <- rep(1, length(roar))
-         assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
-      } else {      
-         stop("TODO")
+      if (length(rds@rightBams) > 1 || length(rds@leftBams) > 1) {
+         # Compute means and put them in place for roar calculations (in the rds-se object).
+         # meanAcrossAssays given a list/SimpleList of assays performs the mean on a 
+         # given col name (ie. "pre").
+         # lapply(assays(testse), function(x) { x[,"a"]})
+         # rowMeans(as.data.frame(a))
+         assay(rds,1)[,"right_pre"] <- meanByRow(assays(rds@countsRight), "pre")
+         assay(rds,1)[,"right_post"] <- meanByRow(assays(rds@countsRight),"post")
+         assay(rds,1)[,"left_pre"] <- meanByRow(assays(rds@countsLeft), "pre")
+         assay(rds,1)[,"left_post"] <- meanByRow(assays(rds@countsLeft), "post")
       }
+      corrRight <- mean(qwidth(rds@rightBams[[1]]))
+      # qwidth(x): Returns an integer vector of length length(x) containing the length 
+      # of the query *after* hard clipping (i.e. the length of the query sequence 
+      # that is stored in the corresponding SAM/BAM record).
+      corrLeft <- mean(qwidth(rds@leftBams[[1]]))
+      postLenRight <- postLen + corrRight - 1
+      postLenLeft <- postLen + corrLeft - 1
+      mMright <- (assay(rds,1)[,"right_pre"]*postLenRight)/(assay(rds,1)[,"right_post"]*preLen)-1
+      mMleft <- (assay(rds,1)[,"left_pre"]*postLenLeft)/(assay(rds,1)[,"left_post"]*preLen)-1
+      roar <- mMright / mMleft
+      pVal <- rep(1, length(roar))
+      assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
       names(assays(rds)) <- c("counts", "stats")
       rds@step <- 2
       return(rds)
@@ -154,7 +162,7 @@ setMethod("computePvals", signature(rds="RoarDataset"),
              rds <- goOn[[2]]
              if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
                 if (cores(rds) == 1) {
-                   assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, get_fisher)
+                   assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, getFisher)
                 } else {
                    stop("TODO")
                 }
