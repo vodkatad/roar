@@ -29,7 +29,6 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       summOv <- function(x) {
          summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=stranded, mc.cores=rds@cores)
       }
-      
       summOvPost <- function(x) {
          summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=stranded, mc.cores=rds@cores)
       } 
@@ -40,30 +39,70 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       postElems <- grep("_POST", elementMetadata(rds@prePostCoords)$gene_id)
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
-      if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
-         se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
-                                    rowData=preCoords, 
-                                    colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
-         )
+      se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
+                                 rowData=preCoords, 
+                                 colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+      )
+      if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
+         # We obtain counts for both conditions on PRE and POST coords.
          rightSE <- summOv(rds@rightBams[[1]])
-         leftSE <- summOv(rds@leftBams[[1]])  
+         leftSE <- summOv(rds@leftBams[[1]])    
+         # We obtain counts for both conditions only on POST coords (notwithstanding overlap with PRE) -
+         # this is needed to implement the prefer-POST policy where a read overlapping PRE and POST
+         # is counted on the POST portion (it has to be derived from a long isoform).
+         # Note that in the first case we need to use the whole gtf with PRE and POST to avoid
+         # assigning to PRE the overlapping reads, even if the counts on POST gotten afterwards
+         # will be discarded.
          rightSEpost <- summOvPost(rds@rightBams[[1]])
          leftSEpost <- summOvPost(rds@leftBams[[1]])
          assay(se,1)[,"right_pre"] <- assays(rightSE)$counts[preElems,]
          assay(se,1)[,"right_post"] <- assays(rightSEpost)$counts 
          assay(se,1)[,"left_pre"] <- assays(leftSE)$counts[preElems,]
-         assay(se,1)[,"left_post"] <- assays(leftSEpost)$counts # is the order conserved?
+         assay(se,1)[,"left_post"] <- assays(leftSEpost)$counts # Is the order conserved?
          rowData(rds) <- rowData(se)
          colData(rds) <- colData(se)
          assays(rds) <- assays(se)
          names(assays(rds)) <- "counts"
       } else {
-         stop("TODO")
          # Ideally here will wet counts for all right and left bams, compute means and totals
          # and obtain a SE with 2 assays, called means and totals.
-         #summarizedRight <- lapply(rds@rightBamsGenomicAlignments, summOv)
-         #summarizedLeft <- lapply(rds@leftBamsGenomicAlignments, summOv)
+         # As long as we need all the raw counts for the Fisher tests it is better to
+         # keep them here as separate assays and compute (and keep) means in the computeRoar function.
+         # The structure here is different from the single sample case for each condition, we will
+         # see if it will be enough general to be used even there. Right now I ought to fallback
+         # to that structure with the average counts.
+         len <- length(rds@rightBams) + length(rds@leftBams)
+         # Do we need preallocation for the list of matrixes?
+         # x <- vector(mode = "list", length = 10)
+         # ma <- matrix(nrow=5, ncol=2)
+         # test <- list(ma, ma)
+         # testse <- SummarizedExperiment(assays=test, rowData=gtfGRanges[c(1,2,3,4,5)], colData=DataFrame(row.names=c("a","b")))
+         counts <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
+                                    rowData=preCoords, 
+                                    colData=DataFrame(row.names=c("pre","post"))
+         )
+         for (i in 1:length(rds@rightBams)) {
+            rightSE <- summOv(rds@rightBams[[i]])
+            rightSEpost <- summOvPost(rds@rightBams[[i]])
+            assay(counts,i)[,"pre"] <- assays(rightSE)$counts[preElems,]
+            assay(counts,i)[,"post"] <- assays(rightSEpost)$counts 
+         }
+         for (i in 1:length(rds@leftBams)) {
+            leftSE <- summOv(rds@leftBams[[i]])
+            leftSEpost <- summOvPost(rds@leftBams[[i]])
+            assay(counts,i)[,"pre"] <- assays(leftSE)$counts[preElems,]
+            assay(counts,i)[,"post"] <- assays(leftSEpost)$counts 
+         }
+         rds@counts <- counts
+         names(assays(rds@counts)) <- "multiple_counts"
       }
+      rowData(rds) <- rowData(se)
+      colData(rds) <- colData(se)
+      assays(rds) <- assays(se)
+      names(assays(rds)) <- "counts"
+      # We keep as "our" rds objects this SE, while those with counts are just slots.
+      # In the case of multiple samples the primary object will be empty right now and will be filled
+      # during the computeRoars step.
       rds@step <- 1;
       return(rds)
    }
@@ -84,7 +123,7 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       preLen <- end(rowData(rds)) - start(rowData(rds))
       postLen <- end(rds@postCoords) - start(rds@postCoords)
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
-      if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
+      if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
          corrRight <- mean(qwidth(rds@rightBams[[1]]))
          # qwidth(x): Returns an integer vector of length length(x) containing the length 
          # of the query *after* hard clipping (i.e. the length of the query sequence 
@@ -107,25 +146,26 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
 )
 
 setMethod("computePvals", signature(rds="RoarDataset"),
-   function(rds){
-      goOn <- checkStep(rds, 2)
-      if (!goOn[[1]]) {
-         return(rds)
-      }
-      rds <- goOn[[2]]
-      if (length(rds@rightBams) == 1 && length(rds@leftBams)) {
-         if (cores(rds) == 1) {
-            assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, get_fisher)
-         } else {
-            stop("TODO")
-         }
-      } else {      
-         stop("TODO")
-      }
-      rds@step <- 3
-      return(rds)
-   }
+          function(rds){
+             goOn <- checkStep(rds, 2)
+             if (!goOn[[1]]) {
+                return(rds)
+             }
+             rds <- goOn[[2]]
+             if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
+                if (cores(rds) == 1) {
+                   assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, get_fisher)
+                } else {
+                   stop("TODO")
+                }
+             } else {      
+                stop("TODO")
+             }
+             rds@step <- 3
+             return(rds)
+          }
 )
+
 
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds){

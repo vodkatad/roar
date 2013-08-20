@@ -59,7 +59,7 @@ roar <- countPrePost(roar)
 roar <- computeRoars(roar)
 
 # Fisher test
-roar <- computePvals(roar) 
+roar <- computePvals(roar)
 
 # Obtain results with FPKM info for filtering and p-value correction
 results <- filteringInfoResults(roar)
