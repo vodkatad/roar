@@ -1,6 +1,6 @@
 getFisher <- function(counts) {
    # right_pre right_post left_pre left_post
-   mat <- matrix(counts, ncol=2)
+   mat <- matrix(counts, ncol=2, byrow=FALSE)
    # Reminders:
    #colnames(mat) <- c('right', 'left')
    #rownames(mat) <- c('PRE', 'POST')
@@ -28,4 +28,11 @@ checkStep <- function(rds, neededStep) {
       }
    } 
    return(c(TRUE, rds))
+}
+
+meanAcrossAssays <- function(assays, wantedColumns) {
+   # Is the conversion to dataframe slow? Is there a more efficient way without
+   # changing the SE/Assays structure?
+   wantedCols <- lapply(assays, function(x) { x[,wantedColumns] } )
+   return(rowMeans(as.data.frame(wantedCols)))
 }

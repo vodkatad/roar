@@ -130,11 +130,16 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          # given col name (ie. "pre").
          # lapply(assays(testse), function(x) { x[,"a"]})
          # rowMeans(as.data.frame(a))
-         assay(rds,1)[,"right_pre"] <- meanByRow(assays(rds@countsRight), "pre")
-         assay(rds,1)[,"right_post"] <- meanByRow(assays(rds@countsRight),"post")
-         assay(rds,1)[,"left_pre"] <- meanByRow(assays(rds@countsLeft), "pre")
-         assay(rds,1)[,"left_post"] <- meanByRow(assays(rds@countsLeft), "post")
+         assay(rds,1)[,"right_pre"] <- meanAcrossAssays(assays(rds@countsRight), "pre")
+         assay(rds,1)[,"right_post"] <- meanAcrossAssays(assays(rds@countsRight),"post")
+         assay(rds,1)[,"left_pre"] <- meanAcrossAssays(assays(rds@countsLeft), "pre")
+         assay(rds,1)[,"left_post"] <- meanAcrossAssays(assays(rds@countsLeft), "post")
       }
+      # Ok, now if we had a single sample for both conditions we had the data charged in
+      # countPrePost, otherwise we have the means (in the same SE/RDS object).
+      # If there is a single sample for one condition and more than one for the other there is
+      # a little (I hope) unuseful overload to get the mean for the single sample. 
+      # The countsRight/Left slot are still kept as long as we will need them in computePvals.
       corrRight <- mean(qwidth(rds@rightBams[[1]]))
       # qwidth(x): Returns an integer vector of length length(x) containing the length 
       # of the query *after* hard clipping (i.e. the length of the query sequence 
@@ -154,24 +159,46 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
 )
 
 setMethod("computePvals", signature(rds="RoarDataset"),
-          function(rds){
-             goOn <- checkStep(rds, 2)
-             if (!goOn[[1]]) {
-                return(rds)
-             }
-             rds <- goOn[[2]]
-             if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
-                if (cores(rds) == 1) {
-                   assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, getFisher)
-                } else {
-                   stop("TODO")
-                }
-             } else {      
-                stop("TODO")
-             }
-             rds@step <- 3
-             return(rds)
-          }
+   function(rds){
+      goOn <- checkStep(rds, 2)
+      if (!goOn[[1]]) {
+         return(rds)
+      }
+      rds <- goOn[[2]]
+      if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
+         if (cores(rds) == 1) {
+            assay(rds,2)[,"left_post"] <- apply(assay(rds,1), 1, getFisher)
+         } else {
+            stop("TODO")
+         }
+      } else {      
+         # We have raw counts in two SE slots (countsRight/Left) and need to
+         # compute pvalues for every combination of right/left samples.
+         # We need a function that given two assays returns the fisher pvalue
+         # and we need to pass every combination there. The results will be but
+         # in still another SE slot with a number of columns in the matrix equal to
+         # the number of combinations. The product of all the pvalues will be put in the
+         # rds/SE object in place of the pvalue for the single sample case.
+         countsRightAssays <- assays(rds@countsRight)
+         countsLeftAssays <- assays(rds@countsLeft)
+         nRight <- length(countsRightAssays)
+         nLeft <- length(countsLeftAssays)
+         comparisons <- nRight*nLeft
+         rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
+                                           rowData=rowData(rds), 
+                                           colData=DataFrame(row.names=paste("pvalue_", seq(1,nRight), "_", seq(1,nLeft), sep="")
+         # Ok, I know that we are in R, but these two for seems straightforward to me.
+         for (i in 1:nRight) { # the y
+            for (j in 1:nLeft) { # the x
+               mat <- cbind(countsRightAssays[[i]], countsLeftAssays[[j]])
+               assay(rds@pVals)[,nLeft*(i-1)+j] <- apply(mat, 1, getFisher)
+            }
+         }
+         assays(rds, 2)[,"left_post"] <- apply(ma2, 1, prod)
+      }
+      rds@step <- 3
+      return(rds)
+   }
 )
 
 

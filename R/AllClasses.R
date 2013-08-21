@@ -8,6 +8,7 @@ setClass( "RoarDataset",
              postCoords = "GRanges",
              countsRight = "SummarizedExperiment",
              countsLeft = "SummarizedExperiment",
+             pVals = "SummarizedExperiment",
              step = "numeric",
              cores = "numeric"
           )
