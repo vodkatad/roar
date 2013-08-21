@@ -16,7 +16,7 @@ RoarDataset <- function(rightBams, leftBams, gtf) {
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
 
 setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
-   function(rds){
+   function(rds, stranded){
       #if (!is(rds, "RoarDataset")) {
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
@@ -42,7 +42,7 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
                                  rowData=preCoords, 
                                  colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
-      )
+                                 )
       if (length(rds@rightBams) == 1 && length(rds@leftBams) == 1) {
          # We obtain counts for both conditions on PRE and POST coords.
          rightSE <- summOv(rds@rightBams[[1]])
@@ -78,10 +78,12 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          countsLeft <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
                                             rowData=preCoords, 
                                             colData=DataFrame(row.names=c("pre","post"))
+                                            )
          countsRight <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
                                              rowData=preCoords, 
                                              colData=DataFrame(row.names=c("pre","post"))
-         )
+                                             )
+
          for (i in 1:length(rds@rightBams)) {
             rightSE <- summOv(rds@rightBams[[i]])
             rightSEpost <- summOvPost(rds@rightBams[[i]])
@@ -186,7 +188,8 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          comparisons <- nRight*nLeft
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
                                            rowData=rowData(rds), 
-                                           colData=DataFrame(row.names=paste("pvalue_", seq(1,nRight), "_", seq(1,nLeft), sep="")
+                                           colData=DataFrame(row.names=paste("pvalue_", seq(1,nRight), "_", seq(1,nLeft), sep=""))
+                                          )
          # Ok, I know that we are in R, but these two for seems straightforward to me.
          for (i in 1:nRight) { # the y
             for (j in 1:nLeft) { # the x
@@ -195,22 +198,28 @@ setMethod("computePvals", signature(rds="RoarDataset"),
             }
          }
          assays(rds, 2)[,"left_post"] <- apply(ma2, 1, prod)
+         # Here in theory we could remove countsRight/Left slots, TODO check memory footprint and decide.
       }
       rds@step <- 3
       return(rds)
    }
 )
 
-
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds){
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
-      return(data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
+      res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
                         mM_right=assay(rds,2)[,"right_pre"], 
                         mM_left=assay(rds,2)[,"right_post"],
                         roar=assay(rds,2)[,"left_pre"],
-                        pval=assay(rds,2)[,"left_post"]))
+                        pval=assay(rds,2)[,"left_post"])
+      if (length(rds@rightBams) != 1 || length(rds@leftBams) != 1) {
+         pvals <- data.frame(assay(rds@pvals,1))
+         colnames(pvals) <- rownames(rowData(rds@pvals))
+         res <- cbind(res, pvals)
+      }
+      return(res)
    }
 )
 
