@@ -32,7 +32,7 @@ if (!is.null(opt$help)) {
 }
 
 if (is.null(opt$gtf)) {
-   stop("Missing gtf [-g filename] annotation option\n")
+   stop("Missing gtf [-a filename] annotation option\n")
 }
 
 if (is.null(opt$right) | is.null(opt$left)) {
@@ -53,7 +53,7 @@ if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
 
 # Get counts
 roar <- RoarDataset(rightBams, leftBams, opt$gtf)
-roar <- countPrePost(roar)
+roar <- countPrePost(roar, FALSE)
 
 # Get m/M and Roar
 roar <- computeRoars(roar)
