@@ -28,7 +28,7 @@ library(getopt)
 opt <- getopt(arguments)
 
 if (!is.null(opt$help)) {
-   stop(getopt(arguments, command=get_Rscript_filename(), usage=T))
+   stop(getopt(arguments, command=get_Rscript_filename(), usage=TRUE))
 }
 
 if (is.null(opt$gtf)) {
@@ -43,9 +43,9 @@ library(roar)
 rightBams = as.vector(unlist(strsplit(opt$right, ",")))
 leftBams = as.vector(unlist(strsplit(opt$left, ",")))
 
-if (length(rightBams) > 1 || length(leftBams) > 1) {
-   warning("Statistical analysis for replicates right now is not fully implemented.")
-}
+#if (length(rightBams) > 1 || length(leftBams) > 1) {
+#   warning("Statistical analysis for replicates right now is not fully implemented.")
+#}
 
 if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
@@ -63,7 +63,7 @@ roar <- computePvals(roar)
 
 # Obtain results with FPKM info for filtering and p-value correction
 results <- filteringInfoResults(roar)
-write.table(results, sep="\t", quote=F)
+write.table(results, sep="\t", quote=FALSE)
          
 # XXX TODO FILTER AND CORRECTION.
 

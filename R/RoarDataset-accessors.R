@@ -4,7 +4,7 @@
 RoarDataset <- function(rightBams, leftBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
-   gtfGRanges<- import(gtf, asRangedData=F)
+   gtfGRanges<- import(gtf, asRangedData=FALSE)
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    #rightBamsGenomicAlignments <- BamFileList(rightBams)
@@ -87,12 +87,14 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          for (i in 1:length(rds@rightBams)) {
             rightSE <- summOv(rds@rightBams[[i]])
             rightSEpost <- summOvPost(rds@rightBams[[i]])
+            assay(countsRight,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
             assay(countsRight,i)[,"pre"] <- assays(rightSE)$counts[preElems,]
             assay(countsRight,i)[,"post"] <- assays(rightSEpost)$counts 
          }
          for (i in 1:length(rds@leftBams)) {
             leftSE <- summOv(rds@leftBams[[i]])
             leftSEpost <- summOvPost(rds@leftBams[[i]])
+            assay(countsLeft,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
             assay(countsLeft,i)[,"pre"] <- assays(leftSE)$counts[preElems,]
             assay(countsLeft,i)[,"post"] <- assays(leftSEpost)$counts 
          }
@@ -188,16 +190,20 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          comparisons <- nRight*nLeft
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
                                            rowData=rowData(rds), 
-                                           colData=DataFrame(row.names=paste("pvalue_", seq(1,nRight), "_", seq(1,nLeft), sep=""))
+                                           # To obtain all combination of two vectors (x,y) in the right order:
+                                           # as.vector(t(outer(x,y,paste,sep=""))
+                                           colData=DataFrame(row.names=paste("pvalue_", 
+                                                                             as.vector(t(outer(seq(1,nRight), seq(1,nLeft), paste, sep="_"))),
+                                                                             sep=""))
                                           )
          # Ok, I know that we are in R, but these two for seems straightforward to me.
          for (i in 1:nRight) { # the y
             for (j in 1:nLeft) { # the x
                mat <- cbind(countsRightAssays[[i]], countsLeftAssays[[j]])
-               assay(rds@pVals)[,nLeft*(i-1)+j] <- apply(mat, 1, getFisher)
+               assay(rds@pVals,1)[,nLeft*(i-1)+j] <- apply(mat, 1, getFisher)
             }
          }
-         assays(rds, 2)[,"left_post"] <- apply(ma2, 1, prod)
+         assay(rds, 2)[,"left_post"] <- apply(assay(rds@pVals,1), 1, prod)
          # Here in theory we could remove countsRight/Left slots, TODO check memory footprint and decide.
       }
       rds@step <- 3
@@ -215,8 +221,8 @@ setMethod("totalResults", signature(rds="RoarDataset"),
                         roar=assay(rds,2)[,"left_pre"],
                         pval=assay(rds,2)[,"left_post"])
       if (length(rds@rightBams) != 1 || length(rds@leftBams) != 1) {
-         pvals <- data.frame(assay(rds@pvals,1))
-         colnames(pvals) <- rownames(rowData(rds@pvals))
+         pvals <- data.frame(assay(rds@pVals,1))
+         colnames(pvals) <- rownames(colData(rds@pVals))
          res <- cbind(res, pvals)
       }
       return(res)
