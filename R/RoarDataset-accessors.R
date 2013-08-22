@@ -35,10 +35,10 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       }
       rds <- goOn[[2]]
       summOv <- function(x) {
-         summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=stranded, mc.cores=rds@cores)
+         summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores)
       }
       summOvPost <- function(x) {
-         summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=stranded, mc.cores=rds@cores)
+         summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores)
       } 
       
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.

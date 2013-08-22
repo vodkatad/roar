@@ -45,7 +45,7 @@
       strand = strand(rep("+", length(gene_id))),
       ranges = IRanges(
          start=c(1000, 2000, 3000, 3600),
-         width=c(500, 900, 500, 300)),
+         width=c(1000, 900, 600, 300)),
       DataFrame(gene_id)
    )
    rd1 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
