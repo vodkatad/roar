@@ -67,4 +67,8 @@ should have documentation entries.
 
 * checking PDF version of manual ... WARNING
 LaTeX errors when creating PDF version.
-This typically indicates Rd problems.
+This typically indicates Rd problems
+
+
+ENFORCE THAT THE gene_id HAS TO ""END"" with PRE ADN THE GTF SORTING!
+stranded with default false

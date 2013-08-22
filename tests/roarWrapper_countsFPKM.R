@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript
+#!/usr/bin/env /rogue_bis/data/R/bin/Rscript
 # First script to perform Roar analysis. 
 # Requires a gtf with _PRE and _POST gene_ids and bam files from the two 
 # conditions to be compared.
@@ -14,7 +14,7 @@ checkReadable <- function(filename) {
 
 # To understand at least something about occurred errors.
 # In this way it goes further on after the first error. TODO avoid this!
-# options(error=traceback) 
+options(error=traceback) 
 
 arguments <- matrix(c(
    'help', 'h', 0, "logical",
@@ -52,19 +52,33 @@ if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
 }
 
 # Get counts
-rds <- RoarDataset(rightBams, leftBams, opt$gtf)
-rds <- countPrePost(rds, FALSE)
+roar <- RoarDataset(rightBams, leftBams, opt$gtf)
+roar <- countPrePost(roar, FALSE)
 
 # Get m/M and Roar
-rds <- computeRoars(rds)
+roar <- computeRoars(roar)
 
 # Fisher test
-rds <- computePvals(rds)
+roar <- computePvals(roar)
 
 # Obtain results with FPKM info for filtering and p-value correction
-results <- filteringInfoResults(rds)
+results <- filteringInfoResults(roar)
 write.table(results, sep="\t", quote=FALSE)
-         
+
+ri <- assays(roar@countsRight)
+le <- assays(roar@countsLeft)
+if (length(ri) >= 1 || length(le) >= 1) {
+	for (i in 1:length(ri)) {
+		write.table(ri[[i]], file="right_counts", sep="\t", quote=FALSE, append=TRUE, col=FALSE)
+	}
+	for (i in 1:length(le)) {
+		write.table(le[[i]], file="left_counts", sep="\t", quote=FALSE, append=TRUE, col=FALSE)
+	}
+} else {
+	counts <- assay(roar, 1)
+	write.table(counts, file="counts", sep="\t", quote=FALSE, append=TRUE, col=FALSE)
+}
+ 
 # XXX TODO FILTER AND CORRECTION.
 
 if (!is.null(opt$debug)) {
