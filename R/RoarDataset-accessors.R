@@ -13,6 +13,11 @@ RoarDataset <- function(rightBams, leftBams, gtf) {
        prePostCoords=gtfGRanges, step = 0, cores=1)
 }
 
+RoarDatasetObjects <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
+   new("RoarDataset", rightBams=rightGappedAlign, leftBams=leftGappedAlign, 
+       prePostCoords=gtfGRanges, step = 0, cores=1)
+}
+
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
 
 setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
