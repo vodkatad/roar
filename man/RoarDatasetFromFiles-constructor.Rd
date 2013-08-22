@@ -1,8 +1,8 @@
 \name{RoarDatasetFromFiles}
      \alias{RoarDatasetFromFiles}
-     \title{Creates an RoarDataset object}
+     \title{Creates a \code{\link[=RoarDataset-class]{RoarDataset}} object}
      \description{
-       This function creates an RoarDataset object from two list and a gtf with a suitable annotation of 
+       This function creates an \code{\link[=RoarDataset-class]{RoarDataset}} object from two list and a gtf with a suitable annotation of 
        alternative APA sites.
      }
      \usage{

@@ -69,3 +69,5 @@ I added "$" at the end of the grep.
 TODO final test on every possible strange condition that could arise.
 
 TODO stranded with default false
+
+at the end: promptPackage("roar")

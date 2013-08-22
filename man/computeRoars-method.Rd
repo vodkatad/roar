@@ -1,5 +1,5 @@
-\name{countPrePost}
-     \alias{countPrePost}
+\name{computeRoars}
+     \alias{computeRoars}
      \title{Counts reads falling over PRE/POST portions of the given transcripts}
      \description{
        This is the first step in the Roar analyses: it counts reads overlapping with the
@@ -15,7 +15,7 @@
        If the stranded argument is set to TRUE then strandness is considered when counting reads.
      }
      \usage{
-      countPrePost(rds, stranded)
+      computeRoars(rds)
      }
      \arguments{
        \item{rds}{
@@ -44,4 +44,4 @@
    rds <- RoarDatasetObjects(list(c(rd1,rd2)), list(rd3), features)
    rds <- countPrePost(rds, FALSE)
     }
-\keyword{countPrePost}
+\keyword{computeRoars}
