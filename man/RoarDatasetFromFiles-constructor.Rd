@@ -1,0 +1,44 @@
+\name{RoarDatasetFromFiles}
+     \alias{RoarDatasetFromFiles}
+     \title{Creates an RoarDataset object}
+     \description{
+       This function creates an RoarDataset object from two list and a gtf with a suitable annotation of 
+       alternative APA sites.
+     }
+     \usage{
+      RoarDataset(rightBams, leftBams, gtf)
+     }
+     \arguments{
+            \item{rightBams}{
+           A list of filenames of bam alignments with data for the first condition
+           to be considered.}
+        \item{leftBams}{
+           A list of filenames of bam alignments with data for the second condition
+           to be considered.}
+       \item{gtf}{
+           A filename of a gtf with coordinates for the portions of transcripts
+           that has to be considered pertaining to the short (or long) isoform.
+           This gtf must have an attribute called "gene_id" that ends with "_PRE"
+           or "_POST" to address respectively the short and the long isoform.
+           A ready-to-go gtf, with coordinates derived from the PolyADB on
+           the human genome (version hg19), is available TODO.
+           An element in the annotation
+           is considered "PRE" (i.e. common to the short and long isoform of the transcript) if its gene_id
+           feature in the gtf ends with "_PRE". If
+           it ends with "_POST" it is considered the portion present only in the long isoform.
+           The prefix of gene_id should be an identifier for the gene and each identifier has to be
+           associated with only one "_PRE" and one "_POST", leading to two genomic region associated to each   
+           gene_id.
+        }
+      }
+      \value{
+         A \code{\link[=RoarDataset-class]{RoarDataset}} object ready to be analyzed via the other methods.
+      }
+     \seealso{
+       %\code{\link{read.HTSeqCounts}}
+       %TODO
+     }
+     \examples{
+     #rds <- RoarDatasetFromFiles(rightBams, leftBams, gtf)
+    }
+\keyword{RoarDatasetFromFiles}

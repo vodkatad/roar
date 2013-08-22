@@ -1,5 +1,5 @@
 \name{RoarDataset-class.Rd}
-\alias{RoarDataset-class.Rd}
+\alias{RoarDataset-class}
 \docType{data}
 \title{
 NON EMPTY TITLE

@@ -22,7 +22,7 @@ test_countPrePost_singleSamples <- function() {
    rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
    rd4 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
    
-   rds <- RoarDatasetObjects(list(c(rd1,rd2)), list(c(rd3,rd4)), features)
+   rds <- RoarDataset(list(c(rd1,rd2)), list(c(rd3,rd4)), features)
    rds <- countPrePost(rds, FALSE)
    checkEqualsNumeric(assay(rds,1)[1,1], 1)
    checkEqualsNumeric(assay(rds,1)[1,2], 1)
@@ -45,7 +45,7 @@ test_countPrePost_mulSamples <- function() {
    rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
    rd4 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
    
-   rds <- RoarDatasetObjects(list(rd1,rd2), list(rd3,rd4), features)
+   rds <- RoarDataset(list(rd1,rd2), list(rd3,rd4), features)
    rds <- countPrePost(rds, FALSE)
    checkEqualsNumeric(assay(rds@countsRight,1)[1,1], 1)
    checkEqualsNumeric(assay(rds@countsRight,1)[1,2], 0)

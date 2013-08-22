@@ -24,11 +24,10 @@ http://www.bioconductor.org/developers/unitTesting-guidelines/
 http://www.johnmyleswhite.com/notebook/2010/08/17/unit-testing-in-r-the-bare-minimum/
 
 library(RUnit)
-library(MyPackage)
+library(roar)
 
-source('../R/divideBy.R')
-source('unitTests/test_divideBy.R')
-test_divideBy()
+source('inst/unitTests/test_roar.R')
+test_countPrePost_singleSamples()
 [1] TRUE
 
 write vignette
@@ -37,12 +36,6 @@ indagare:
 Warning: replacing previous import ‘coerce’ when loading ‘rtracklayer’
 Warning: replacing previous import ‘show’ when loading ‘rtracklayer’
 
-librerie strand specific:
-ignore.strand=FALSE
-basta metterlo a TRUE. Decidere come farlo architetturalmente.
-
-
--> other RoarDataset constructors not from filenames?
 -> last results function (standard filtering..maybe in the wrapper/vignette)
 
 * checking for unstated dependencies in R code ... WARNING
@@ -70,5 +63,9 @@ LaTeX errors when creating PDF version.
 This typically indicates Rd problems
 
 
-ENFORCE THAT THE gene_id HAS TO ""END"" with PRE ADN THE GTF SORTING!
-stranded with default false
+ENFORCE THAT THE gene_id HAS TO END with "_PRE"" AND THE GTF SORTING!
+-> the order is built when calling the GRanges constructor and
+I added "$" at the end of the grep.
+TODO final test on every possible strange condition that could arise.
+
+TODO stranded with default false

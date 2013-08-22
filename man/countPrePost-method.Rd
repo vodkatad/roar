@@ -3,12 +3,8 @@
      \title{Counts reads falling over PRE/POST portions of the given transcripts}
      \description{
        This is the first step in the Roar analyses: it counts reads overlapping with the
-       PRE/POST portions defined in the given gtf/GRanges annotation. An element in the annotation
-       is considered "PRE" (i.e. common to the short and long isoform of the transcript) if its gene_id
-       feature in the gtf (loaded in the elementMetadata of the GRanges object) ends with "_PRE". If
-       it ends with "_POST" it is considered the portion present only in the long isoform.
-       The prefix of gene_id should be an identifier for the gene and each identifier has to be
-       associated with only one "_PRE" and one "_POST", leading to two genomic region associated to each gene_id.
+       PRE/POST portions defined in the given gtf/GRanges annotation. See \code{\link{RoarDataset}} for details
+       on how to define these portions.
        Reads of the given bam annotation files that falls over this portion are accounted for with the following
        rules:
        1- reads falling over different gene_id PRE or POST portions are discarded
@@ -23,14 +19,14 @@
      }
      \arguments{
        \item{rds}{
-           The RoarDataset which contains the alignments and annotation informations over which
+           The \code{\linkS4class{RoarDataset}} which contains the alignments and annotation informations over which
            counts will be performed.}
        \item{stranded}{
            A logical indicating if strandness should be considered when counting reads or not.    
        }
       }
       \value{
-         The RoadDataset object given as rds with the counting reads phase of the analysis done.
+         The \code{\linkS4class{RoarDataset}} object given as rds with the counting reads phase of the analysis done.
       }
      \examples{
      #rds <- countPrePost(rds, FALSE)

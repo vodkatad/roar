@@ -1,7 +1,7 @@
 # Methods for the RoarDataset class.
 # R/AllGenerics.R contains the signature of the not overriding methods.
 
-RoarDataset <- function(rightBams, leftBams, gtf) {
+RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
    gtfGRanges<- import(gtf, asRangedData=FALSE)
@@ -13,7 +13,10 @@ RoarDataset <- function(rightBams, leftBams, gtf) {
        prePostCoords=gtfGRanges, step = 0, cores=1)
 }
 
-RoarDatasetObjects <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
+RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
+   if (length(rightGappedAlign) == 0 || length(leftGappedAlign) == 0) {
+      stop("Lists of GappedAlignments could not be empty")
+   }
    new("RoarDataset", rightBams=rightGappedAlign, leftBams=leftGappedAlign, 
        prePostCoords=gtfGRanges, step = 0, cores=1)
 }
@@ -40,8 +43,8 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.
       # In the simpler case with a single alignment for both conditions we just keep the counts.
-      preElems <- grep("_PRE", elementMetadata(rds@prePostCoords)$gene_id)
-      postElems <- grep("_POST", elementMetadata(rds@prePostCoords)$gene_id)
+      preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+      postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
