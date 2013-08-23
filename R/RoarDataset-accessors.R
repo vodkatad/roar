@@ -133,8 +133,9 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       # Negative m/M are discarded.
       #roar = (m/M_right)/(m/M_left)
       # We must obtain the list of lengths from rds@postCoords and rowData(rds) (which is pre).
-      preLen <- end(rowData(rds)) - start(rowData(rds))
-      postLen <- end(rds@postCoords) - start(rds@postCoords)
+      preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
+      postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
+      # I had to add "+1" as long as the end coords are not inclusive.
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
       if (length(rds@rightBams) > 1 || length(rds@leftBams) > 1) {
          # Compute means and put them in place for roar calculations (in the rds-se object).
@@ -162,7 +163,7 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       mMright <- (assay(rds,1)[,"right_pre"]*postLenRight)/(assay(rds,1)[,"right_post"]*preLen)-1
       mMleft <- (assay(rds,1)[,"left_pre"]*postLenLeft)/(assay(rds,1)[,"left_post"]*preLen)-1
       roar <- mMright / mMleft
-      pVal <- rep(1, length(roar))
+      pVal <- rep(NA, length(roar))
       assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
       names(assays(rds)) <- c("counts", "stats")
       rds@step <- 2
