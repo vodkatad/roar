@@ -147,17 +147,23 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          assay(rds,1)[,"right_post"] <- meanAcrossAssays(assays(rds@countsRight),"post")
          assay(rds,1)[,"left_pre"] <- meanAcrossAssays(assays(rds@countsLeft), "pre")
          assay(rds,1)[,"left_post"] <- meanAcrossAssays(assays(rds@countsLeft), "post")
+         # Also the length correction should consider all the samples!
+         lenRight <- unlist(lapply(rds@rightBams, qwidth))
+         lenLeft <- unlist(lapply(rds@leftBams, qwidth))
+         corrRight <- mean(lenRight)
+         corrLeft <- mean(lenLeft)
+      } else {
+         corrRight <- mean(qwidth(rds@rightBams[[1]]))
+         # qwidth(x): Returns an integer vector of length length(x) containing the length 
+         # of the query *after* hard clipping (i.e. the length of the query sequence 
+         # that is stored in the corresponding SAM/BAM record).
+         corrLeft <- mean(qwidth(rds@leftBams[[1]])) 
       }
       # Ok, now if we had a single sample for both conditions we had the data charged in
       # countPrePost, otherwise we have the means (in the same SE/RDS object).
       # If there is a single sample for one condition and more than one for the other there is
       # a little (I hope) unuseful overload to get the mean for the single sample. 
       # The countsRight/Left slot are still kept as long as we will need them in computePvals.
-      corrRight <- mean(qwidth(rds@rightBams[[1]]))
-      # qwidth(x): Returns an integer vector of length length(x) containing the length 
-      # of the query *after* hard clipping (i.e. the length of the query sequence 
-      # that is stored in the corresponding SAM/BAM record).
-      corrLeft <- mean(qwidth(rds@leftBams[[1]]))
       postLenRight <- postLen + corrRight - 1
       postLenLeft <- postLen + corrLeft - 1
       mMright <- (assay(rds,1)[,"right_pre"]*postLenRight)/(assay(rds,1)[,"right_post"]*preLen)-1

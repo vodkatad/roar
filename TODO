@@ -1,3 +1,6 @@
+MAybe check step is not so nice to the user...maybe we should allow repeating a step already done 
+deleting all "future data"...this problem exists because I added the strandness parameter to countPrePost :/
+
 The setClass function returns a special function called a constructor, that can
 be used to create an instance of the class.
 slots and not representation (deprecated)
