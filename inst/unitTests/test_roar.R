@@ -115,6 +115,7 @@ test_countPrePost_stranded <- function() {
 # These UnitTests are bad because I should "prebuild" a correct step 1 complete
 # rds object to test computeRoars and avoid testing multiple features at the same time,
 # but it is too complex and overall the tests should work even in this way.
+
 # computeRoars ------------------------------------------------------------
 test_computeRoars_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_POST", "B_PRE", "C_PRE", "C_POST")
@@ -207,4 +208,76 @@ test_computeRoars_singlevsMulSamples <- function() {
    checkTrue(is.na(assay(rds,2)[3,1]))
    checkEqualsNumeric(assay(rds,2)[3,2], -1)
    checkTrue(is.na(assay(rds,2)[3,3]))      
+}
+
+test_computeRoars_multipleSamples <- function() {
+   gene_id <- c("A_PRE", "A_POST")
+   features <- GRanges(
+      seqnames = Rle(c("chr1","chr1")),
+      strand = strand(c("+","+")),
+      ranges = IRanges(
+         start=c(1, 10),
+         width=c(10, 5)),
+      DataFrame(gene_id)
+   )
+   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+      
+   rightAlign <- list(rep(a_pre, 2),rep(a_post, 3))
+   leftAlign <- list(a_post, rep(a_pre, 4), a_post)
+   
+   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- countPrePost(rds, FALSE)
+   rds <- computeRoars(rds)
+   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   checkEqualsNumeric(assay(rds,2)[1,1], -0.48, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,2], 0.666666666, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,3], -0.72, tolerance=1e-5)
+   checkTrue(is.na(assay(rds,2)[1,4]))
+}
+
+# computePvals ------------------------------------------------------------
+# Ok, to test computePVals I know how to fill the rds object with counts so I will skip the previous
+# steps and perform slightly more correct tests.
+
+test_computePvals_single <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   features <- GRanges(
+      seqnames = Rle(c("chr1", "chr1", "chr2", "chr2")),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 3000, 3600),
+         width=c(1000, 900, 600, 300)),
+      DataFrame(gene_id)
+   )
+   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+       prePostCoords=features, step = 2, cores=1)
+   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+                              rowData=preCoords, 
+                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+   )
+   
+   rowData(rds) <- rowData(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
+   length(rds@rightBams)  <- 1
+   length(rds@leftBams)  <- 1
+   assay(rds, 1)[1,1] <- 10
+   assay(rds, 1)[1,2] <- 100
+   assay(rds, 1)[1,3] <- 20
+   assay(rds, 1)[1,4] <- 20
+   assay(rds, 1)[2,1] <- 10
+   assay(rds, 1)[2,2] <- 20
+   assay(rds, 1)[2,3] <- 20
+   assay(rds, 1)[2,4] <- 20
+   # We need to setup the second assay that computePVals will fill.
+   assay(rds,2) <- as.matrix(data.frame(right_pre=c(NA,NA), right_post=c(NA,NA), left_pre=c(NA,NA), left_post=c(NA,NA)))
+   rds <- computePvals(rds)
+   checkEqualsNumeric(assay(rds,2)[1,4], 0.0000002212406, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[2,4], 0.22337243, tolerance=1e-5)
 }

@@ -6,7 +6,7 @@
        alternative APA sites.
      }
      \usage{
-      RoarDataset(rightBams, leftBams, gtf)
+      RoarDatasetFromFiles(rightBams, leftBams, gtf)
      }
      \arguments{
             \item{rightBams}{

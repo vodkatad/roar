@@ -1,6 +1,10 @@
 MAybe check step is not so nice to the user...maybe we should allow repeating a step already done 
 deleting all "future data"...this problem exists because I added the strandness parameter to countPrePost :/
 
+BE AWARE THAT IF m/M are both negative the roar will result positive but it won't mean a thing. 
+Maybe the best approach is changing to NA's all these values before returing the results...or leave
+them but explain well that they should be discarded. ask Paolo.
+
 The setClass function returns a special function called a constructor, that can
 be used to create an instance of the class.
 slots and not representation (deprecated)
