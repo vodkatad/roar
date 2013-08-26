@@ -72,7 +72,8 @@ This typically indicates Rd problems
 
 ENFORCE THAT THE gene_id HAS TO END with "_PRE"" AND THE GTF SORTING!
 -> the order is built when calling the GRanges constructor and
-I added "$" at the end of the grep.
+I added "$" at the end of the grep. XXXX CHECK! IT does not seem true (what I say about the GRanges
+constructor)
 TODO final test on every possible strange condition that could arise.
 
 TODO stranded with default false

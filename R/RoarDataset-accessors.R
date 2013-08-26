@@ -251,7 +251,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 setMethod("filteringInfoResults", signature(rds="RoarDataset"),
    function(rds) {
       df <- totalResults(rds)
-      preLen <- end(rowData(rds)) - start(rowData(rds))
+      preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
       sumPreRight <- sum(assay(rds, 1)[,"right_pre"])
       sumPreLeft <- sum(assay(rds, 1)[,"left_pre"])
       df$rightValue <- (assay(rds, 1)[,"right_pre"]*1000000000)/(preLen*sumPreRight)
