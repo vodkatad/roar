@@ -279,7 +279,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
    }                  
 )
 
-setMethod("pvalueFilter", signature(rds="RoarDataset", pvalCutoff="numeric", fpkmCutoff="numeric"),
+setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {
       df <- standardFilter(rds, fpkmCutoff)
       if (length(rds@rightBams) != 1 || length(rds@leftBams) != 1) {
@@ -290,7 +290,6 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", pvalCutoff="numeric", fpk
          sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
          # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
          df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
-         
       } else {
          df <- subset(df, bonferroniPval < pvalCutoff)  
       }   

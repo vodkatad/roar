@@ -37,4 +37,4 @@
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
     }
-\keyword{computeRoars}
+\keyword{computePvals}
