@@ -24,7 +24,7 @@ RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
 
 setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
-   function(rds, stranded){
+   function(rds, stranded) {
       #if (!is(rds, "RoarDataset")) {
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
@@ -122,7 +122,7 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
 )
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
-   function(rds){
+   function(rds) {
       goOn <- checkStep(rds, 1)
       if (!goOn[[1]]) {
          return(rds)
@@ -178,7 +178,7 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
 )
 
 setMethod("computePvals", signature(rds="RoarDataset"),
-   function(rds){
+   function(rds) {
       goOn <- checkStep(rds, 2)
       if (!goOn[[1]]) {
          return(rds)
@@ -227,7 +227,7 @@ setMethod("computePvals", signature(rds="RoarDataset"),
 )
 
 setMethod("totalResults", signature(rds="RoarDataset"),
-   function(rds){
+   function(rds) {
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
       res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
@@ -249,7 +249,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 # RPKM are gotten from counts over the PRE portions working on means across replicates.
 # As total number of mapped reads we use the total number of reads mapped over all PRE portions.
 setMethod("filteringInfoResults", signature(rds="RoarDataset"),
-   function(rds){
+   function(rds) {
       df <- totalResults(rds)
       preLen <- end(rowData(rds)) - start(rowData(rds))
       sumPreRight <- sum(assay(rds, 1)[,"right_pre"])
@@ -260,7 +260,45 @@ setMethod("filteringInfoResults", signature(rds="RoarDataset"),
    }
 )
 
-# Add a simple function to filter and compute corrected pvalues TODO
+setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
+   function(rds, fpkmCutoff) {
+      # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
+      # a negative/NA m/M-roar.
+      # P-value correction? In the single samples case it seems sensible to do that,
+      # otherwise we will report all pvalues (and correct their product.)
+      df <- filteringInfoResults(rds)
+      # mM_right, mM_left , roar columns filtering (< 0 / NA)
+      df <- subset(df, mM_right >= 0)
+      df <- subset(df, mM_left >= 0)
+      df <- subset(df, !is.na(roar))
+      # rightValue/leftValue filtering (<= fpkmCutoff)
+      df <- subset(df, rightValue > fpkmCutoff)
+      df <- subset(df, leftValue > fpkmCutoff)
+      df$bonferroniPval <- p.adjust(df$pval, method="bonferroni")
+      return(df)
+   }                  
+)
+
+setMethod("pvalueFilter", signature(rds="RoarDataset", pvalCutoff="numeric", fpkmCutoff="numeric"),
+   function(rds, fpkmCutoff, pvalCutoff) {
+      df <- standardFilter(rds, fpkmCutoff)
+      if (length(rds@rightBams) != 1 || length(rds@leftBams) != 1) {
+         # In this case we add to df a col that says how many comparisons yielded
+         # a pvalue < pvalCutoff.
+         # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+         cols <- grep("^pvalue_", row.names(df))
+         sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
+         # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
+         df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         
+      } else {
+         df <- subset(df, bonferroniPval < pvalCutoff)  
+      }   
+      return(df)
+   }                  
+)
+
+
 
 # Simple getters and setters. Arf Arf!
 setMethod("cores",  signature(rds="RoarDataset"),

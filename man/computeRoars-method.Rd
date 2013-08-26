@@ -1,6 +1,6 @@
 \name{computeRoars}
      \alias{computeRoars}
-     \title{Compute m/M and roar values for this \code{\linkS4class{RoarDataset}} object}
+     \title{Computes m/M and roar values for this \code{\linkS4class{RoarDataset}} object}
      \description{
        This is the second step in the Roar analyses: it compute the ratio of prevalence
        of the short and long isoforms for every gene in the right and left condition (m/M) and their
