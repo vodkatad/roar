@@ -35,8 +35,7 @@
          %\code{"\linkS4class{RoarDataset}"}
       }
      \seealso{
-       %\code{\link{read.HTSeqCounts}}
-       %TODO
+       \code{\link{RoarDatasetFromFiles}}
      }
      \examples{
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")

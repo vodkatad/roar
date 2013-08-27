@@ -35,8 +35,7 @@
          A \code{\link[=RoarDataset-class]{RoarDataset}} object ready to be analyzed via the other methods.
       }
      \seealso{
-       %\code{\link{read.HTSeqCounts}}
-       %TODO
+       \code{\link{RoarDataset}}
      }
      \examples{
      #rds <- RoarDatasetFromFiles(rightBams, leftBams, gtf)

@@ -8,7 +8,7 @@
          will be considered for filtering.
      }
      \usage{
-      totalResults(rds)
+      pvalueFilter(rds, fpkmCutoff, pvalCutoff)
      }
      \arguments{
        \item{rds}{

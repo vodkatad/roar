@@ -268,12 +268,17 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       # otherwise we will report all pvalues (and correct their product.)
       df <- filteringInfoResults(rds)
       # mM_right, mM_left , roar columns filtering (< 0 / NA)
-      df <- subset(df, mM_right >= 0)
-      df <- subset(df, mM_left >= 0)
-      df <- subset(df, !is.na(roar))
+      # df <- subset(df, mM_right >= 0) # subset is ok for interactive use only
+      df <- df[df$mM_right >= 0,]
+      #df <- subset(df, mM_left >= 0)
+      df <- df[df$mM_left >= 0,]
+      #df <- subset(df, !is.na(roar))
+      df <- df[!is.na(df$roar),]
       # rightValue/leftValue filtering (<= fpkmCutoff)
-      df <- subset(df, rightValue > fpkmCutoff)
-      df <- subset(df, leftValue > fpkmCutoff)
+      #df <- subset(df, rightValue > fpkmCutoff)
+      #df <- subset(df, leftValue > fpkmCutoff)
+      df <- df[df$rightValue > fpkmCutoff,]
+      df <- df[df$leftValue > fpkmCutoff,]
       df$bonferroniPval <- p.adjust(df$pval, method="bonferroni")
       return(df)
    }                  
@@ -291,7 +296,8 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
          # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
          df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
       } else {
-         df <- subset(df, bonferroniPval < pvalCutoff)  
+         #df <- subset(df, bonferroniPval < pvalCutoff)  
+         df <- df[df$bonferroniPval < pvalCutoff,]
       }   
       return(df)
    }                  

@@ -61,17 +61,14 @@ rds <- computeRoars(rds)
 # Fisher test
 rds <- computePvals(rds)
 
-# Obtain results with FPKM info for filtering and p-value correction
 # results <- filteringInfoResults(rds)
 # write.table(results, sep="\t", quote=FALSE)
          
-# Add a simple function to filter and compute corrected pvalues
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)
 # write.table(filteredResults, sep="\t", quote=FALSE)
 
 pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
 write.table(pvals, sep="\t", quote=FALSE)
-
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)

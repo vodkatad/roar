@@ -8,7 +8,7 @@
          will be corrected for multiple comparisons (with the Bonferroni method).
      }
      \usage{
-      totalResults(rds)
+      standardFilter(rds, fpkmCutoff)
      }
      \arguments{
        \item{rds}{

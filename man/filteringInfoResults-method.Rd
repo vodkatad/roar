@@ -6,7 +6,7 @@
          values, pvalues and estimates of expression (a measure recalling FPKM).
      }
      \usage{
-      totalResults(rds)
+      filteringInfoResults(rds)
      }
      \arguments{
        \item{rds}{
