@@ -78,4 +78,9 @@ TODO final test on every possible strange condition that could arise.
 
 TODO stranded with default false
 
+rounding! > test_standardFilter_singleSamples()
+Error in checkEquals(df, df_wanted) : 
+  Component 6: Mean relative difference: 2e-08
+
+
 at the end: promptPackage("roar")

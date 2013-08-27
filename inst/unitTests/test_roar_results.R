@@ -158,7 +158,7 @@ test_standardFilter_singleSamples <- function() {
          width=rep(1, length(gene_id))),
       DataFrame(gene_id)
    )
-   # prelen A-1, B-1, C-1, D-10
+   # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
               prePostCoords=features, step = 3, cores=1)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
@@ -198,7 +198,62 @@ test_standardFilter_singleSamples <- function() {
                            rightValue=10,
                            leftValue=10,
                            bonferroniPval=0.1)
-   checkEquals(df, df_wanted)
+   checkEquals(df, df_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
    
+
+test_pvalueFilter_singleSamples <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST", "C_PRE", "C_POST", "D_PRE", "D_POST")
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 1, 2, 3, 4, 5, 6),
+         width=rep(1, length(gene_id))),
+      DataFrame(gene_id)
+   )
+   # prelen A-1, B-1, C-1, D-1
+   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+              prePostCoords=features, step = 3, cores=1)
+   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
+                              rowData=preCoords, 
+                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+   )
+   rowData(rds) <- rowData(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   length(rds@rightBams)  <- 1
+   length(rds@leftBams)  <- 1
+   # Here we need to test filter on pvalues, therefore we will need three genes (A, B, C)
+   # passing the FPKM/mM/roar (A/B/D) filter and then two (A/D) of them passing the pvalue filter.
+   # We set pre counts for all genes:
+   assay(rds,1)[,"right_pre"] <- c(1,1e9,1e9,20)
+   assay(rds,1)[,"left_pre"] <- c(20,1e9,1e9,20)
+   # D right FPKM 9.9999
+   
+   # We set a negative m/M for C (and a NA roar). Other values are ok.
+   assay(rds,2) <- matrix(ncol=4, nrow=4)
+   assay(rds,2)[, "right_pre"] <- c(1,1,-1,2)
+   assay(rds,2)[, "right_post"] <- c(2,1,1,1)
+   assay(rds,2)[, "left_pre"] <- c(10,1,NA,1)
+   assay(rds,2)[, "left_post"] <- c(0.01,0.1,0.1,0.001)
+   # The pvalues will be bonferroni corrected with 3 genes. Then only 2 will survive the pvalue filter.
+   
+   df <- pvalueFilter(rds, 0.01, 0.05)
+   df_wanted <- data.frame(row.names=c("A","D"), 
+                           mM_right=c(1,2), 
+                           mM_left=c(2,1),
+                           roar=c(10,1),
+                           pval=c(0.01, 0.001),
+                           rightValue=c(0.5, 10),
+                           leftValue=c(10, 10),
+                           bonferroniPval=c(0.03, 0.003))
+   checkEquals(df, df_wanted, tolerance=1e-5)
+   # XXX TODO check whi 9.9999 is rounded to 10
+}
