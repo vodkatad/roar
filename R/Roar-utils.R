@@ -10,7 +10,6 @@ getFisher <- function(counts) {
 
 checkStep <- function(rds, neededStep) {
    if (rds@step > neededStep) { # Already done, not repeating. Give a reset method?
-      # Warning
       warning("Not repeating a step already done")
       return(c(FALSE, rds)) # We hope for promotion.
    } else if (rds@step < neededStep) { # Something is missing.

@@ -306,17 +306,19 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
 
 
 # Simple getters and setters. Arf Arf!
+# XXX TODO
 setMethod("cores",  signature(rds="RoarDataset"),
-   function(rds) {
-      return(rds@cores)
-   }
+ function(rds) {
+    return(rds@cores)
+ }
 )
-
-setReplaceMethod("cores",  signature(rds="RoarDataset", value="numeric"),
-   function(rds, value) {
-      if (value < 1)
-         stop("You can specify only a positive number of cores")
-      rds@cores <- value
-      return(rds)
-   }
-)
+ 
+# setReplaceMethod("cores",  signature(rds="RoarDataset", value="numeric"),
+#  function(rds, value) {
+#     if (value < 1) {
+#        stop("You can specify only a positive number of cores")
+#     }
+#     rds@cores <- value
+#     return(rds)
+#  }
+# )

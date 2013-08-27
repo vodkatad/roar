@@ -9,6 +9,4 @@ setGeneric("pvalueFilter", def=function(rds, fpkmCutoff, pvalCutoff) { standardG
 
 
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
-setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })
-#setGeneric("cores", def=function(rds, value) { standardGeneric("cores<-") }) # FOAD
-# HOWTO USE INTERFACE?
+#setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })
