@@ -13,6 +13,9 @@ exportMethods(
    computeRoars,
    computePvals,
    totalResults,
+   filteringInfoResults,
+   standardFilter,
+   pvalueFilter,
    cores
 #  "cores<-"
 )

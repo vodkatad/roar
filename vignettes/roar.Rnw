@@ -1,0 +1,21 @@
+%\VignetteIndexEntry{Identify differential APA usage from RNA-seq alignments}
+%\VignettePackage{roar}
+\documentclass{article}
+\author{Elena Grassi}
+\usepackage{Sweave}
+
+\title{Identify differential APA usage from RNA-seq alignments}
+
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\maketitle
+LoremIpsus!
+
+<<>>= 
+ex <- c(1,2)
+@
+
+
+\end{document}
