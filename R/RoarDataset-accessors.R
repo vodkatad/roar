@@ -286,7 +286,7 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
          # In this case we add to df a col that says how many comparisons yielded
          # a pvalue < pvalCutoff.
          # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
-         cols <- grep("^pvalue_", row.names(df))
+         cols <- grep("^pvalue_", colnames(df))
          sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
          # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
          df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})

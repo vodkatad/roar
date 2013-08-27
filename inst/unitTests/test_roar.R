@@ -1,4 +1,5 @@
 # To manually perform single tests: source("inst/unitTests/test_roar.R")
+# To perform all tests: BiocGenerics:::testPackage("roar")
 
 test_test <- function() {
    checkEquals(2, 2)   

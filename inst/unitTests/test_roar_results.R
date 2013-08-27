@@ -1,4 +1,5 @@
 # To manually perform single tests: source("inst/unitTests/test_roar_results.R")
+# To perform all tests: BiocGenerics:::testPackage("roar")
 
 test_totalResults_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
@@ -202,7 +203,6 @@ test_standardFilter_singleSamples <- function() {
    # XXX TODO check whi 9.9999 is rounded to 10
 }
    
-
 test_pvalueFilter_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST", "C_PRE", "C_POST", "D_PRE", "D_POST")
    features <- GRanges(
@@ -254,6 +254,69 @@ test_pvalueFilter_singleSamples <- function() {
                            rightValue=c(0.5, 10),
                            leftValue=c(10, 10),
                            bonferroniPval=c(0.03, 0.003))
+   checkEquals(df, df_wanted, tolerance=1e-5)
+   # XXX TODO check whi 9.9999 is rounded to 10
+}
+
+test_pvalueFilter_mulSamples <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 1, 2),
+         width=rep(1, length(gene_id))),
+      DataFrame(gene_id)
+   )
+   # prelen A-1, B-1
+   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+              prePostCoords=features, step = 3, cores=1)
+   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+                              rowData=preCoords, 
+                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+   )
+   rowData(rds) <- rowData(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   length(rds@rightBams)  <- 2
+   length(rds@leftBams)  <- 2
+   assay(rds,1)[,"right_pre"] <- c(1,1e9)
+   assay(rds,1)[,"left_pre"] <- c(20,1e9)
+   assay(rds,2) <- matrix(ncol=4, nrow=2)
+   assay(rds,2)[, "right_pre"] <- c(1,1)
+   assay(rds,2)[, "right_post"] <- c(2,1)
+   assay(rds,2)[, "left_pre"] <- c(10,1)
+   assay(rds,2)[, "left_post"] <- c(0.01,0.1)
+   # To test multiple samples we keep all the values equal to the previous test (with only two genes), 
+   # therefore we will have a working object. We just need to add the rds@pVals slot with the needed data.
+   rds@pVals <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+                                     rowData=preCoords, 
+                                     colData=DataFrame(row.names=c("pvalue_1_1","pvalue_1_2","pvalue_2_1",
+                                                                   "pvalue_2_2"))
+   )
+   assay(rds@pVals,1)[1,] <- seq(1,4)
+   assay(rds@pVals,1)[2,] <- c(1,1,1,5)
+   
+   
+   df <- pvalueFilter(rds, 0.01, 3)
+   df_wanted <- data.frame(row.names=c("A","B"), 
+                           mM_right=c(1,1), 
+                           mM_left=c(2,1),
+                           roar=c(10,1),
+                           pval=c(0.01, 0.1),
+                           pvalue_1_1 = c(1,1),
+                           pvalue_1_2 = c(2,1),
+                           pvalue_2_1 = c(3,1),
+                           pvalue_2_2 = c(4,5),
+                           rightValue=c(1, 1e9),
+                           leftValue=c(20, 1e9),
+                           bonferroniPval=c(0.02, 0.2),
+                           nUnderCutoff=c(2,3))
    checkEquals(df, df_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
