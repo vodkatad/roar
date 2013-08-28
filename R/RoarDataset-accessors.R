@@ -5,6 +5,8 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
    gtfGRanges<- import(gtf, asRangedData=FALSE)
+   ordered <- order(elementMetadata(gtfGRanges)$gene_id)
+   gtfGRanges <- gtfGRanges[ordered]
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    #rightBamsGenomicAlignments <- BamFileList(rightBams)
@@ -17,6 +19,8 @@ RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
    if (length(rightGappedAlign) == 0 || length(leftGappedAlign) == 0) {
       stop("Lists of GappedAlignments could not be empty")
    }
+   ordered <- order(elementMetadata(gtfGRanges)$gene_id)
+   gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", rightBams=rightGappedAlign, leftBams=leftGappedAlign, 
        prePostCoords=gtfGRanges, step = 0, cores=1)
 }
