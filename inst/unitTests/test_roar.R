@@ -391,3 +391,45 @@ test_computePvals_multipleSamples <- function() {
    checkEqualsNumeric(assay(rds@pVals,1)[1,5], 1, tolerance=1e-5)
    checkEqualsNumeric(assay(rds@pVals,1)[1,6], 0.01938319, tolerance=1e-5)
 }
+
+# GRanges order
+test_computeRoars_singleSamples_GRanges_order <- function() {
+   gene_id <- c("B_POST", "A_PRE", "C_POST", "B_PRE", "A_POST", "C_PRE")
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(c("-","+","+","-","+","+")),
+      ranges = IRanges(
+         start=c(20, 1, 52, 40, 10, 42),
+         width=c(20, 10, 10, 5, 5, 10)),
+      DataFrame(gene_id)
+   )
+   
+   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
+   b_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
+   b_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
+   # The next one is an overlapping read only if strandness is not considered. 
+   # Otherwise it will be counted for pre_C. I will add a check on this in this test, even if it's not correct.
+   overlapbc <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
+   c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
+   
+   
+   rightAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
+   leftAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
+   
+   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- countPrePost(rds, FALSE)
+   rds <- computeRoars(rds)
+   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   checkEqualsNumeric(assay(rds,2)[1,1], -0.66538461538462, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,2], 1.21538461538462, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,3], -0.54746835443038, tolerance=1e-5)
+   checkTrue(is.na(assay(rds,2)[1,4]))
+   checkEqualsNumeric(assay(rds,2)[2,1], 20.6923076923077, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[2,2], 0.04307692307692, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[2,3], 480.357142857144, tolerance=1e-5)
+   checkTrue(is.na(assay(rds,2)[3,1]))
+   checkEqualsNumeric(assay(rds,2)[3,2], -1)
+   checkTrue(is.na(assay(rds,2)[3,3]))      
+}
