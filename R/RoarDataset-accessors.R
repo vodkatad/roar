@@ -7,8 +7,8 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    gtfGRanges<- import(gtf, asRangedData=FALSE)
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
-   rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
-   leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
+   rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments, what=c("rname", "strand", "pos", "qwidth"))
+   leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments, what=c("rname", "strand", "pos", "qwidth"))
    #rightBamsGenomicAlignments <- BamFileList(rightBams)
    #leftBamsGenomicAlignments <- BamFileList(leftBams)
    new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 
