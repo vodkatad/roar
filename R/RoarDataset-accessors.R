@@ -147,7 +147,7 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          # given col name (ie. "pre").
          # lapply(assays(testse), function(x) { x[,"a"]})
          # rowMeans(as.data.frame(a))
-         assay(rds,1)[,"right_pre"] <- meanAcrossAssays(assays(rds@countsRight), "pre")
+         assay(rds,1)[,"right_pre"] <- meanAcrossAssays(assays(rds@countsRight), "pre") # here peak of memory usage?
          assay(rds,1)[,"right_post"] <- meanAcrossAssays(assays(rds@countsRight),"post")
          assay(rds,1)[,"left_pre"] <- meanAcrossAssays(assays(rds@countsLeft), "pre")
          assay(rds,1)[,"left_post"] <- meanAcrossAssays(assays(rds@countsLeft), "post")

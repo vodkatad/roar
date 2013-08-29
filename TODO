@@ -12,30 +12,15 @@ slots and not representation (deprecated)
 scrivere lo show per i RoarDataset
 aggiungere ... ai SetGeneric 
 
-The readGappedAlignments function takes an additional argument, param, allowing the user to specify
-regions of the BAM file (e.g., known gene coordinates)
-
-> strand(aln) <- "*"
-# protocol not strand-aware
-
 The counts in one BAM file are independent of counts in another BAM file. This encourages us to count
 reads in each BAM file in parallel, decreasing the length of time required to execute our program. 
 
+Is it possible to load only reads falling over certain coord? Will it perform better?
 > param <- ScanBamParam(what=c("rname", "pos", "cigar"), which=gns)
 gns is a Granges object -----> write tests and then add this to check.
 
-write .Rd foreach function 
-then test that function
--> write tests!
 http://www.bioconductor.org/developers/unitTesting-guidelines/
 http://www.johnmyleswhite.com/notebook/2010/08/17/unit-testing-in-r-the-bare-minimum/
-
-library(RUnit)
-library(roar)
-
-source('inst/unitTests/test_roar.R')
-test_countPrePost_singleSamples()
-[1] TRUE
 
 write vignette
 
@@ -43,37 +28,12 @@ indagare:
 Warning: replacing previous import ‘coerce’ when loading ‘rtracklayer’
 Warning: replacing previous import ‘show’ when loading ‘rtracklayer’
 
--> last results function (standard filtering..maybe in the wrapper/vignette)
-
-* checking for unstated dependencies in R code ... WARNING
-package ‘methods’ is used but not declared
-
-* checking for missing documentation entries ... WARNING
-Undocumented code objects:
-  ‘checkStep’ ‘computePvals’ ‘computeRoars’ ‘cores’ ‘cores<-’
-  ‘countPrePost’ ‘filteringInfoResults’ ‘get_fisher’ ‘totalResults’
-Undocumented S4 classes:
-  ‘RoarDataset’
-Undocumented S4 methods:
-  generic 'computePvals' and siglist 'RoarDataset'
-  generic 'computeRoars' and siglist 'RoarDataset'
-  generic 'cores' and siglist 'RoarDataset'
-  generic 'cores<-' and siglist 'RoarDataset,numeric'
-  generic 'countPrePost' and siglist 'RoarDataset'
-  generic 'filteringInfoResults' and siglist 'RoarDataset'
-  generic 'totalResults' and siglist 'RoarDataset'
-All user-level objects in a package (including S4 classes and methods)
-should have documentation entries.
-
-* checking PDF version of manual ... WARNING
-LaTeX errors when creating PDF version.
-This typically indicates Rd problems
-
-
 ENFORCE THAT THE gene_id HAS TO END with "_PRE"" AND THE GTF SORTING!
 -> the order is built when calling the GRanges constructor and
 I added "$" at the end of the grep. XXXX CHECK! IT does not seem true (what I say about the GRanges
-constructor)
+constructor) -> fixed it reordening the GRange object in the constructors.
+there aren't checks about the gene_id names...add them.
+
 TODO final test on every possible strange condition that could arise.
 
 TODO stranded with default false
@@ -81,6 +41,3 @@ TODO stranded with default false
 rounding! > test_standardFilter_singleSamples()
 Error in checkEquals(df, df_wanted) : 
   Component 6: Mean relative difference: 2e-08
-
-
-at the end: promptPackage("roar")
