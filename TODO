@@ -15,10 +15,6 @@ aggiungere ... ai SetGeneric
 The counts in one BAM file are independent of counts in another BAM file. This encourages us to count
 reads in each BAM file in parallel, decreasing the length of time required to execute our program. 
 
-Is it possible to load only reads falling over certain coord? Will it perform better?
-> param <- ScanBamParam(what=c("rname", "pos", "cigar"), which=gns)
-gns is a Granges object -----> write tests and then add this to check.
-
 http://www.bioconductor.org/developers/unitTesting-guidelines/
 http://www.johnmyleswhite.com/notebook/2010/08/17/unit-testing-in-r-the-bare-minimum/
 
