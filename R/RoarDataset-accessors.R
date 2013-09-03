@@ -5,11 +5,12 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
    gtfGRanges<- import(gtf, asRangedData=FALSE)
+   # here check _pre/ / _post
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
+   
    # I can add which=gtfGRanges here but I need the .bai of the given bam, thus
    # samtools sort pippo.bam pippo_sorted; samtools index pippo_sorted.bam
-   
    #>  sortBam("portion1.bam", "portion1_s", byQname=FALSE, maxMemory=512)
    #[1] "portion1_s.bam"
    #> indexBam("portion1_s.bam")
@@ -19,11 +20,15 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    #> length(res8)
    #[1] 13
    # The other suggested approach is to proceed chr by chr. Cool.
+   chrs <- seqlevels(gtfGRanges)
+   reduced <- keepSeqlevels(gtfGRanges, chrs[[1]]) # just a try
+   
    loadBam <- function(bam) {
       tmp <- tempfile()
       garbage <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
       garbage <- indexBam(tmp)
-      param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=gtfGRanges)
+      
+      param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=reduced)
       res <- readGappedAlignments(tmp, param)
       unlink(tmp)
       return(res)
@@ -33,13 +38,14 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    #rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    #leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 
-       prePostCoords=gtfGRanges, step = 0, cores=1)
+       prePostCoords=reduced, step = 0, cores=1)
 }
 
 RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
    if (length(rightGappedAlign) == 0 || length(leftGappedAlign) == 0) {
       stop("Lists of GappedAlignments could not be empty")
    }
+   # here check _pre/ / _post
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", rightBams=rightGappedAlign, leftBams=leftGappedAlign, 
@@ -298,7 +304,8 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       #df <- subset(df, mM_left >= 0)
       df <- df[df$mM_left >= 0,]
       #df <- subset(df, !is.na(roar))
-      df <- df[!is.na(df$roar),]
+      # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
+      df <- df[is.finite(df$roar),]
       # rightValue/leftValue filtering (<= fpkmCutoff)
       #df <- subset(df, rightValue > fpkmCutoff)
       #df <- subset(df, leftValue > fpkmCutoff)
