@@ -18,13 +18,14 @@ Version: \tab 0.1.1 \cr
 Date: \tab 2013-05-04\cr
 License: \tab GPL-3\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+The code{\linkS4class{RoarDataset}} class exposes methods to perform the whole analysis, in order to 
+identify genes with preferential expression of long/short isoforms in a condition with respect to 
+another one. The needed input data are alignments deriving from RNA-seq experiments of the
+two conditions and a set of coordinates of APA sites for genes with an alternative APA site
+proximal to the one used ``normally''.
 }
 \author{
 Elena Grassi <grassi.e@gmail.com>
-}
-\references{
- TODO
 }
 \keyword{ package }
 
