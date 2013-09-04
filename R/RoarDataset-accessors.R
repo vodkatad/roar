@@ -11,7 +11,7 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 
-       prePostCoords=reduced, step = 0, cores=1)
+       prePostCoords=gtfGRanges, step = 0, cores=1)
 }
 
 RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
