@@ -4,8 +4,9 @@
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
-         with an expression estimate bigger than a given cutoff will be considered and the pvalue
-         will be corrected for multiple comparisons (with the Bonferroni method).
+         with an expression estimate bigger than a given cutoff will be considered.
+         %and the pvalue
+         %will be corrected for multiple comparisons (with the Bonferroni method).
      }
      \usage{
       standardFilter(rds, fpkmCutoff)
@@ -22,10 +23,10 @@
          The resulting dataframe will be identical to that returned by \code{link{filteringInfoResults}} but
          it will contains rows relative only with genes with an expression estimate (right or leftValue)
          bigger than the given fpkmCutoff in both the conditions.
-         The pvalues (for multiple samples their multiplication, i.e.
-         the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
-         only considering those genes, that are considered as "expressed" in both the biological conditions
-         in analysis.
+         %The pvalues (for multiple samples their multiplication, i.e.
+         %the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
+         %only considering those genes, that are considered as "expressed" in both the biological conditions
+         %in analysis.
       }
      \examples{
         gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")

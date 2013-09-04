@@ -270,6 +270,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       # a negative/NA m/M-roar.
       # P-value correction? In the single samples case it seems sensible to do that,
       # otherwise we will report all pvalues (and correct their product.)
+      # Due to chr by chr scanning bonferroni correction has been removed.
       df <- filteringInfoResults(rds)
       # mM_right, mM_left , roar columns filtering (< 0 / NA)
       # df <- subset(df, mM_right >= 0) # subset is ok for interactive use only
@@ -284,7 +285,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       #df <- subset(df, leftValue > fpkmCutoff)
       df <- df[df$rightValue > fpkmCutoff,]
       df <- df[df$leftValue > fpkmCutoff,]
-      df$bonferroniPval <- p.adjust(df$pval, method="bonferroni")
+      #df$bonferroniPval <- p.adjust(df$pval, method="bonferroni")
       return(df)
    }                  
 )
@@ -302,7 +303,8 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
          df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
       } else {
          #df <- subset(df, bonferroniPval < pvalCutoff)  
-         df <- df[df$bonferroniPval < pvalCutoff,]
+         #df <- df[df$bonferroniPval < pvalCutoff,]
+         df <- df[df$pval < pvalCutoff,]
       }   
       return(df)
    }                  

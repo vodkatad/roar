@@ -23,12 +23,12 @@
       \value{
          The resulting dataframe will be identical to that returned by \code{link{standardFilter}} but
          after gene expression filtering and pvalue correction another step will be performed:
-         for single samples comparisons only genes with a corrected pvalue smaller than the given cutoff
+         for single samples comparisons only genes with a nominal pvalue smaller than the given cutoff
          will be considered, while for multiple samples a column (nUnderCutoff) will be added to the
          dataframe. This column will contain an integer number representing the number of comparisons
          between the samples of the two conditions that results in a nominal pvalue lower than the given    
          cutoff (pvalCutoff).
-         \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
+        % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
       } 
      \examples{
         gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")

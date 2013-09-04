@@ -197,8 +197,8 @@ test_standardFilter_singleSamples <- function() {
                            roar=1,
                            pval=0.1,
                            rightValue=10,
-                           leftValue=10,
-                           bonferroniPval=0.1)
+                           leftValue=10)
+                           #bonferroniPval=0.1)
    checkEquals(df, df_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
@@ -252,8 +252,8 @@ test_pvalueFilter_singleSamples <- function() {
                            roar=c(10,1),
                            pval=c(0.01, 0.001),
                            rightValue=c(0.5, 10),
-                           leftValue=c(10, 10),
-                           bonferroniPval=c(0.03, 0.003))
+                           leftValue=c(10, 10))
+                           #bonferroniPval=c(0.03, 0.003))
    checkEquals(df, df_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
@@ -315,7 +315,7 @@ test_pvalueFilter_mulSamples <- function() {
                            pvalue_2_2 = c(4,5),
                            rightValue=c(1, 1e9),
                            leftValue=c(20, 1e9),
-                           bonferroniPval=c(0.02, 0.2),
+                           #bonferroniPval=c(0.02, 0.2)
                            nUnderCutoff=c(2,3))
    checkEquals(df, df_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
