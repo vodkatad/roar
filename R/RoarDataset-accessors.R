@@ -8,35 +8,8 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # here check _pre/ / _post
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
-   
-   # I can add which=gtfGRanges here but I need the .bai of the given bam, thus
-   # samtools sort pippo.bam pippo_sorted; samtools index pippo_sorted.bam
-   #>  sortBam("portion1.bam", "portion1_s", byQname=FALSE, maxMemory=512)
-   #[1] "portion1_s.bam"
-   #> indexBam("portion1_s.bam")
-   #portion1_s.bam 
-   #"portion1_s.bam.bai" 
-   #> res8 <- readGappedAlignments("portion1_s.bam", param=p2)
-   #> length(res8)
-   #[1] 13
-   # The other suggested approach is to proceed chr by chr. Cool.
-   chrs <- seqlevels(gtfGRanges)
-   reduced <- keepSeqlevels(gtfGRanges, chrs[[1]]) # just a try
-   
-   loadBam <- function(bam) {
-      tmp <- tempfile()
-      garbage <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
-      garbage <- indexBam(tmp)
-      
-      param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=reduced)
-      res <- readGappedAlignments(tmp, param)
-      unlink(tmp)
-      return(res)
-   } 
-   rightBamsGenomicAlignments <- lapply(rightBams, loadBam)
-   leftBamsGenomicAlignments <- lapply(leftBams, loadBam)
-   #rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
-   #leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
+   rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
+   leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 
        prePostCoords=reduced, step = 0, cores=1)
 }
