@@ -24,6 +24,8 @@ arguments <- matrix(c(
    'left'  , 'l', 1, "character"
 ), ncol=4, byrow=T)
 
+Rprof(tf <- "rprof.log", memory.profiling=TRUE)
+
 library(getopt)
 opt <- getopt(arguments)
 
@@ -56,46 +58,81 @@ ordered <- order(elementMetadata(gtfGRanges)$gene_id)
 gtfGRanges <- gtfGRanges[ordered]
 chrs <- seqlevels(gtfGRanges)
 
+orderBam <- function(bam) {
+      tmp <- tempfile()
+      garbage <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
+      ordered <- paste(tmp,"bam",sep=".")
+      garbage <- indexBam(ordered)
+      return(ordered)
+}
+
+orderedRightBams <- lapply(rightBams, orderBam)
+orderedLeftBams <- lapply(leftBams, orderBam)
+
 workOnChr <- function(chr) {
+   write(paste("Working on", chr), stderr())
+   start.time <- Sys.time()
    reduced <- keepSeqlevels(gtfGRanges, chr) # just a try
  
    loadBam <- function(bam) {
-      tmp <- tempfile()
-      garbage <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
-      garbage <- indexBam(paste(tmp,"bam",sep="."))
-      
-      param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=reduced)
-      res <- readGappedAlignments(file=paste(tmp,"bam",sep="."), param = param)
-      unlink(paste(tmp,"bam",sep="."))
+      #param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=reduced)
+      param <- ScanBamParam(which=reduced)
+      res <- readGappedAlignments(file=bam, param = param)
       return(res)
    } 
 
-   rightBamsGenomicAlignments <- lapply(rightBams, loadBam)
-   leftBamsGenomicAlignments <- lapply(leftBams, loadBam)
+   rightBamsGenomicAlignments <- lapply(orderedRightBams, loadBam)
+   leftBamsGenomicAlignments <- lapply(orderedLeftBams, loadBam)
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("Loading took", time.taken), stderr())
    
+   start.time <- Sys.time()
    rds <- RoarDataset(rightBamsGenomicAlignments, leftBamsGenomicAlignments, reduced)
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("Building object took", time.taken), stderr())
    # Get counts
    
+   start.time <- Sys.time()
    rds <- countPrePost(rds, FALSE)
-   
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("Counting took", time.taken),  stderr())
    # Get m/M and Roar
+   start.time <- Sys.time()
    rds <- computeRoars(rds)
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("Roars took", time.taken),  stderr())
    
    # Fisher test
+   start.time <- Sys.time()
    rds <- computePvals(rds)
-   
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("Pvalues took", time.taken), stderr())
+   size <- object.size(rds)
+   write("Size:",  stderr())
+   write(size, stderr())
    # results <- filteringInfoResults(rds)
    # write.table(results, sep="\t", quote=FALSE)
             
    # filteredResults <- standardFilter(rds, fpkmCutoff=1)
    # write.table(filteredResults, sep="\t", quote=FALSE)
-   
-   res <- standardFilter(rds, fpkmCutoff = 1)
+   start.time <- Sys.time()
+   res <- filteringInfoResults(rds)
+   end.time <- Sys.time()
+   time.taken <- end.time - start.time
+   write(paste("results took", time.taken), stderr())
+   return(res)
 }
 
 allRes <- lapply(chrs, workOnChr)
 meltedRes <- do.call("rbind", allRes)
 write.table(meltedRes, sep="\t", quote=FALSE)
+# unlink all bam now I don't care
+Rprof(NULL)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
