@@ -49,6 +49,17 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
       # In the simpler case with a single alignment for both conditions we just keep the counts.
       preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
       postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+      if (length(preElems)+length(postElems) != length(elementMetadata(rds@prePostCoords)$gene_id)) {
+         stop("The prePostCoords given for this RoarDataset are wrong, some of the gene_id
+              does not end in _PRE/_POST.")
+      }
+      # The number of elements has to be checked because some horrible special case with recycling
+      # of vector elements in the comparison are possible.
+      if (!all(sub("_PRE", "", elementMetadata(rds@prePostCoords)$gene_id[preElems]) ==
+                     sub("_POST", "", elementMetadata(rds@prePostCoords)$gene_id[postElems]))) {
+         stop("The prePostCoords given for this RoarDataset are wrong, not all prefixes of PRE-POST
+              correspond.")
+      }
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
