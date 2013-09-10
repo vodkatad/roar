@@ -60,8 +60,7 @@ chrs <- seqlevels(gtfGRanges)
 
 orderBam <- function(bam) {
       tmp <- tempfile()
-      garbage <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
-      ordered <- paste(tmp,"bam",sep=".")
+      ordered <- sortBam(bam, tmp, byQname=FALSE, maxMemory=512)
       garbage <- indexBam(ordered)
       return(ordered)
 }
@@ -72,11 +71,14 @@ orderedLeftBams <- lapply(leftBams, orderBam)
 workOnChr <- function(chr) {
    write(paste("Working on", chr), stderr())
    start.time <- Sys.time()
-   reduced <- keepSeqlevels(gtfGRanges, chr) # just a try
- 
+   reduced <- keepSeqlevels(gtfGRanges, chr) 
+   coords <- c(start(reduced), end(reduced))  # Keep strandness in consideration! Is this needed?
+   begin <- min(coords)
+   end <- max(coords)
+   spanChr <- GRanges(seqnames=chr,ranges=IRanges(start=begin,width=end-begin+1))
    loadBam <- function(bam) {
       #param <- ScanBamParam(what=c("rname", "strand", "pos", "qwidth"), which=reduced)
-      param <- ScanBamParam(which=reduced)
+      param <- ScanBamParam(which=spanChr)
       res <- readGappedAlignments(file=bam, param = param)
       return(res)
    } 
