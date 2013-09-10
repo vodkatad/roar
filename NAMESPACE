@@ -15,8 +15,8 @@ exportMethods(
    totalResults,
    filteringInfoResults,
    standardFilter,
-   pvalueFilter,
-   cores
+   pvalueFilter
+#   cores
 #  "cores<-"
 )
 
