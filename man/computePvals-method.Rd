@@ -3,7 +3,7 @@
      \title{Computes pvalues (Fisher test) for this \code{\linkS4class{RoarDataset}} object}
      \description{
        This is the third step in the Roar analyses: it applies a Fisher test comparing counts falling
-       on the PRE and POST portion in the right and left for every gene. If there are multiple samples for
+       on the PRE and POST portion in the right and left conditions for every gene. If there are multiple samples for
        a condition every combinations of comparisons between the samples lists are considered.
      }
      \usage{

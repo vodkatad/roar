@@ -21,7 +21,7 @@
            This gtf must have an attribute called "gene_id" that ends with "_PRE"
            or "_POST" to address respectively the short and the long isoform.
            A ready-to-go gtf, with coordinates derived from the PolyADB on
-           the human genome (version hg19), is available TODO.
+           the human genome (version hg19), is available in the "examples" package directory.
            An element in the annotation
            is considered "PRE" (i.e. common to the short and long isoform of the transcript) if its gene_id
            feature in the gtf ends with "_PRE". If

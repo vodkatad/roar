@@ -25,7 +25,7 @@
            is considered "PRE" (i.e. common to the short and long isoform of the transcript) if its gene_id
            ends with "_PRE". If it ends with "_POST" it is considered the portion present only in the long
            isoform.
-           The prefix of gene_id should be an identifier for the gene and each identifier has to be
+           The prefix of gene_id should be a unique identifier for the gene and each identifier has to be
            associated with only one "_PRE" and one "_POST", leading to two genomic region associated to each   
            gene_id.
         }

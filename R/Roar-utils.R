@@ -16,7 +16,7 @@ checkStep <- function(rds, neededStep) {
       if (neededStep != rds@step) {
          if (neededStep == 1) {
             warning("Automatically calling countPrePost")
-            rds <- countPrePost(rds)    
+            rds <- countPrePost(rds, FALSE)    
          } else if (neededStep == 2) {
             warning("Automatically calling computeRoars")
             rds <- computeRoars(rds)

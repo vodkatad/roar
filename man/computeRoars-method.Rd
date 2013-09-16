@@ -2,15 +2,15 @@
      \alias{computeRoars}
      \title{Computes m/M and roar values for this \code{\linkS4class{RoarDataset}} object}
      \description{
-       This is the second step in the Roar analyses: it compute the ratio of prevalence
+       This is the second step in the Roar analyses: it computes the ratio of prevalence
        of the short and long isoforms for every gene in the right and left condition (m/M) and their
        ratio, roar, that indicates if there is a relative shortening-lengthening in a condition
        over the other one. A roar > 1 for a given gene means that in the right condition
        that gene has an higher ratio of short vs long isoforms with respect to the left condition (and
-       the opposite for roar < 1). Negative or NA m/M or roar occurs in not-valuable situations,
+       the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite situations,
        such as counts equal to zero for PRE or POST portions.
        If for one of the conditions there are more than one samples then calculations are performed
-       on the average counts.
+       on average counts.
      }
      \usage{
       computeRoars(rds)
@@ -21,7 +21,7 @@
            in the two conditions to be compared via roar.}
       }
       \value{
-         The \code{\linkS4class{RoarDataset}} object given as rds with the compute Roars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
+         The \code{\linkS4class{RoarDataset}} object given as rds with the computeRoars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
          in two slots otherwise, but end user normally should not analyze those directly but use
          \code{\link{totalResults}} or \code{\link{fpkmResults}} at the end of the analysis. 
       }

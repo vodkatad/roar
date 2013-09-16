@@ -76,6 +76,8 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          # Note that in the first case we need to use the whole gtf with PRE and POST to avoid
          # assigning to PRE the overlapping reads, even if the counts on POST gotten afterwards
          # will be discarded.
+         # This works but if a PRE portion of a gene overlaps with a POST portion of another one 
+         # reads falling there are counted two times. FIXME
          rightSEpost <- summOvPost(rds@rightBams[[1]])
          leftSEpost <- summOvPost(rds@leftBams[[1]])
          assay(se,1)[,"right_pre"] <- assays(rightSE)$counts[preElems,]
@@ -283,7 +285,6 @@ setMethod("countResults", signature(rds="RoarDataset"),
              return(df)
           }
 )
-
 
 setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
    function(rds, fpkmCutoff) {

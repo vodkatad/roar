@@ -8,7 +8,7 @@
        Reads of the given bam annotation files that falls over this portion are accounted for with the following
        rules:
        1- reads falling over different gene_id PRE or POST portions are discarded
-       2- reads falling on a single gene_id PRE (or POST) portion are considered, even if the fall 
+       2- reads falling on a single gene_id PRE (or POST) portion are considered, even if they fall 
        outside of the portion boundaries
        3- reads falling over a single gene coordinates but both on PRE and POST are assigned to the POST portion,
        as long as the could be derived only from the long isoform.
