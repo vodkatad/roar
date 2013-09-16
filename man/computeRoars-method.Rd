@@ -23,7 +23,7 @@
       \value{
          The \code{\linkS4class{RoarDataset}} object given as rds with the compute Roars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
          in two slots otherwise, but end user normally should not analyze those directly but use
-         \code{\link{totalResults}} or \code{\link{filteringInfoResults}} at the end of the analysis. 
+         \code{\link{totalResults}} or \code{\link{fpkmResults}} at the end of the analysis. 
       }
      \examples{
         gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")

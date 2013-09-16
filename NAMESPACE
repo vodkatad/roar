@@ -13,7 +13,8 @@ exportMethods(
    computeRoars,
    computePvals,
    totalResults,
-   filteringInfoResults,
+   fpkmResults,
+   countResults,
    standardFilter,
    pvalueFilter
 #   cores

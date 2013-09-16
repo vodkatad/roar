@@ -6,7 +6,8 @@
 \alias{computeRoars,RoarDataset-method}
 \alias{cores,RoarDataset-method}
 \alias{countPrePost,RoarDataset,logical-method}
-\alias{filteringInfoResults,RoarDataset-method}
+\alias{fpkmResults,RoarDataset-method}
+\alias{countResults,RoarDataset-method}
 \alias{totalResults,RoarDataset-method}
 \alias{standardFilter,RoarDataset,numeric-method}
 \alias{pvalueFilter,RoarDataset,numeric,numeric-method}
@@ -48,9 +49,12 @@ Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
     \item{\code{\link{computeRoars}}}{\code{signature(rds = "RoarDataset")}: Computes m/M and roar values for this \code{\linkS4class{RoarDataset}} object. }
     \item{\code{\link{computePvals}}}{\code{signature(rds = "RoarDataset")}: Computes pvalues (Fisher test) for this \code{\linkS4class{RoarDataset}} object. }
     \item{totalResults}{\code{signature(rds = "RoarDataset")}: Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object. }
-    \item{\code{\link{filteringInfoResults}}}{\code{signature(rds = "RoarDataset")}: 
+    \item{\code{\link{fpkmResults}}}{\code{signature(rds = "RoarDataset")}: 
     The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
     values, pvalues and estimates of expression (a measure recalling FPKM). }
+    \item{\code{\link{countResults}}}{\code{signature(rds = "RoarDataset")}: 
+    The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
+    values, pvalues and estimates of expression (counts over PRE portions). }
     \item{\code{\link{standardFilter}}}{\code{signature(rds = "RoarDataset", fpkmCutoff = "double")}: Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object. }
     \item{\code{\link{pvalueFilter}}}{\code{signature(rds = "RoarDataset", fpkmCutoff = "double", pvalCutoff = "double")}: ... }
     \item{\code{\link{cores}}}{\code{signature(rds = "RoarDataset")}: returns the number of cores used for computation, right now always 1. }

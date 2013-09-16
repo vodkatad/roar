@@ -263,7 +263,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 # the user will be able to apply its preferred filtering/pvalue correction strategy.
 # RPKM are gotten from counts over the PRE portions working on means across replicates.
 # As total number of mapped reads we use the total number of reads mapped over all PRE portions.
-setMethod("filteringInfoResults", signature(rds="RoarDataset"),
+setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
       df <- totalResults(rds)
       preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
@@ -275,6 +275,16 @@ setMethod("filteringInfoResults", signature(rds="RoarDataset"),
    }
 )
 
+setMethod("countResults", signature(rds="RoarDataset"),
+          function(rds) {
+             df <- totalResults(rds)
+             df$rightValue <- assay(rds, 1)[,"right_pre"]
+             df$leftValue <- assay(rds, 1)[,"left_pre"]
+             return(df)
+          }
+)
+
+
 setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
    function(rds, fpkmCutoff) {
       # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
@@ -282,7 +292,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       # P-value correction? In the single samples case it seems sensible to do that,
       # otherwise we will report all pvalues (and correct their product.)
       # Due to chr by chr scanning bonferroni correction has been removed.
-      df <- filteringInfoResults(rds)
+      df <- fpkmResults(rds)
       # mM_right, mM_left , roar columns filtering (< 0 / NA)
       # df <- subset(df, mM_right >= 0) # subset is ok for interactive use only
       df <- df[df$mM_right >= 0,]

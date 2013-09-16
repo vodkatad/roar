@@ -1,12 +1,12 @@
-\name{filteringInfoResults}
-     \alias{filteringInfoResults}
+\name{countResults}
+     \alias{countResults}
      \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
-         values, pvalues and estimates of expression (a measure recalling FPKM).
+         values, pvalues and estimates of expression (number of reads falling over the PRE portions).
      }
      \usage{
-      filteringInfoResults(rds)
+      countResults(rds)
      }
      \arguments{
        \item{rds}{
@@ -18,9 +18,8 @@
          The resulting dataframe will be identical to that returned by \code{link{totalResults}} but
          with two columns added: "rightValue" and "leftValue". These columns will contain a number
          that indicates the level of expression of the relative gene in the right (or left) condition.
-         This number derives from the counts (averages across samples when applicable) 
-         obtained for the PRE portion of the gene and is similar
-         to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette (XXX)
+         This number represents the counts (averages across samples when applicable) 
+         obtained for the PRE portion of the gene and is similar. See the vignette (XXX)
          for more details.
       }
      \examples{
@@ -40,6 +39,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- filteringInfoResults(rds)
+   df <- countResults(rds)
     }
-\keyword{filteringInfoResults}
+\keyword{countResults}

@@ -117,13 +117,8 @@ workOnChr <- function(chr) {
    size <- object.size(rds)
    write("Size:",  stderr())
    write(size, stderr())
-   # results <- filteringInfoResults(rds)
-   # write.table(results, sep="\t", quote=FALSE)
-            
-   # filteredResults <- standardFilter(rds, fpkmCutoff=1)
-   # write.table(filteredResults, sep="\t", quote=FALSE)
    start.time <- Sys.time()
-   res <- filteringInfoResults(rds)
+   res <- countResults(rds)
    end.time <- Sys.time()
    time.taken <- end.time - start.time
    write(paste("results took", time.taken), stderr())

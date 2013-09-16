@@ -61,7 +61,7 @@ rds <- computeRoars(rds)
 # Fisher test
 rds <- computePvals(rds)
 
-# results <- filteringInfoResults(rds)
+# results <- fpkmResults(rds)
 # write.table(results, sep="\t", quote=FALSE)
          
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)

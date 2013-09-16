@@ -3,7 +3,8 @@ setGeneric("countPrePost", def=function(rds, stranded) { standardGeneric("countP
 setGeneric("computeRoars", def=function(rds) { standardGeneric("computeRoars") }, valueClass="RoarDataset")
 setGeneric("computePvals", def=function(rds) { standardGeneric("computePvals") }, valueClass="RoarDataset")
 setGeneric("totalResults", def=function(rds) { standardGeneric("totalResults") }, valueClass="data.frame")
-setGeneric("filteringInfoResults", def=function(rds) { standardGeneric("filteringInfoResults") }, valueClass="data.frame")
+setGeneric("fpkmResults", def=function(rds) { standardGeneric("fpkmResults") }, valueClass="data.frame")
+setGeneric("countResults", def=function(rds) { standardGeneric("countResults") }, valueClass="data.frame")
 setGeneric("standardFilter", def=function(rds, fpkmCutoff) { standardGeneric("standardFilter") }, valueClass="data.frame")
 setGeneric("pvalueFilter", def=function(rds, fpkmCutoff, pvalCutoff) { standardGeneric("pvalueFilter") }, valueClass="data.frame")
 

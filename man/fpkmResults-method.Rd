@@ -1,32 +1,27 @@
-\name{standardFilter}
-     \alias{standardFilter}
+\name{fpkmResults}
+     \alias{fpkmResults}
      \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
-         values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
-         with an expression estimate bigger than a given cutoff will be considered.
-         %and the pvalue
-         %will be corrected for multiple comparisons (with the Bonferroni method).
+         values, pvalues and estimates of expression (a measure recalling FPKM).
      }
      \usage{
-      standardFilter(rds, fpkmCutoff)
+      fpkmResults(rds)
      }
      \arguments{
        \item{rds}{
            The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
             If one or more steps hadn't been performed they will be called automatically.}
-      \item{fpkmCutoff}{
-         The cutoff that will be used to determine if a gene is expressed or not.}
       }
       \value{
-         The resulting dataframe will be identical to that returned by \code{link{fpkmResults}} but
-         it will contains rows relative only with genes with an expression estimate (right or leftValue)
-         bigger than the given fpkmCutoff in both the conditions.
-         %The pvalues (for multiple samples their multiplication, i.e.
-         %the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
-         %only considering those genes, that are considered as "expressed" in both the biological conditions
-         %in analysis.
+         The resulting dataframe will be identical to that returned by \code{link{totalResults}} but
+         with two columns added: "rightValue" and "leftValue". These columns will contain a number
+         that indicates the level of expression of the relative gene in the right (or left) condition.
+         This number derives from the counts (averages across samples when applicable) 
+         obtained for the PRE portion of the gene and is similar
+         to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette (XXX)
+         for more details.
       }
      \examples{
         gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
@@ -45,6 +40,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- standardFilter(rds, 1)
+   df <- fpkmResults(rds)
     }
-\keyword{standardFilter}
+\keyword{fpkmResults}

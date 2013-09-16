@@ -28,7 +28,7 @@
          m/M values/ROAR and also NA - in these cases there aren't enough information to draw a conclusion
          about the shortening/lengthening of the gene in the given samples and thus the pvalues
          should not be kept in consideration. Furthermore there isn't any filter on the expression level
-         of the genes. See \code{\link{filteringInfoResults}}, \code{\link{standardFilter}} and
+         of the genes. See \code{\link{fpkmResults}}, \code{\link{standardFilter}} and
          \code{\link{pvalueFilter}} about results filtering possibilities.
       }
      \examples{

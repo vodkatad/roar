@@ -104,7 +104,7 @@ test_totalResults_mulSamples <- function() {
    checkEquals(df, df_wanted)
 }
 
-test_filteringInfoResults_singleSamples <- function() {
+test_fpkmResults_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
       seqnames = Rle(rep("chr1", length(gene_id))),
@@ -141,7 +141,7 @@ test_filteringInfoResults_singleSamples <- function() {
    assay(rds,1)[2,4] <- NA
    assay(rds,2) <- matrix(ncol=4, nrow=2)
    
-   df <- filteringInfoResults(rds)
+   df <- fpkmResults(rds)
 
    checkEqualsNumeric(df[1,"rightValue"], 8.3333e5, tolerance=1e-5)
    checkEqualsNumeric(df[1,"leftValue"], 9.67741e5, tolerance=1e-5)

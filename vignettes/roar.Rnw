@@ -4,13 +4,38 @@
 \author{Elena Grassi}
 \usepackage{Sweave}
 
+% From dexseq vignette
+\newcommand{\Robject}[1]{{\small\texttt{#1}}}
+\newcommand{\Rfunction}[1]{\Robject{#1}}
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rclass}[1]{\textit{#1}}
+
 \title{Identify differential APA usage from RNA-seq alignments}
 
-
+\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-16-09)}
 \begin{document}
 %\SweaveOpts{concordance=TRUE}
 
 \maketitle
+
+\begin{abstract}
+  This vignette describes how to use the Bioconductor package
+  \Rpackage{roar} to detect preferential usage of shorter isoforms via alternative
+  poly-adenylation from RNA-seq data. The approach is based on fisher test
+  to detect disequilibriums in the number of reads falling over the 3'UTRs
+  when comparing two biological conditions. The name roar means
+  ``ratio of a ratio'': counts are used to calculate the prevalence
+  of the short isoform over the long one in both conditions, therefore the ratio of
+  these ratios represents the relative ``shortening'' (or lengthening) in one
+  condition with respect to the other.
+  The method is described
+  in \cite{XXX}.
+  As input, \Rpackage{DEXSeq}
+  uses alignments files for the two conditions and coordinates of the 3'UTRs with
+  alternative polyadenylation sites. 
+  Here, the method is demonstrated on the data from the package \Rpackage{pasilla}.
+  To cite this software, please refer to \Rfunction{citation("DEXSeq")}.
+\end{abstract}
 
 Check the man pages and the roarWrapper script to get help about this package usage.
 
@@ -32,7 +57,7 @@ Check the man pages and the roarWrapper script to get help about this package us
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- filteringInfoResults(rds)
+   df <- fpkmResults(rds)
 @
 
 
