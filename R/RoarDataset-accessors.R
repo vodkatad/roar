@@ -26,6 +26,7 @@ RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
+# setValidity instead of checks inside countPrePost? But this would be inefficient/add slots.
 
 # I removed stranded="logical" from the signature because it has a default value, which
 # is also set in setGeneric.
@@ -351,3 +352,16 @@ setMethod("cores",  signature(rds="RoarDataset"),
 #     return(rds)
 #  }
 # )
+
+# Here signature does not work. We are overriding show, that's why?
+setMethod("show", "RoarDataset",
+   function(rds) {
+      cat("RoarDataset object\n")
+      cat("N. of right alignments:", length(rds@rightBams), "\n")
+      cat("N. of left alignments:", length(rds@leftBams), "\n")
+      cat("N. of genes in study:", length(features)/2 , "\n")
+      cat("N. of cores:", rds@cores, "\n")
+      cat("Analysis step reached [0-3]:", rds@step, "\n")
+      cat("\n")     
+   }
+)
