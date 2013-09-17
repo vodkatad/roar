@@ -361,7 +361,7 @@ setMethod("show", "RoarDataset",
       cat("RoarDataset object\n")
       cat("N. of right alignments:", length(rds@rightBams), "\n")
       cat("N. of left alignments:", length(rds@leftBams), "\n")
-      cat("N. of genes in study:", length(features)/2 , "\n")
+      cat("N. of genes in study:", length(rds@prePostCoords)/2 , "\n")
       cat("N. of cores:", rds@cores, "\n")
       cat("Analysis step reached [0-3]:", rds@step, "\n")
       cat("\n")     
