@@ -1,8 +1,7 @@
 #!/usr/bin/env Rscript
-# First script to perform Roar analysis. 
+# Script to perform Roar analysis. 
 # Requires a gtf with _PRE and _POST gene_ids and bam files from the two 
 # conditions to be compared.
-# Will become a wrapper for our Bioconductor library?
 
 checkReadable <- function(filename) {
    res <- file.access(names=filename, mode=4) == 0
@@ -11,10 +10,6 @@ checkReadable <- function(filename) {
    }
    res
 }
-
-# To understand at least something about occurred errors.
-# In this way it goes further on after the first error. TODO avoid this!
-# options(error=traceback) 
 
 arguments <- matrix(c(
    'help', 'h', 0, "logical",
@@ -42,10 +37,6 @@ if (is.null(opt$right) | is.null(opt$left)) {
 library(roar)
 rightBams = as.vector(unlist(strsplit(opt$right, ",")))
 leftBams = as.vector(unlist(strsplit(opt$left, ",")))
-
-#if (length(rightBams) > 1 || length(leftBams) > 1) {
-#   warning("Statistical analysis for replicates right now is not fully implemented.")
-#}
 
 if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  

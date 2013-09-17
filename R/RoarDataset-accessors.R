@@ -282,12 +282,12 @@ setMethod("fpkmResults", signature(rds="RoarDataset"),
 )
 
 setMethod("countResults", signature(rds="RoarDataset"),
-          function(rds) {
-             df <- totalResults(rds)
-             df$rightValue <- assay(rds, 1)[,"right_pre"]
-             df$leftValue <- assay(rds, 1)[,"left_pre"]
-             return(df)
-          }
+   function(rds) {
+      df <- totalResults(rds)
+      df$rightValue <- assay(rds, 1)[,"right_pre"]
+      df$leftValue <- assay(rds, 1)[,"left_pre"]
+      return(df)
+   }
 )
 
 setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
