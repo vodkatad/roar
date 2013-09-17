@@ -300,9 +300,9 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       df <- fpkmResults(rds)
       # mM_right, mM_left , roar columns filtering (< 0 / NA)
       # df <- subset(df, mM_right >= 0) # subset is ok for interactive use only
-      df <- df[df$mM_right >= 0,]
+      df <- df[is.finite(df$mM_right) && df$mM_right >= 0,]
       #df <- subset(df, mM_left >= 0)
-      df <- df[df$mM_left >= 0,]
+      df <- df[is.finite(df$mM_left) && df$mM_left >= 0,]
       #df <- subset(df, !is.na(roar))
       # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
       df <- df[is.finite(df$roar),]
@@ -323,10 +323,12 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
          # In this case we add to df a col that says how many comparisons yielded
          # a pvalue < pvalCutoff.
          # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
-         cols <- grep("^pvalue_", colnames(df))
-         sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
-         # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
-         df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         if(nrow(df) != 0) {
+            cols <- grep("^pvalue_", colnames(df))
+            sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
+            # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
+            df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         }
       } else {
          #df <- subset(df, bonferroniPval < pvalCutoff)  
          #df <- df[df$bonferroniPval < pvalCutoff,]
