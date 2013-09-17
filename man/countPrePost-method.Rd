@@ -15,14 +15,15 @@
        If the stranded argument is set to TRUE then strandness is considered when counting reads.
      }
      \usage{
-      countPrePost(rds, stranded)
+      countPrePost(rds, stranded=FALSE)
      }
      \arguments{
        \item{rds}{
            The \code{\linkS4class{RoarDataset}} which contains the alignments and annotation informations over which
            counts will be performed.}
        \item{stranded}{
-           A logical indicating if strandness should be considered when counting reads or not.    
+           A logical indicating if strandness should be considered when counting reads or not.
+           Default=FALSE.
        }
       }
       \value{
@@ -43,6 +44,6 @@
    rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
    rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
    rds <- RoarDataset(list(c(rd1,rd2)), list(rd3), features)
-   rds <- countPrePost(rds, FALSE)
+   rds <- countPrePost(rds)
     }
 \keyword{countPrePost}

@@ -413,7 +413,8 @@ test_computeRoars_singleSamples_GRanges_order <- function() {
    leftAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
    
    rds <- RoarDataset(rightAlign, leftAlign, features)
-   rds <- countPrePost(rds, FALSE)
+   # Removed FALSE to test about default stranded value (FALSE).
+   rds <- countPrePost(rds)
    rds <- computeRoars(rds)
    #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
    checkEqualsNumeric(assay(rds,2)[1,1], -0.66538461538462, tolerance=1e-5)

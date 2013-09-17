@@ -1,5 +1,5 @@
 # Methods for the RoarDataset class.
-# R/AllGenerics.R contains the signature of the not overriding methods.
+# R/AllGenerics.R contains the signatures of the not overriding methods.
 
 RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
@@ -27,8 +27,10 @@ RoarDataset <- function(rightGappedAlign, leftGappedAlign, gtfGRanges) {
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
 
-setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
-   function(rds, stranded) {
+# I removed stranded="logical" from the signature because it has a default value, which
+# is also set in setGeneric.
+setMethod("countPrePost", signature(rds="RoarDataset"),
+   function(rds, stranded=FALSE) {
       #if (!is(rds, "RoarDataset")) {
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
@@ -60,6 +62,7 @@ setMethod("countPrePost", signature(rds="RoarDataset", stranded="logical"),
          stop("The prePostCoords given for this RoarDataset are wrong, not all prefixes of PRE-POST
               correspond.")
       }
+      # Check uniqueness XXX TODO
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
@@ -332,10 +335,7 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
    }                  
 )
 
-
-
-# Simple getters and setters. Arf Arf!
-# XXX TODO
+# Simple getters and setters.
 setMethod("cores",  signature(rds="RoarDataset"),
  function(rds) {
     return(rds@cores)

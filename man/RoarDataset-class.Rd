@@ -6,6 +6,7 @@
 \alias{computeRoars,RoarDataset-method}
 \alias{cores,RoarDataset-method}
 \alias{countPrePost,RoarDataset,logical-method}
+\alias{countPrePost,RoarDataset-method}
 \alias{fpkmResults,RoarDataset-method}
 \alias{countResults,RoarDataset-method}
 \alias{totalResults,RoarDataset-method}
