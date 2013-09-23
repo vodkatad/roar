@@ -53,17 +53,26 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
       postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
       if (length(preElems)+length(postElems) != length(elementMetadata(rds@prePostCoords)$gene_id)) {
-         stop("The prePostCoords given for this RoarDataset are wrong, some of the gene_id
+         stop("The prePostCoords given for this RoarDataset are wrong: some of the gene_id
               does not end in _PRE/_POST.")
+      }
+      if (length(preElems) != length(postElems)) {
+         stop("The prePostCoords given for this RoarDataset are wrong: the number of PRE is different
+              from the number of POST.")
       }
       # The number of elements has to be checked because some horrible special case with recycling
       # of vector elements in the comparison are possible.
       if (!all(sub("_PRE", "", elementMetadata(rds@prePostCoords)$gene_id[preElems]) ==
                      sub("_POST", "", elementMetadata(rds@prePostCoords)$gene_id[postElems]))) {
-         stop("The prePostCoords given for this RoarDataset are wrong, not all prefixes of PRE-POST
+         stop("The prePostCoords given for this RoarDataset are wrong: not all prefixes of PRE-POST
               correspond.")
       }
-      # Check uniqueness XXX TODO
+      # Check uniqueness of gene_id.
+      geneIds <- sub("_PRE", "", elementMetadata(rds@prePostCoords)$gene_id[preElems])
+      if (!all(geneIds==make.unique(geneIds))) {
+         stop("The prePostCoords given for this RoarDataset are wrong: gene_ids (prefixes of PRE-POST)
+               are not unique.")
+      }
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
@@ -271,22 +280,22 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 # As total number of mapped reads we use the total number of reads mapped over all PRE portions.
 setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
-      df <- totalResults(rds)
+      dat <- totalResults(rds)
       preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
       sumPreRight <- sum(assay(rds, 1)[,"right_pre"])
       sumPreLeft <- sum(assay(rds, 1)[,"left_pre"])
-      df$rightValue <- (assay(rds, 1)[,"right_pre"]*1000000000)/(preLen*sumPreRight)
-      df$leftValue <- (assay(rds, 1)[,"left_pre"]*1000000000)/(preLen*sumPreLeft)
-      return(df)
+      dat$rightValue <- (assay(rds, 1)[,"right_pre"]*1000000000)/(preLen*sumPreRight)
+      dat$leftValue <- (assay(rds, 1)[,"left_pre"]*1000000000)/(preLen*sumPreLeft)
+      return(dat)
    }
 )
 
 setMethod("countResults", signature(rds="RoarDataset"),
    function(rds) {
-      df <- totalResults(rds)
-      df$rightValue <- assay(rds, 1)[,"right_pre"]
-      df$leftValue <- assay(rds, 1)[,"left_pre"]
-      return(df)
+      dat <- totalResults(rds)
+      dat$rightValue <- assay(rds, 1)[,"right_pre"]
+      dat$leftValue <- assay(rds, 1)[,"left_pre"]
+      return(dat)
    }
 )
 
@@ -297,44 +306,44 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       # P-value correction? In the single samples case it seems sensible to do that,
       # otherwise we will report all pvalues (and correct their product.)
       # Due to chr by chr scanning bonferroni correction has been removed.
-      df <- fpkmResults(rds)
+      dat <- fpkmResults(rds)
       # mM_right, mM_left , roar columns filtering (< 0 / NA)
-      # df <- subset(df, mM_right >= 0) # subset is ok for interactive use only
-      df <- df[is.finite(df$mM_right) && df$mM_right >= 0,]
-      #df <- subset(df, mM_left >= 0)
-      df <- df[is.finite(df$mM_left) && df$mM_left >= 0,]
-      #df <- subset(df, !is.na(roar))
+      # dat <- subset(dat, mM_right >= 0) # subset is ok for interactive use only
+      dat <- dat[is.finite(dat$mM_right) & dat$mM_right >= 0,]
+      #dat <- subset(dat, mM_left >= 0)
+      dat <- dat[is.finite(dat$mM_left) & dat$mM_left >= 0,]
+      #dat <- subset(dat, !is.na(roar))
       # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
-      df <- df[is.finite(df$roar),]
+      dat <- dat[is.finite(dat$roar),]
       # rightValue/leftValue filtering (<= fpkmCutoff)
-      #df <- subset(df, rightValue > fpkmCutoff)
-      #df <- subset(df, leftValue > fpkmCutoff)
-      df <- df[df$rightValue > fpkmCutoff,]
-      df <- df[df$leftValue > fpkmCutoff,]
-      #df$bonferroniPval <- p.adjust(df$pval, method="bonferroni")
-      return(df)
+      #dat <- subset(dat, rightValue > fpkmCutoff)
+      #dat <- subset(dat, leftValue > fpkmCutoff)
+      dat <- dat[dat$rightValue > fpkmCutoff,]
+      dat <- dat[dat$leftValue > fpkmCutoff,]
+      #dat$bonferroniPval <- p.adjust(dat$pval, method="bonferroni")
+      return(dat)
    }                  
 )
 
 setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {
-      df <- standardFilter(rds, fpkmCutoff)
+      dat <- standardFilter(rds, fpkmCutoff)
       if (length(rds@rightBams) != 1 || length(rds@leftBams) != 1) {
-         # In this case we add to df a col that says how many comparisons yielded
+         # In this case we add to dat a col that says how many comparisons yielded
          # a pvalue < pvalCutoff.
          # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
-         if(nrow(df) != 0) {
-            cols <- grep("^pvalue_", colnames(df))
-            sel <- apply(df, 1, function(x) {x[cols] < pvalCutoff})
-            # This yields a transposed df with cols rows and TRUE/FALSE. ncol = nrows of df
-            df$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         if(nrow(dat) != 0) {
+            cols <- grep("^pvalue_", colnames(dat))
+            sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+            # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+            dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
          }
       } else {
-         #df <- subset(df, bonferroniPval < pvalCutoff)  
-         #df <- df[df$bonferroniPval < pvalCutoff,]
-         df <- df[df$pval < pvalCutoff,]
+         #dat <- subset(dat, bonferroniPval < pvalCutoff)  
+         #dat <- dat[dat$bonferroniPval < pvalCutoff,]
+         dat <- dat[dat$pval < pvalCutoff,]
       }   
-      return(df)
+      return(dat)
    }                  
 )
 
@@ -357,13 +366,13 @@ setMethod("cores",  signature(rds="RoarDataset"),
 
 # Here signature does not work. We are overriding show, that's why?
 setMethod("show", "RoarDataset",
-   function(rds) {
+   function(object) {
       cat("RoarDataset object\n")
-      cat("N. of right alignments:", length(rds@rightBams), "\n")
-      cat("N. of left alignments:", length(rds@leftBams), "\n")
-      cat("N. of genes in study:", length(rds@prePostCoords)/2 , "\n")
-      cat("N. of cores:", rds@cores, "\n")
-      cat("Analysis step reached [0-3]:", rds@step, "\n")
+      cat("N. of right alignments:", length(object@rightBams), "\n")
+      cat("N. of left alignments:", length(object@leftBams), "\n")
+      cat("N. of genes in study:", length(object@prePostCoords)/2 , "\n")
+      cat("N. of cores:", object@cores, "\n")
+      cat("Analysis step reached [0-3]:", object@step, "\n")
       cat("\n")     
    }
 )

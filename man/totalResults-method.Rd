@@ -48,6 +48,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- totalResults(rds)
+   dat <- totalResults(rds)
     }
 \keyword{totalResults}

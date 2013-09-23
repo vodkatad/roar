@@ -45,6 +45,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- standardFilter(rds, 1)
+   dat <- standardFilter(rds, 1)
     }
 \keyword{standardFilter}

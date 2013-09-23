@@ -37,13 +37,13 @@ test_totalResults_singleSamples <- function() {
    assay(rds,2)[2,3] <- 7
    assay(rds,2)[2,4] <- 8
    
-   df <- totalResults(rds)
-   df_wanted <- data.frame(row.names=c("A","B"), 
+   dat <- totalResults(rds)
+   dat_wanted <- data.frame(row.names=c("A","B"), 
                            mM_right=c(1,5), 
                            mM_left=c(2,6),
                            roar=c(3,7),
                            pval=c(4,8))
-   checkEquals(df, df_wanted)
+   checkEquals(dat, dat_wanted)
 }
 
 test_totalResults_mulSamples <- function() {
@@ -89,8 +89,8 @@ test_totalResults_mulSamples <- function() {
    assay(rds@pVals,1)[1,] <- seq(1,6)
    assay(rds@pVals,1)[2,] <- seq(10,15)
    
-   df <- totalResults(rds)
-   df_wanted <- data.frame(row.names=c("A","B"), 
+   dat <- totalResults(rds)
+   dat_wanted <- data.frame(row.names=c("A","B"), 
                            mM_right=c(1,5), 
                            mM_left=c(2,6),
                            roar=c(3,7),
@@ -101,7 +101,7 @@ test_totalResults_mulSamples <- function() {
                            pvalue_2_1 = c(4,13),
                            pvalue_2_2 = c(5,14),
                            pvalue_2_3 = c(6,15))
-   checkEquals(df, df_wanted)
+   checkEquals(dat, dat_wanted)
 }
 
 test_fpkmResults_singleSamples <- function() {
@@ -141,12 +141,12 @@ test_fpkmResults_singleSamples <- function() {
    assay(rds,1)[2,4] <- NA
    assay(rds,2) <- matrix(ncol=4, nrow=2)
    
-   df <- fpkmResults(rds)
+   dat <- fpkmResults(rds)
 
-   checkEqualsNumeric(df[1,"rightValue"], 8.3333e5, tolerance=1e-5)
-   checkEqualsNumeric(df[1,"leftValue"], 9.67741e5, tolerance=1e-5)
-   checkEqualsNumeric(df[2,"rightValue"], 1.666667e6, tolerance=1e-5)
-   checkEqualsNumeric(df[2,"leftValue"], 3.2258e5, tolerance=1e-5)
+   checkEqualsNumeric(dat[1,"rightValue"], 8.3333e5, tolerance=1e-5)
+   checkEqualsNumeric(dat[1,"leftValue"], 9.67741e5, tolerance=1e-5)
+   checkEqualsNumeric(dat[2,"rightValue"], 1.666667e6, tolerance=1e-5)
+   checkEqualsNumeric(dat[2,"leftValue"], 3.2258e5, tolerance=1e-5)
 }
 
 test_standardFilter_singleSamples <- function() {
@@ -190,8 +190,8 @@ test_standardFilter_singleSamples <- function() {
    assay(rds,2)[, "left_pre"] <- c(1,1,NA,1)
    assay(rds,2)[, "left_post"] <- c(0.1,0.1,0.1,0.1)
       
-   df <- standardFilter(rds, 1)
-   df_wanted <- data.frame(row.names="D", 
+   dat <- standardFilter(rds, 1)
+   dat_wanted <- data.frame(row.names="D", 
                            mM_right=1, 
                            mM_left=1,
                            roar=1,
@@ -199,7 +199,7 @@ test_standardFilter_singleSamples <- function() {
                            rightValue=10,
                            leftValue=10)
                            #bonferroniPval=0.1)
-   checkEquals(df, df_wanted, tolerance=1e-5)
+   checkEquals(dat, dat_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
    
@@ -245,8 +245,8 @@ test_pvalueFilter_singleSamples <- function() {
    assay(rds,2)[, "left_post"] <- c(0.01,0.1,0.1,0.001)
    # The pvalues will be bonferroni corrected with 3 genes. Then only 2 will survive the pvalue filter.
    
-   df <- pvalueFilter(rds, 0.01, 0.05)
-   df_wanted <- data.frame(row.names=c("A","D"), 
+   dat <- pvalueFilter(rds, 0.01, 0.05)
+   dat_wanted <- data.frame(row.names=c("A","D"), 
                            mM_right=c(1,2), 
                            mM_left=c(2,1),
                            roar=c(10,1),
@@ -254,7 +254,7 @@ test_pvalueFilter_singleSamples <- function() {
                            rightValue=c(0.5, 10),
                            leftValue=c(10, 10))
                            #bonferroniPval=c(0.03, 0.003))
-   checkEquals(df, df_wanted, tolerance=1e-5)
+   checkEquals(dat, dat_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }
 
@@ -303,8 +303,8 @@ test_pvalueFilter_mulSamples <- function() {
    assay(rds@pVals,1)[2,] <- c(1,1,1,5)
    
    
-   df <- pvalueFilter(rds, 0.01, 3)
-   df_wanted <- data.frame(row.names=c("A","B"), 
+   dat <- pvalueFilter(rds, 0.01, 3)
+   dat_wanted <- data.frame(row.names=c("A","B"), 
                            mM_right=c(1,1), 
                            mM_left=c(2,1),
                            roar=c(10,1),
@@ -317,6 +317,6 @@ test_pvalueFilter_mulSamples <- function() {
                            leftValue=c(20, 1e9),
                            #bonferroniPval=c(0.02, 0.2)
                            nUnderCutoff=c(2,3))
-   checkEquals(df, df_wanted, tolerance=1e-5)
+   checkEquals(dat, dat_wanted, tolerance=1e-5)
    # XXX TODO check whi 9.9999 is rounded to 10
 }

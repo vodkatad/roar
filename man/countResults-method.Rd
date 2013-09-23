@@ -39,6 +39,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- countResults(rds)
+   dat <- countResults(rds)
     }
 \keyword{countResults}

@@ -47,6 +47,6 @@
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
    rds <- computePvals(rds)
-   df <- pvalueFilter(rds, 1, 0.05)
+   dat <- pvalueFilter(rds, 1, 0.05)
     }
 \keyword{pvalueFilter}
