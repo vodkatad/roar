@@ -7,6 +7,6 @@ Author: Elena Grassi
 Maintainer: Elena Grassi <grassi.e@gmail.com>
 Description: Identify preferential usage of APA sites, comparing two biological conditions, starting from known alternative sites and alignments obtained from standard RNA-seq experiments.
 License: GPL-3
-Depends: GenomicRanges, Rsamtools, rtracklayer, methods
-Suggests: RUnit, BiocGenerics 
+Depends: R (>= 3.0.1), GenomicRanges, Rsamtools, rtracklayer, methods
+Suggests: RUnit, BiocGenerics
 URL: TODO
