@@ -21,27 +21,29 @@
 \begin{abstract}
   This vignette describes how to use the Bioconductor package
   \Rpackage{roar} to detect preferential usage of shorter isoforms via alternative
-  poly-adenylation from RNA-seq data. The approach is based on fisher test
+  poly-adenylation from RNA-seq data. The approach is based on Fisher test
   to detect disequilibriums in the number of reads falling over the 3'UTRs
   when comparing two biological conditions. The name roar means
-  ``ratio of a ratio'': counts are used to calculate the prevalence
+  ``ratio of a ratio'': counts and fragments lengths 
+  are used to calculate the prevalence
   of the short isoform over the long one in both conditions, therefore the ratio of
   these ratios represents the relative ``shortening'' (or lengthening) in one
   condition with respect to the other.
   The method is described in \cite{XXX}. TODO
-  As input, \Rpackage{DEXSeq}
+  As input, \Rpackage{roar}
   uses alignments files for the two conditions and coordinates of the 3'UTRs with
   alternative polyadenylation sites. 
   Here, the method is demonstrated on the data from the package \Rpackage{RNAseqData.HNRNPC.bam.chr14}.
-  To cite this software, please refer to \Rfunction{citation("DEXSeq")}.
+  To cite this software, please refer to \Rfunction{citation("roar")}.
 \end{abstract}
 
 \tableofcontents
 
 \section{Input data}
-A roar analysis start from some alignments, obtained via standard RNAseq analyses.
+A roar analysis starts from some alignments, obtained via standard RNAseq experiment
+and data processing.
 It is possible to build a \Rclass{RoarDataset} object giving its constructor
-two lists of bam files representing the two conditions to be compared or to
+two lists of bam files obtained from samples of the two conditions to be compared or to
 use another constructor that takes directly two lists of \Rclass{GappedAlignments}.
 
 \subsection{Alternative polyadenylation annotations}
@@ -57,19 +59,19 @@ An element in the annotation is considered ``PRE''
 (i.e. common to the short and long isoform of the transcript)  if its gene\_id ends with ``\_PRE''. 
 If it ends with ``\_POST'' it is considered the portion present only in the long isoform.
 The prefix of gene\_id should be a unique identifier for the gene and each identifier has to be
-associated with only one ``\_PRE'' and one ``\_POST'', leading to two genomic region associated to each   
+associated with only one ``\_PRE'' and one ``\_POST'', leading to two genomic regions associated to each   
 gene\_id.
 Clearly the given coordinates should be on the same genome where the alignments
 were performed.
 
 In the package we added a file (examples/apa.gtf) that follows these directives: it is build
-upon the hg19 human genome release using the PolyAdb (\cite{XXX}) database for 
+upon the hg19 human genome release using the PolyA\_DB (\cite{XXX}) track to obtain
 coordinates of alternative polyadenylation sites (from now on addressed as APA).
 Every gene with at least an APA site is considered; 
 its longest transcript
 is used to get the ``classical'' polyadenylation syte (canonical end of the longest transcript stored
 in UCSC) and the more distal (with respect to the TSS XXX TODO) reported APA
-site found in PolyAdb is used to define the end of the short isoform. Therefore
+site found in PolyA\_DB is used to define the end of the short isoform. Therefore
 we define the ``PRE'' portion as the stretch of DNA starting from the beginning of the exon containing 
 (or proximal to) the  APA site and ending at the site position, while the POST portion starts 
 from XXX TODO and ends
@@ -92,9 +94,9 @@ Otherwise you will have to split your alignments in small chunks: \emph{roarWrap
 works on single chromosomes. 
 
 Please note than when working in this way FPKM
-values returned by \emph{fpkmResults} will be different from those deriving from the analysis
+values returned by \emph{fpkmResults} will be different from those obtained with the analysis
 performed with a single \Rclass{RoarDataset} on the whole alignments - in this case you can extract counts 
-with \emph{countResults} and knit together real FPKM afterwards, if you need them.
+with \emph{countResults} and knit together real FPKM values afterwards, if you need them.
 
 In the following sections we will show an example of this package usage on the 
 \Rpackage{RNAseqData.HNRNPC.bam.chr14} package data and the annotation given in the package itself.
@@ -113,18 +115,17 @@ rds <- RoarDatasetFromFiles(bamRight, bamLeft, gtf)
 \subsection{Obtaining counts}
 This is the first step in the Roar analysis: it counts reads overlapping with the
 PRE/POST portions defined in the given gtf/GRanges annotation.
-Reads of the given bam annotation files that falls over this portion 
-are accounted for with the following rules:
+Reads of the given bam are accounted for with the following rules:
 \begin{enumerate}
        \item reads falling over different gene\_id PRE or POST portions are discarded
        \item reads falling on a single gene\_id PRE (or POST) portion are considered, even if they fall 
        outside of the portion boundaries
-       \item reads falling over a single gene coordinates but both on PRE and POST are assigned 
+       \item reads falling over coordinates of a single gene but both on PRE and POST are assigned 
        to the POST portion, as long as the could be derived only from the long isoform
 \end{enumerate}
 If the alignments were derived from a strand-aware protocol it is possible
 to consider strandness when counting reads using the stranded=TRUE argument; in this
-case we use FALSE as long as we don't want to consider strand information.
+case we use FALSE as long as we don't want to consider strandness.
 
 <<eval=FALSE>>= 
 rds <- countPrePost(rds, FALSE)
@@ -141,7 +142,7 @@ A roar > 1 for a given gene means that in the right condition
 that gene has an higher ratio of short vs long isoforms with respect to the left condition (and
 the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite situations,
 such as counts equal to zero for PRE or POST portions.
-If for one of the conditions there are more than one samples, like in this example
+If for one of the conditions there is more than one sample, like in this example
 that has four samples for each condition, then calculations are performed on average counts.
 <<eval=FALSE>>= 
 rds <- computeRoars(rds)
@@ -158,7 +159,7 @@ rds <- computePvals(rds)
 @
 
 \subsection{Obtaining results}
-There are various functions aimed at extracting analyses results from a \Rclass{RoarDataset};
+There are various functions aimed at extracting results from a \Rclass{RoarDataset};
 the first one is \emph{totalResults}:
 <<eval=FALSE>>==
 results <- totalResults(rds)
@@ -169,15 +170,15 @@ It returns a dataframe with gene\_id as rownames and several columns: ``mM\_righ
 Y to the left ones).
 The first two columns have the value of the ratio showing the relative abundance of the
 short isoform with respect to the long one in the right (or left) condition, the third one
-represents the roar and it's bigger than one when the shorter isoform is more expressed in the right
+represents the roar and it's bigger than one when the shorter isoform is relatively more expressed in the right
 condition (and the other way around when it's smaller than one). The pval column stores the results
-of the fisher tests when both conditions have a single sample, while the multiplication of all the
+of the Fisher tests when both conditions have a single sample, while the multiplication of all the
 possible combinations pvalues for multiple samples analysis. 
 
 In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_4'': the first
 number represent the number of the considered sample for the right condition, while
-the second for the left one (the order given in the list given in the RoarDataset constructors
-is kept).
+the second for the left one (the samples are considered in the same order given in
+the lists passed to the \Rclass{RoarDataset} constructors).
 
 All other functions are simply helper functions: \emph{fpkmResults} adds columns "rightValue" and "leftValue"
 representing the level of expression of the relative gene in the right (or left) condition, while
@@ -197,7 +198,7 @@ results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, pvalCutoff=0.05)
 nrow(results_filtered[results_filtered$nUnderCutoff==16,])
 @
 Note that for FPKM we used -Inf as a cutoff because in this case we didn't want to filter out
-genes considering their expression values (and because we used only a partial alignments
+genes considering their expression values (and because we used only partial alignments
 deriving from a single chromosome, thus the usual FPKM cutoff are not directly applicable)
 
 Another thing to point out is that the FPKM values derives from the total reads falling

@@ -85,8 +85,16 @@ workOnChr <- function(chr) {
 
 allRes <- lapply(chrs, workOnChr)
 meltedRes <- do.call("rbind", allRes)
+preElems <- grep("_PRE$", elementMetadata(gtfGRanges)$gene_id)
+pre <- gtfGRanges[preElems,]
+preLen <- end(pre) - start(pre) + 1
+names <- sub("^\\s+","",sub("_PRE", "",elementMetadata(pre)$gene_id))
+meltedRes <- meltedRes[match(names, rownames(meltedRes)),]
+sumPreRight <- sum(meltedRes[,"rightValue"])
+sumPreLeft <- sum(meltedRes[,"leftValue"])
+meltedRes$rightFpkm <- (meltedRes[,"rightValue"]*1000000000)/(preLen*sumPreRight)
+meltedRes$leftFpkm <- (meltedRes[,"leftValue"]*1000000000)/(preLen*sumPreLeft)
 write.table(meltedRes, sep="\t", quote=FALSE)
-# XXX TODO ADD knit together rpkm values
 
 # unlink all bam now I don't care
 
