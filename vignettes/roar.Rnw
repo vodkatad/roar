@@ -105,8 +105,7 @@ In the following sections we will show an example of this package usage on the
 The analysis begins by creating a \Rclass{RoarDataset} object that holds
 the alignment data (4 HNRNPC ko samples and 3 control samples) 
 and the annotation regarding 3'UTRs coordinates.
-%<<eval=FALSE>>=
-<<>>=
+<<eval=FALSE>>=
 library(roar)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
@@ -129,8 +128,7 @@ If the alignments were derived from a strand-aware protocol it is possible
 to consider strandness when counting reads using the stranded=TRUE argument; in this
 case we use FALSE as long as we don't want to consider strandness.
 
-%<<eval=FALSE>>= 
-<<>>= 
+<<eval=FALSE>>= 
 rds <- countPrePost(rds, FALSE)
 @
 
@@ -147,8 +145,7 @@ the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite si
 such as counts equal to zero for PRE or POST portions.
 If for one of the conditions there is more than one sample, like in this example
 that has four and three samples for the two conditions, then calculations are performed on average counts.
-%<<eval=FALSE>>=
-<<>>= 
+<<eval=FALSE>>=
 rds <- computeRoars(rds)
 @
 \subsection{Computing pvalues}
@@ -158,16 +155,14 @@ a condition every combinations of comparisons between the samples lists are cons
 in this case we have four samples for each condition, therefore it will calculate 16 pvalues.
 XXX discuss?
 
-%<<eval=FALSE>>==
-<<>>= 
+<<eval=FALSE>>==
 rds <- computePvals(rds)
 @
 
 \subsection{Obtaining results}
 There are various functions aimed at extracting results from a \Rclass{RoarDataset};
 the first one is \emph{totalResults}:
-%<<eval=FALSE>>==
-<<>>= 
+<<eval=FALSE>>==
 results <- totalResults(rds)
 @
 It returns a dataframe with gene\_id as rownames and several columns: ``mM\_right'', ``mM\_left'', ``roar'',
@@ -199,8 +194,7 @@ test corrections should be carried out by the user when they are needed.
 
 For example in our case we can see how many genes have a pvalue under 0.05
 in every comparisons in this way:
-%<<eval=FALSE>>==
-<<>>= 
+<<eval=FALSE>>==
 results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, pvalCutoff=0.05)
 nrow(results_filtered[results_filtered$nUnderCutoff==12,])
 @
