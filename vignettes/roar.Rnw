@@ -103,14 +103,15 @@ In the following sections we will show an example of this package usage on the
 
 \subsection{Creating a RoarDataset object}
 The analysis begins by creating a \Rclass{RoarDataset} object that holds
-the alignment data and the annotation regarding 3'UTRs coordinates.
+the alignment data (4 HNRNPC ko samples and 3 control samples) 
+and the annotation regarding 3'UTRs coordinates.
 %<<eval=FALSE>>=
 <<>>=
 library(roar)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
 bamRight <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(5,8)] # HNRNPC ko data
-bamLeft <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,4)]  # control (HeLa wt)
+bamLeft <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,3)]  # control (HeLa wt)
 rds <- RoarDatasetFromFiles(bamRight, bamLeft, gtf)
 @
 \subsection{Obtaining counts}
@@ -145,7 +146,7 @@ that gene has an higher ratio of short vs long isoforms with respect to the left
 the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite situations,
 such as counts equal to zero for PRE or POST portions.
 If for one of the conditions there is more than one sample, like in this example
-that has four samples for each condition, then calculations are performed on average counts.
+that has four and three samples for the two conditions, then calculations are performed on average counts.
 %<<eval=FALSE>>=
 <<>>= 
 rds <- computeRoars(rds)
@@ -180,7 +181,7 @@ condition (and the other way around when it's smaller than one). The pval column
 of the Fisher tests when both conditions have a single sample, while the multiplication of all the
 possible combinations pvalues for multiple samples analysis. 
 
-In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_4'': the first
+In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_3'': the first
 number represent the number of the considered sample for the right condition, while
 the second for the left one (the samples are considered in the same order given in
 the lists passed to the \Rclass{RoarDataset} constructors).
@@ -201,7 +202,7 @@ in every comparisons in this way:
 %<<eval=FALSE>>==
 <<>>= 
 results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, pvalCutoff=0.05)
-nrow(results_filtered[results_filtered$nUnderCutoff==16,])
+nrow(results_filtered[results_filtered$nUnderCutoff==12,])
 @
 Note that for FPKM we used -Inf as a cutoff because in this case we didn't want to filter out
 genes considering their expression values (and because we used only partial alignments
