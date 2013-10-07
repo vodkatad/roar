@@ -29,7 +29,6 @@
   of the short isoform over the long one in both conditions, therefore the ratio of
   these ratios represents the relative ``shortening'' (or lengthening) in one
   condition with respect to the other.
-  The method is described in \cite{XXX}. TODO
   As input, \Rpackage{roar}
   uses alignments files for the two conditions and coordinates of the 3'UTRs with
   alternative polyadenylation sites. 
@@ -65,16 +64,17 @@ Clearly the given coordinates should be on the same genome where the alignments
 were performed.
 
 In the package we added a file (examples/apa.gtf) that follows these directives: it is build
-upon the hg19 human genome release using the PolyA\_DB (\cite{XXX}) track to obtain
+upon the hg19 human genome release using the PolyA\_DB (\cite{Cheng2006}) UCSC track to obtain
 coordinates of alternative polyadenylation sites (from now on addressed as APA).
-Every gene with at least an APA site is considered; 
+Every gene with at least one APA site is considered; 
 its longest transcript
 is used to get the ``classical'' polyadenylation syte (canonical end of the longest transcript stored
-in UCSC) and the more distal (with respect to the TSS XXX TODO) reported APA
+in UCSC) and the more distal (with respect to the TSS, that is the nearest to the canonical end
+of the transcript) reported APA
 site found in PolyA\_DB is used to define the end of the short isoform. Therefore
 we define the ``PRE'' portion as the stretch of DNA starting from the beginning of the exon containing 
-(or proximal to) the  APA site and ending at the site position, while the POST portion starts 
-from XXX TODO and ends
+(or proximal to) the APA site and ending at the site position, while the POST portion starts 
+there and ends
 at the canonical transcript end. Using only the nearest exon to the APA site and not the entire
 transcript to define the short isoform avoids spurious signals deriving from other alternative
 splicing events.
@@ -89,9 +89,10 @@ to call directly the methods to get the results (eg. \emph{totalResults}),
 in this way all the preceding steps will be performed automatically.
 
 Loading and handling alignments data require a lot of memory: if you have small datasets
-(up until 5Gb, TODO CHECK) XXX Gb will suffice and you can use the \emph{roarWrapper} script.
-Otherwise you will have to split your alignments in small chunks: \emph{roarWrapper\_chrBychr}
-works on single chromosomes. 
+(up until 2.5Gb, ~58.5 million reads) 4 Gb of RAM will be more than sufficient (peak memory usage: XXX) 
+and you can use the \emph{roarWrapper} script.
+For bigger dataset (eg. 20Gb, XXX reads) you will have to split your alignments in small chunks: 
+\emph{roarWrapper\_chrBychr} works on single chromosomes. 
 
 Please note than when working in this way FPKM
 values returned by \emph{fpkmResults} will be different from those obtained with the analysis
@@ -139,7 +140,7 @@ This is the second step in the Roar analysis: it computes the ratio of prevalenc
 of the short and long isoforms for every gene in the right and left condition (m/M) and their
 ratio, roar, that indicates if there is a relative shortening-lengthening in a condition
 over the other one.
-For details about the m/M calculations see XXX.
+For details about the m/M calculations see the \ref{appendix}.
 
 A roar > 1 for a given gene means that in the right condition
 that gene has an higher ratio of short vs long isoforms with respect to the left condition (and
@@ -156,7 +157,6 @@ This is the third step in the Roar analyses: it applies a Fisher test comparing 
 on the PRE and POST portion in the right and left conditions for every gene. If there are multiple samples for
 a condition every combinations of comparisons between the samples lists are considered - for example
 in this case we have four samples for each condition, therefore it will calculate 16 pvalues.
-XXX discuss?
 
 %<<eval=FALSE>>==
 <<>>= 
@@ -214,7 +214,10 @@ over the genes given in the annotation, therefore when doing the analysis ``step
 performing the analysis all together. \emph{countResults} could be used in this situations
 to save single steps counts and then calculate ``whole'' FPKM values.
 
-%\bibliography{roar} % bib in the same dir as .Rnw
-%\bibliographystyle{plain}
+\section{Appendix}\label{appendix}
+\subsection{m/M calculations}
+
+\bibliography{roar} % bib in the same dir as .Rnw
+\bibliographystyle{plain}
 
 \end{document}
