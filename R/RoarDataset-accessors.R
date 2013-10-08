@@ -8,6 +8,7 @@ RoarDatasetFromFiles <- function(rightBams, leftBams, gtf) {
    # here check _pre/ / _post
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
+   # XXX remove here overlapping gtf coords to avoid the POST / PRE overlapping reads problem?
    rightBamsGenomicAlignments <- lapply(rightBams, readGappedAlignments)
    leftBamsGenomicAlignments <- lapply(leftBams, readGappedAlignments)
    new("RoarDataset", rightBams=rightBamsGenomicAlignments, leftBams=leftBamsGenomicAlignments, 

@@ -1,7 +1,7 @@
 %\VignetteIndexEntry{Identify differential APA usage from RNA-seq alignments}
 %\VignettePackage{roar}
 \documentclass{article}
-\author{Elena Grassi}
+\author{Elena Grassi, Antonio Lembo, Elisa Mariella, Ivan Molineris and Paolo Provero}
 \usepackage{Sweave}
 
 % From dexseq vignette
@@ -12,7 +12,7 @@
 
 \title{Identify differential APA usage from RNA-seq alignments}
 
-\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-16-09)}
+\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-10-08)}
 \begin{document}
 %\SweaveOpts{concordance=TRUE}
 
@@ -38,8 +38,12 @@
 
 \tableofcontents
 
+\section{Introduction}
+The alternative polyadenylation mechanism at the basis of the existence of short and long isoforms
+of the same gene is reviewed in Elkon et al~\cite{Elkon2013}.
+
 \section{Input data}
-A roar analysis starts from some alignments, obtained via standard RNAseq experiment
+A roar analysis starts from some alignments, obtained via standard RNAseq experiments
 and data processing.
 It is possible to build a \Rclass{RoarDataset} object giving its constructor
 two lists of bam files obtained from samples of the two conditions to be compared or to
@@ -90,14 +94,14 @@ in this way all the preceding steps will be performed automatically.
 
 Loading and handling alignments data require a lot of memory: if you have small datasets
 (up until 2.5Gb, ~58.5 million reads) 4 Gb of RAM will be more than sufficient (peak memory usage, gotten
-via the ps command as rss, when comparing two samples of 2.5Gb: ~1.3Gb) and you can use the \emph{roarWrapper} 
-script.
-For bigger dataset (eg. 20Gb, ~413 million reads) you will have to split your alignments in small chunks: 
+via the ps command with the keyword rss, when comparing two samples of 2.5Gb: ~1.3Gb) and you can use the 
+\emph{roarWrapper}  script.
+For bigger datasets (eg. 20Gb, ~413 million reads) you will have to split your alignments in small chunks: 
 \emph{roarWrapper\_chrBychr} works on single chromosomes.
 
 Please note than when working in this way FPKM
 values returned by \emph{fpkmResults} will be different from those obtained with the analysis
-performed with a single \Rclass{RoarDataset} on the whole alignments - in this case you can extract counts 
+performed using a single \Rclass{RoarDataset} on the whole alignments - in this case you can extract counts 
 with \emph{countResults} and knit together real FPKM values afterwards, if you need them (\emph{roarWrapper\_chrBychr} does this).
 
 In the following sections we will show an example of this package usage on the 
@@ -140,7 +144,7 @@ rds <- countPrePost(rds, FALSE)
 This is the second step in the Roar analysis: it computes the ratio of prevalence
 of the short and long isoforms for every gene in the right and left condition (m/M) and their
 ratio, roar, that indicates if there is a relative shortening-lengthening in a condition
-over the other one.
+versus the other one.
 For details about the m/M calculations see the section~\ref{appendix}.
 
 A roar > 1 for a given gene means that in the right condition
@@ -153,11 +157,11 @@ that has four and three samples for the two conditions, then calculations are pe
 <<eval=FALSE>>= 
 rds <- computeRoars(rds)
 @
-\subsection{Computing pvalues}
+\subsection{Computing p-values}
 This is the third step in the Roar analyses: it applies a Fisher test comparing counts falling
 on the PRE and POST portion in the right and left conditions for every gene. If there are multiple samples for
-a condition every combinations of comparisons between the samples lists are considered - for example
-in this case we have four samples for each condition, therefore it will calculate 16 pvalues.
+a condition every combination of comparisons between the samples lists is considered - for example
+in this case we have four samples for each condition, therefore it will calculate 16 p-values.
 
 %<<eval=FALSE>>==
 <<eval=FALSE>>= 
@@ -180,22 +184,23 @@ short isoform with respect to the long one in the right (or left) condition, the
 represents the roar and it's bigger than one when the shorter isoform is relatively more expressed in the right
 condition (and the other way around when it's smaller than one). The pval column stores the results
 of the Fisher tests when both conditions have a single sample, while the multiplication of all the
-possible combinations pvalues for multiple samples analysis. 
+possible combinations p-values for multiple samples analysis. 
 
 In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_3'': the first
-number represent the number of the considered sample for the right condition, while
+number represents the number of the considered sample for the right condition, while
 the second for the left one (the samples are considered in the same order given in
 the lists passed to the \Rclass{RoarDataset} constructors).
 
 All other functions are simply helper functions: \emph{fpkmResults} adds columns "rightValue" and "leftValue"
 representing the level of expression of the relative gene in the right (or left) condition, while
 \emph{countResults} puts in that columns the number of read that were counted on the PRE portion of genes.
-\emph{standardFilter} has a cutoff for the FPKM value and selects only genes with an expression
+\emph{standardFilter} get a parameter with a cutoff for the FPKM value and 
+selects only genes with an expression
 higher than that and without any NA/Inf value for m/M or roar (deriving from not definite situations
 with counts equal to zero). \emph{pvalueFilter} further selects only genes with a Fisher test pvalue
 smaller than the given cutoff in the single sample case, while if more than one sample has been given
-for one condition it adds a column named "nUnderCutoff" that stores the number of pvalues that are
-smaller than the given cutoff. It is worth noting that all this pvalues are nominal and multiple
+for one condition it adds a column named "nUnderCutoff" that stores the number of p-values that are
+smaller than the given cutoff. It is worth noting that all this p-values are nominal and multiple
 test corrections should be carried out by the user when they are needed.
 
 For example in our case we can see how many genes have a pvalue under 0.05
@@ -209,7 +214,7 @@ Note that for FPKM we used -Inf as a cutoff because in this case we didn't want 
 genes considering their expression values (and because we used only partial alignments
 deriving from a single chromosome, thus the usual FPKM cutoff are not directly applicable)
 
-Another thing to point out is that the FPKM values derives from the total reads falling
+Another thing to point out is that the FPKM values derive from the total reads falling
 over the genes given in the annotation, therefore when doing the analysis ``stepwise''
 (eg. with roarWrapper\_chrByChr) their values will be different than those obtained
 performing the analysis all together. \emph{countResults} could be used in this situations
@@ -217,10 +222,12 @@ to save single steps counts and then calculate ``whole'' FPKM values.
 
 \section{Appendix}\label{appendix}
 \subsection{m/M calculations}
-To correctly evaluate the quantity ratios of the short and long isoforms reads counts falling over the two
-transcript portions (as previously defined: PRE is the portion common fro the two isoforms, while POST is
+To correctly evaluate the quantities ratios of the short and long isoforms counts of the reads
+falling over the two
+transcript portions (as previously defined: PRE is the portion common between the two isoforms, while POST is
 the one present only in the longer transcript) should be accounted for considering the fact that those
-falling over PRE could have been obtained from both isoforms while the others falling on POST derive exclusively 
+falling over PRE could have been obtained from both isoforms while the others falling
+on POST derive exclusively 
 from the longer one; another more trivial question that has to be addressed is that reads fall with larger
 frequencies on longer stretches of RNA.
 
@@ -228,14 +235,16 @@ We define $l_{PRE}$ as the length of the PRE portion and $l_{POST}$ as the lengt
 %therefore assuming that each nucleotide has the same probability of giving rise to a read we
 %can say that the total number of reads falling over a transcript in its entirety derives
 and we know that the total number of reads falling over a transcript in its entirety derives
-from the relative abundance of the two isoforms and their efficiency in generating reads; 
+from the relative abundance of the two isoforms and their potential of generating reads; 
 that is: $ N = \epsilon_{M}  M + \epsilon_{m}  m$
 where $m$ is the quantity of the short isoform, $M$ of the long one and $\epsilon$ identifies their
 efficiency in generating reads.
 
-[ $N_{PRE} / N_{TOT} \doteq l_{PRE}$ and similarly $N_{POST} / N_{TOT} \doteq l_{POST}$
-assuming that $N_{PRE}$ and $N_{POST}$ are XXX. \textbf{TODO which is the definition of N? Difference
-from $\#r_{PRE}$, \ldots}. ]
+\textbf{[ $N_{PRE} / N_{TOT} \doteq l_{PRE}$ and similarly $N_{POST} / N_{TOT} \doteq l_{POST}$
+assuming that $N_{PRE}$ and $N_{POST}$ are XXX. TODO which is the definition of N? Difference
+from $\#r_{PRE}$, \ldots. ?
+Do we need this equation to explain the following part? It does not seem so...
+We are now considering reads across PRE/POST, does this assumption difference change something?]}
 
 We can now obtain the number of reads falling on the two portions as:\vspace{0.5cm}
 
@@ -274,10 +283,10 @@ k \sim l_{PRE} + l_{PRE} + l_{POST}
 Where $k$ represents the total length of both isoforms and the efficiency is proportional to one isoform
 length over this total.
 
-Please note \textbf{XXX due parole sul fatto che consideriamo sia qui che sopra la lunghezza ma 
+\textbf{Please note XXX due parole sul fatto che consideriamo sia qui che sopra la lunghezza ma 
 che il significato e` diverso per chiarire la cosa?}.
 
-We can now setup a system of equation aimed at obtaining the $m/M$ value in terms of the numbers of
+We can now setup a system of equations aimed at obtaining the $m/M$ value in terms of the numbers of
 reads falling over the two portions and their lengths.
 
 We start from: \vspace{0.5cm}
@@ -325,7 +334,7 @@ Then with simple algebraic steps:
   \end{array} \right.
 \end{math}
 
-
+\textbf{XXX TODO final equation, example case, stop}
 
 \bibliography{roar} % bib in the same dir as .Rnw
 \bibliographystyle{plain}
