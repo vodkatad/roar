@@ -1,7 +1,11 @@
 %\VignetteIndexEntry{Identify differential APA usage from RNA-seq alignments}
 %\VignettePackage{roar}
 \documentclass{article}
-\author{Elena Grassi, Antonio Lembo, Elisa Mariella, Ivan Molineris and Paolo Provero}
+\author{Elena Grassi$^{1}$, Antonio Lembo$^{1}$, Elisa Mariella$^{1}$, Ivan Molineris$^{1}$ 
+\\ and Paolo Provero$^{1,2}$ \\
+  $^1$ Department of Molecular Biotechnologies and Health Sciences,\\ MBC, University of Turin, Italy\\
+  $^2$ Center for Translational Genomics and Bioinformatics,\\ San Raffaele Scientific Institute, Milan, Italy
+}
 \usepackage{Sweave}
 
 % From dexseq vignette
@@ -116,8 +120,10 @@ and the annotation regarding 3'UTRs coordinates.
 library(roar)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
-bamRight <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(5,8)] # HNRNPC ko data
-bamLeft <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,3)]  # control (HeLa wt)
+# HNRNPC ko data
+bamRight <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(5,8)]
+# control (HeLa wt)
+bamLeft <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,3)]
 rds <- RoarDatasetFromFiles(bamRight, bamLeft, gtf)
 @
 \subsection{Obtaining counts}
@@ -207,7 +213,8 @@ For example in our case we can see how many genes have a pvalue under 0.05
 in every comparisons in this way:
 %<<eval=FALSE>>==
 <<eval=FALSE>>= 
-results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, pvalCutoff=0.05)
+results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, 
+                                 pvalCutoff=0.05)
 nrow(results_filtered[results_filtered$nUnderCutoff==12,])
 @
 Note that for FPKM we used -Inf as a cutoff because in this case we didn't want to filter out
