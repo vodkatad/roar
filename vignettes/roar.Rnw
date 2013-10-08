@@ -255,7 +255,77 @@ These two equations reflect the fact that all the reads deriving from the short 
 while the ones deriving from the long one are distributed over the PRE and POST portions depending
 on their lengths.
 
-Assuming the equiprobability...
+Assuming the equiprobability or read distribution (that is each nucleotide has the same probability 
+of finding itself in a read) the efficiency in generating reads of the two isoforms is itself
+related to their lengths:\\
+\vspace{0.5cm}
+\begin{math}
+\epsilon_{M} = \frac{l_{PRE}+l_{POST}}{k}
+\end{math} \\
+\vspace{0.5cm}
+\begin{math}
+\epsilon_{m} = \frac{l_{PRE}}{k}
+\end{math} \\
+\vspace{0.5cm}
+\begin{math}
+k \sim l_{PRE} + l_{PRE} + l_{POST}
+\end{math}
+
+Where $k$ represents the total length of both isoforms and the efficiency is proportional to one isoform
+length over this total.
+
+Please note \textbf{XXX due parole sul fatto che consideriamo sia qui che sopra la lunghezza ma 
+che il significato e` diverso per chiarire la cosa?}.
+
+We can now setup a system of equation aimed at obtaining the $m/M$ value in terms of the numbers of
+reads falling over the two portions and their lengths.
+
+We start from: \vspace{0.5cm}
+\begin{math} \left\{
+  \begin{array}{l}
+    \#r_{PRE} = \epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}}) + \epsilon_{m}  m \\
+    \#r_{POST} = \epsilon_{M} M (\frac{l_{POST}}{l_{PRE}+l_{POST}})  
+  \end{array} \right.
+\end{math}
+
+Then with simple algebraic steps:
+\begin{math} \left\{
+  \begin{array}{l}
+      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+  \end{array} \right.
+\end{math}
+
+\begin{math} \left\{
+  \begin{array}{l}
+      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+  \end{array} \right.
+\end{math}
+
+
+\begin{math} \left\{
+  \begin{array}{l}
+      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+  \end{array} \right.
+\end{math}
+
+\begin{math} \left\{
+  \begin{array}{l}
+      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+  \end{array} \right.
+\end{math}
+
+\begin{math} \left\{
+  \begin{array}{l}
+      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+  \end{array} \right.
+\end{math}
+
+
 
 \bibliography{roar} % bib in the same dir as .Rnw
 \bibliographystyle{plain}
