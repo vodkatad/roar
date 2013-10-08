@@ -67,14 +67,14 @@ In the package we added a file (examples/apa.gtf) that follows these directives:
 upon the hg19 human genome release using the PolyA\_DB (\cite{Cheng2006}) UCSC track to obtain
 coordinates of alternative polyadenylation sites (from now on addressed as APA).
 Every gene with at least one APA site is considered; 
-its longest transcript
+their longest transcript
 is used to get the ``classical'' polyadenylation syte (canonical end of the longest transcript stored
 in UCSC) and the more distal (with respect to the TSS, that is the nearest to the canonical end
 of the transcript) reported APA
 site found in PolyA\_DB is used to define the end of the short isoform. Therefore
 we define the ``PRE'' portion as the stretch of DNA starting from the beginning of the exon containing 
 (or proximal to) the APA site and ending at the site position, while the POST portion starts 
-there and ends
+at the beginning of the last exon and ends
 at the canonical transcript end. Using only the nearest exon to the APA site and not the entire
 transcript to define the short isoform avoids spurious signals deriving from other alternative
 splicing events.
@@ -224,7 +224,38 @@ falling over PRE could have been obtained from both isoforms while the others fa
 from the longer one; another more trivial question that has to be addressed is that reads fall with larger
 frequencies on longer stretches of RNA.
 
-To consider these factors m/M is defined as $$.
+We define $l_{PRE}$ as the length of the PRE portion and $l_{POST}$ as the length of the POST one
+%therefore assuming that each nucleotide has the same probability of giving rise to a read we
+%can say that the total number of reads falling over a transcript in its entirety derives
+and we know that the total number of reads falling over a transcript in its entirety derives
+from the relative abundance of the two isoforms and their efficiency in generating reads; 
+that is: $ N = \epsilon_{M}  M + \epsilon_{m}  m$
+where $m$ is the quantity of the short isoform, $M$ of the long one and $\epsilon$ identifies their
+efficiency in generating reads.
+
+[ $N_{PRE} / N_{TOT} \doteq l_{PRE}$ and similarly $N_{POST} / N_{TOT} \doteq l_{POST}$
+assuming that $N_{PRE}$ and $N_{POST}$ are XXX. \textbf{TODO which is the definition of N? Difference
+from $\#r_{PRE}$, \ldots}. ]
+
+We can now obtain the number of reads falling on the two portions as:\vspace{0.5cm}
+
+\begin{math}
+\#r_{PRE} = \epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}}) + \epsilon_{m}  m
+\end{math}
+
+and: 
+
+\begin{math}
+\#r_{POST} = \epsilon_{M} M (\frac{l_{POST}}{l_{PRE}+l_{POST}}) 
+\end{math}
+\vspace{0.5cm}
+
+These two equations reflect the fact that all the reads deriving from the short isoform 
+($\epsilon_{m}  m$) fall on the PRE portion
+while the ones deriving from the long one are distributed over the PRE and POST portions depending
+on their lengths.
+
+Assuming the equiprobability...
 
 \bibliography{roar} % bib in the same dir as .Rnw
 \bibliographystyle{plain}
