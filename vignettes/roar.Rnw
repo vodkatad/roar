@@ -18,6 +18,7 @@
 
 \date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-10-08)}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 %\SweaveOpts{concordance=TRUE}
 
 \maketitle
@@ -314,34 +315,52 @@ Then with simple algebraic steps:
 
 \begin{math} \left\{
   \begin{array}{l}
-      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
-      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+      m = \frac{\#r_{PRE}-\epsilon_{M} \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+      (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = ``
   \end{array} \right.
 \end{math}
 
 
 \begin{math} \left\{
   \begin{array}{l}
-      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
-      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+      m = \frac{\#r_{PRE}-  \#r_{POST} (\frac{l_{PRE}+l_{POST}}{l_{POST}}) (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
+      M = ``
   \end{array} \right.
 \end{math}
 
 \begin{math} \left\{
   \begin{array}{l}
-      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
-      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+      m = \frac{\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})}{\epsilon_{m} } \\
+      M = ``
   \end{array} \right.
 \end{math}
 
 \begin{math} \left\{
   \begin{array}{l}
-      m = \frac{\#r_{PRE}-\epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}})}{\epsilon_{m} } \\
-      M = \frac{\#r_{POST}}{\epsilon_{M} (\frac{l_{POST}}{l_{PRE}+l_{POST}}) }
+      m = k/l_{PRE} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) \\
+      M = \frac{k}{l_{PRE}+l_{POST}} \frac{(l_{PRE}+l_{POST})}{l_{POST}} \#r_{POST}
   \end{array} \right.
 \end{math}
 
-\textbf{XXX TODO final equation, example case, stop}
+\begin{math}
+m/M = \frac{k/l_{PRE} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}}))}{k/l_{POST} \#r_{POST}}
+\end{math}
+
+\begin{math}
+m/M =  \frac{l_{POST}}{\#r_{PRE} l_{PRE}} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) 
+\end{math}
+
+\begin{math}
+m/M = \frac{l_{POST} \#r_{PRE}}{\#r_{PRE} l_{PRE}} 
+- \frac{l_{POST} \#r_{POST} l_{PRE}}{\#r_{POST} l_{PRE} l_{POST}}
+\end{math}
+
+\begin{math}
+m/M = \frac{l_{POST} \#r_{PRE}}{l_{PRE} \#r_{POST}} -1
+\end{math}
+
+\textbf{XXX TODO check equations, example case, stop}
 
 \bibliography{roar} % bib in the same dir as .Rnw
 \bibliographystyle{plain}
