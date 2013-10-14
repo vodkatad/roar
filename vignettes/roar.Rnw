@@ -16,7 +16,7 @@
 
 \title{Identify differential APA usage from RNA-seq alignments}
 
-\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-10-10)}
+\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-10-14)}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 %\SweaveOpts{concordance=TRUE}
@@ -242,26 +242,25 @@ frequencies on longer stretches of RNA.
 We define $l_{PRE}$ as the length of the PRE portion and $l_{POST}$ as the length of the POST one
 %therefore assuming that each nucleotide has the same probability of giving rise to a read we
 %can say that the total number of reads falling over a transcript in its entirety derives
-and we know that the total number of reads falling over a transcript in its entirety derives
+and we know that the total number of reads falling over a transcript ($N$) in its entirety derives
 from the relative abundance of the two isoforms and their potential of generating reads; 
 that is: $ N = \epsilon_{M}  M + \epsilon_{m}  m$
 where $m$ is the quantity of the short isoform, $M$ of the long one and $\epsilon$ identifies their
 efficiency in generating reads.
 
 \textbf{[ $N_{PRE} / N_{TOT} \doteq l_{PRE}$ and similarly $N_{POST} / N_{TOT} \doteq l_{POST}$
-assuming that $N_{PRE}$ and $N_{POST}$ are XXX. TODO which is the definition of N? Difference
+assuming that $N_{PRE}$ and $N_{POST}$ are XXX. TODO which is the definition of $N_{PRE}$? Difference
 from $\#r_{PRE}$, \ldots. ?
 Do we need this equation to explain the following part? It does not seem so...
 We are now considering reads across PRE/POST, does this assumption difference change something?]}
 
 We can now obtain the number of reads falling on the two portions as:\vspace{0.5cm}
-
 \begin{math}
 \#r_{PRE} = \epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}}) + \epsilon_{m}  m
 \end{math}
-
-and: 
-
+\vspace{0.2cm}\\
+and:
+\vspace{0.2cm}\\
 \begin{math}
 \#r_{POST} = \epsilon_{M} M (\frac{l_{POST}}{l_{PRE}+l_{POST}}) 
 \end{math}
@@ -272,38 +271,37 @@ These two equations reflect the fact that all the reads deriving from the short 
 while the ones deriving from the long one are distributed over the PRE and POST portions depending
 on their lengths.
 
-Assuming the equiprobability or read distribution (that is each nucleotide has the same probability 
+Assuming the equiprobability of read distribution (that is each nucleotide has the same probability 
 of finding itself in a read) the efficiency in generating reads of the two isoforms is itself
-related to their lengths:\\
-\vspace{0.5cm}
+related to their lengths:\vspace{0.4cm} \\
 \begin{math}
 \epsilon_{M} = \frac{l_{PRE}+l_{POST}}{k}
-\end{math} \\
-\vspace{0.5cm}
+\end{math}
+\vspace{0.4cm}\\
 \begin{math}
 \epsilon_{m} = \frac{l_{PRE}}{k}
-\end{math} \\
-\vspace{0.5cm}
+\end{math}
+\vspace{0.4cm}\\
 \begin{math}
 k \sim l_{PRE} + l_{PRE} + l_{POST}
 \end{math}
-
+\vspace{0.4cm}\\
 Where $k$ represents the total length of both isoforms and the efficiency is proportional to one isoform
-length over this total.
+length divided by this total.
 
 \textbf{Please note XXX due parole sul fatto che consideriamo sia qui che sopra la lunghezza ma 
 che il significato e` diverso per chiarire la cosa?}.
 
 We can now setup a system of equations aimed at obtaining the $m/M$ value in terms of the numbers of
-reads falling over the two portions and their lengths.
+reads falling over the two portions and their lengths.\vspace{0.5cm}
 
-We start from: \vspace{0.5cm}
+We start from: 
 \begin{math} \left\{
   \begin{array}{l}
     \#r_{PRE} = \epsilon_{M} M (\frac{l_{PRE}}{l_{PRE}+l_{POST}}) + \epsilon_{m}  m \\
     \#r_{POST} = \epsilon_{M} M (\frac{l_{POST}}{l_{PRE}+l_{POST}})  
   \end{array} \right.
-\end{math}
+\end{math}\vspace{0.5cm}\\
 
 Then with simple algebraic steps:
 \begin{math} \left\{
@@ -337,32 +335,32 @@ Then with simple algebraic steps:
 \vspace{0.5cm} \\
 \begin{math} \left\{
   \begin{array}{l}
-      m = k/l_{PRE} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) \\
+      m = (\frac{k}{l_{PRE}}) (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) \\
       M = \frac{k}{l_{PRE}+l_{POST}} \frac{(l_{PRE}+l_{POST})}{l_{POST}} \#r_{POST}
   \end{array} \right.
 \end{math}
 \vspace{0.5cm} \\
 \begin{math}
-m/M = \frac{k/l_{PRE} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}}))}{k/l_{POST} \#r_{POST}}
+m/M = \frac{(\frac{k}{l_{PRE}}) (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}}))}{ (\frac{k}{l_{POST}}) \#r_{POST}}
 \end{math}
 \vspace{0.5cm} \\
 \begin{math}
-m/M =  \frac{l_{POST}}{\#r_{PRE} l_{PRE}} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) 
+m/M =  \frac{l_{POST}}{l_{PRE} \#r_{POST}} (\#r_{PRE}-\#r_{POST} (\frac{l_{PRE}}{l_{POST}})) 
 \end{math}
 \vspace{0.5cm} \\
 \begin{math}
-m/M = \frac{l_{POST} \#r_{PRE}}{\#r_{PRE} l_{PRE}} 
+m/M = \frac{l_{POST} \#r_{PRE}}{l_{PRE} \#r_{POST}} 
 - \frac{l_{POST} \#r_{POST} l_{PRE}}{\#r_{POST} l_{PRE} l_{POST}}
 \end{math}
 \vspace{0.5cm} \\
-And finally the formula to obtain $m/M$ using only read counts and lengths:
+And finally the formula to obtain $m/M$ using only read counts and lengths:\vspace{0.5cm}\\
 \begin{math}
 m/M = \frac{l_{POST} \#r_{PRE}}{l_{PRE} \#r_{POST}} -1
 \end{math}
 \vspace{0.5cm} \\
-\textbf{XXX TODO check equations}
+\textbf{XXX TODO REREcheck equations}
 
-As a simple emblematic case suppose that the PRE and POST portion have the same lengths and that the
+As a simple emblematic case suppose that the PRE and POST portions have the same lengths and that the
 short and long isoforms are in perfect equilibrium (i.e. they are present in a cell in equal numbers).
 In this situation we will find on the PRE portion two times the number of reads falling on the POST 
 one because half of them will derive from the long isoforms and the other half from the short ones. 
@@ -372,7 +370,7 @@ In the previous discussion we have ignored reads falling across the PRE/POST bou
 as they can derive only from the long isoform it is reasonable to assign them to $\#r_{POST}$.
 
 Portion lengths should be corrected to keep in consideration read lengths and the just cited
-assignment to POST of the spanning reads, therefore:\\\vspace{0.5cm}
+assignment to POST of the spanning reads, therefore:\vspace{0.5cm}\\
 \begin{math}
 l^{\prime}_{PRE} = l_{PRE} % come si scrivono gli apici in math mode?
 \end{math}
@@ -386,9 +384,7 @@ Normally we should have added readLength to both the lengths but in this case we
 reads to fall after the POST portion (that is the end of transcripts) and thus we only have to correct
 for the spanning reads. We do not subtract the same value from $l_{PRE}$ as long as in theory we could expect
 reads to fall at its 5' (i.e. reads falling across that exon and the previous one or those 
-from still unspliced transcripts).
-
-These corrected lengths are those used for the $m/M$ calculations.
+from still unspliced transcripts).\\ These corrected lengths are those used for the $m/M$ calculations.
 \bibliography{roar} % bib in the same dir as .Rnw
 \bibliographystyle{plain}
 
