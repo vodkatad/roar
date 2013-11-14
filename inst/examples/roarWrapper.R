@@ -52,14 +52,14 @@ rds <- computeRoars(rds)
 # Fisher test
 rds <- computePvals(rds)
 
-# results <- fpkmResults(rds)
-# write.table(results, sep="\t", quote=FALSE)
+results <- fpkmResults(rds)
+write.table(results, sep="\t", quote=FALSE)
          
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)
 # write.table(filteredResults, sep="\t", quote=FALSE)
 
-pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
-write.table(pvals, sep="\t", quote=FALSE)
+# pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
+# write.table(pvals, sep="\t", quote=FALSE)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
