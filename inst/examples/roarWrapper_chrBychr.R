@@ -35,8 +35,8 @@ if (is.null(opt$right) | is.null(opt$left)) {
 }
 
 library(roar)
-rightBams = as.vector(unlist(strsplit(opt$right, ",")))
-leftBams = as.vector(unlist(strsplit(opt$left, ",")))
+rightBams <- as.vector(unlist(strsplit(opt$right, ",")))
+leftBams <- as.vector(unlist(strsplit(opt$left, ",")))
 
 if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
@@ -96,7 +96,12 @@ meltedRes$rightFpkm <- (meltedRes[,"rightValue"]*1000000000)/(preLen*sumPreRight
 meltedRes$leftFpkm <- (meltedRes[,"leftValue"]*1000000000)/(preLen*sumPreLeft)
 write.table(meltedRes, sep="\t", quote=FALSE)
 
-# unlink all bam now I don't care
+unlink(orderedRightBams)
+unlink(orderedLeftBams)
+rightBai <- sub(".bam", ".bai", orderedRightBams)
+leftBai <- sub(".bam", ".bai", orderedLeftBams)
+unlink(rightBai)
+unlink(leftBai)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)

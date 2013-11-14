@@ -35,8 +35,8 @@ if (is.null(opt$right) | is.null(opt$left)) {
 }
 
 library(roar)
-rightBams = as.vector(unlist(strsplit(opt$right, ",")))
-leftBams = as.vector(unlist(strsplit(opt$left, ",")))
+rightBams <- as.vector(unlist(strsplit(opt$right, ",")))
+leftBams <- as.vector(unlist(strsplit(opt$left, ",")))
 
 if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
