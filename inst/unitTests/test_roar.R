@@ -44,9 +44,9 @@ test_countPrePost_mulSamples <- function() {
    
    rds <- RoarDataset(list(rd1,rd2), list(rd3,rd4), features)
    rds <- countPrePost(rds, FALSE)
-   checkEqualsNumeric(assay(rds@countsRight,1)[1,1], 1)
-   checkEqualsNumeric(assay(rds@countsRight,1)[1,2], 0)
-   checkEqualsNumeric(assay(rds@countsLeft,2)[2,1], 1)
+   checkEqualsNumeric(assay(rds@countsTreatment,1)[1,1], 1)
+   checkEqualsNumeric(assay(rds@countsTreatment,1)[1,2], 0)
+   checkEqualsNumeric(assay(rds@countsControl,2)[2,1], 1)
 }
 
 test_countPrePost_preferPOST <- function() {
@@ -59,7 +59,7 @@ test_countPrePost_preferPOST <- function() {
          width=c(1000, 900, 600, 300)),
       DataFrame(gene_id)
    )
-   # Had to change from Rle() to factor for seqnames otherwise there was a warning about the list for the left
+   # Had to change from Rle() to factor for seqnames otherwise there was a warning about the list for the control
    # alignments about having only chr1 for some reads and chr2 for the others.
    rd1 <- GappedAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
    rd2 <- GappedAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
@@ -98,13 +98,13 @@ test_countPrePost_stranded <- function() {
    
    rds <- RoarDataset(list(rd1,rd2), list(rd3,rd4,c(rd5,rd6)), features)
    rds <- countPrePost(rds, TRUE)
-   checkEqualsNumeric(assay(rds@countsRight,1)[1,1], 1)
-   checkEqualsNumeric(assay(rds@countsRight,1)[1,2], 0)
-   checkEqualsNumeric(assay(rds@countsRight,2)[1,1], 0)
-   checkEqualsNumeric(assay(rds@countsRight,2)[1,2], 0)
-   checkEqualsNumeric(assay(rds@countsLeft,1)[2,1], 1)
-   checkEqualsNumeric(assay(rds@countsLeft,2)[2,1], 0)
-   checkEqualsNumeric(assay(rds@countsLeft,3)[2,1], 2)
+   checkEqualsNumeric(assay(rds@countsTreatment,1)[1,1], 1)
+   checkEqualsNumeric(assay(rds@countsTreatment,1)[1,2], 0)
+   checkEqualsNumeric(assay(rds@countsTreatment,2)[1,1], 0)
+   checkEqualsNumeric(assay(rds@countsTreatment,2)[1,2], 0)
+   checkEqualsNumeric(assay(rds@countsControl,1)[2,1], 1)
+   checkEqualsNumeric(assay(rds@countsControl,2)[2,1], 0)
+   checkEqualsNumeric(assay(rds@countsControl,3)[2,1], 2)
 }
 
 # These UnitTests are bad because I should "prebuild" a correct step 1 complete
@@ -133,13 +133,13 @@ test_computeRoars_singleSamples <- function() {
    c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
    
-   rightAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
-   leftAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
+   treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
+   controlAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
    
-   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- RoarDataset(treatmentAlign, controlAlign, features)
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
-   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   #assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
    checkEqualsNumeric(assay(rds,2)[1,1], -0.66538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,2], 1.21538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,3], -0.54746835443038, tolerance=1e-5)
@@ -152,7 +152,7 @@ test_computeRoars_singleSamples <- function() {
    checkTrue(is.na(assay(rds,2)[3,3]))      
    
    # The out of place test about stranded alignment:
-   rds2 <- RoarDataset(rightAlign, leftAlign, features)
+   rds2 <- RoarDataset(treatmentAlign, controlAlign, features)
    rds2 <- countPrePost(rds2, TRUE)
    checkEqualsNumeric(assay(rds2,1)[1,1],2)
    checkEqualsNumeric(assay(rds2,1)[1,2],4)
@@ -186,13 +186,13 @@ test_computeRoars_singlevsMulSamples <- function() {
    overlapbc <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
    c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
-   rightAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
-   leftAlign <- list(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post)
+   treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
+   controlAlign <- list(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post)
    
-   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- RoarDataset(treatmentAlign, controlAlign, features)
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
-   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   #assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
    checkEqualsNumeric(assay(rds,2)[1,1], -0.66538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,2], 1.21538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,3], -0.54746835443038, tolerance=1e-5)
@@ -218,13 +218,13 @@ test_computeRoars_multipleSamples <- function() {
    a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
    a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
       
-   rightAlign <- list(rep(a_pre, 2),rep(a_post, 3))
-   leftAlign <- list(a_post, rep(a_pre, 4), a_post)
+   treatmentAlign <- list(rep(a_pre, 2),rep(a_post, 3))
+   controlAlign <- list(a_post, rep(a_pre, 4), a_post)
    
-   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- RoarDataset(treatmentAlign, controlAlign, features)
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)
-   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   #assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
    checkEqualsNumeric(assay(rds,2)[1,1], -0.48, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,2], 0.666666666, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,3], -0.72, tolerance=1e-5)
@@ -245,23 +245,23 @@ test_computePvals_single <- function() {
          width=c(1000, 900, 600, 300)),
       DataFrame(gene_id)
    )
-   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
        prePostCoords=features, step = 2, cores=1)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
                               rowData=preCoords, 
-                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
    rowData(rds) <- rowData(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
-   # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
-   length(rds@rightBams)  <- 1
-   length(rds@leftBams)  <- 1
+   # We need to set these lengths to choose the treatment branch of the if in computePvals (about number of samples).
+   length(rds@treatmentBams)  <- 1
+   length(rds@controlBams)  <- 1
    assay(rds, 1)[1,1] <- 10
    assay(rds, 1)[1,2] <- 100
    assay(rds, 1)[1,3] <- 20
@@ -287,37 +287,37 @@ test_computePvals_singlevsMul <- function() {
          width=c(1000, 900)),
       DataFrame(gene_id)
    )
-   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 2, cores=1)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
                               rowData=preCoords, 
-                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
    rowData(rds) <- rowData(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
-   # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
-   length(rds@rightBams)  <- 1
-   length(rds@leftBams)  <- 3
-   rds@countsRight <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   # We need to set these lengths to choose the treatment branch of the if in computePvals (about number of samples).
+   length(rds@treatmentBams)  <- 1
+   length(rds@controlBams)  <- 3
+   rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
                                                         rowData=preCoords, 
                                                         colData=DataFrame(row.names=c("pre","post"))
    )
-   rds@countsLeft <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
                                        rowData=preCoords, 
                                        colData=DataFrame(row.names=c("pre","post"))
    )
-   assay(rds@countsLeft,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsLeft,3) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsRight,1)[1,] <- c(10,10)
-   assay(rds@countsLeft,1)[1,] <- c(10,10)
-   assay(rds@countsLeft,2)[1,] <- c(10,5)
-   assay(rds@countsLeft,3)[1,] <- c(10,20)
+   assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
+   assay(rds@countsControl,3) <- matrix(nrow=1,ncol=2)
+   assay(rds@countsTreatment,1)[1,] <- c(10,10)
+   assay(rds@countsControl,1)[1,] <- c(10,10)
+   assay(rds@countsControl,2)[1,] <- c(10,5)
+   assay(rds@countsControl,3)[1,] <- c(10,20)
    # We need to setup the second assay that computePVals will fill.
    assay(rds,2) <- matrix(nrow=1, ncol=4)
    rds <- computePvals(rds)
@@ -336,39 +336,39 @@ test_computePvals_multipleSamples <- function() {
          width=c(1000, 900)),
       DataFrame(gene_id)
    )
-   rds <- new("RoarDataset", rightBams=list(), leftBams=list(), 
+   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 2, cores=1)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
                               rowData=preCoords, 
-                              colData=DataFrame(row.names=c("right_pre","right_post","left_pre", "left_post"))
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
    rowData(rds) <- rowData(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
-   # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
-   length(rds@rightBams)  <- 3
-   length(rds@leftBams)  <- 2
-   rds@countsRight <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   # We need to set these lengths to choose the treatment branch of the if in computePvals (about number of samples).
+   length(rds@treatmentBams)  <- 3
+   length(rds@controlBams)  <- 2
+   rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
                                            rowData=preCoords, 
                                            colData=DataFrame(row.names=c("pre","post"))
    )
-   rds@countsLeft <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
                                           rowData=preCoords, 
                                           colData=DataFrame(row.names=c("pre","post"))
    )
-   assay(rds@countsRight,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsRight,3) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsLeft,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsRight,1)[1,] <- c(10,10)
-   assay(rds@countsRight,2)[1,] <- c(1,10)
-   assay(rds@countsRight,3)[1,] <- c(20,10)
-   assay(rds@countsLeft,1)[1,] <- c(10,5)
-   assay(rds@countsLeft,2)[1,] <- c(10,20)
+   assay(rds@countsTreatment,2) <- matrix(nrow=1,ncol=2)
+   assay(rds@countsTreatment,3) <- matrix(nrow=1,ncol=2)
+   assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
+   assay(rds@countsTreatment,1)[1,] <- c(10,10)
+   assay(rds@countsTreatment,2)[1,] <- c(1,10)
+   assay(rds@countsTreatment,3)[1,] <- c(20,10)
+   assay(rds@countsControl,1)[1,] <- c(10,5)
+   assay(rds@countsControl,2)[1,] <- c(10,20)
    # 6 pvalues: 1_1 -> 0.491599
    # 1_2 -> 0.257549
    # 2_1 -> 0.00522109
@@ -409,14 +409,14 @@ test_computeRoars_singleSamples_GRanges_order <- function() {
    c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
    
-   rightAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
-   leftAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
+   treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
+   controlAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
    
-   rds <- RoarDataset(rightAlign, leftAlign, features)
+   rds <- RoarDataset(treatmentAlign, controlAlign, features)
    # Removed FALSE to test about default stranded value (FALSE).
    rds <- countPrePost(rds)
    rds <- computeRoars(rds)
-   #assay(rds,2) <- as.matrix(data.frame(right_pre=mMright, right_post=mMleft, left_pre=roar, left_post=pVal))
+   #assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
    checkEqualsNumeric(assay(rds,2)[1,1], -0.66538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,2], 1.21538461538462, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[1,3], -0.54746835443038, tolerance=1e-5)

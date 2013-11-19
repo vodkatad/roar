@@ -2,18 +2,18 @@
 setClass( "RoarDataset",
           contains = "SummarizedExperiment", # Superclasses
           representation = representation( # Slots
-             rightBams = "list",  #list of GappedAlignments 
-             leftBams = "list",
+             treatmentBams = "list",  #list of GappedAlignments 
+             controlBams = "list",
              prePostCoords = "GRanges",
              postCoords = "GRanges",
-             countsRight = "SummarizedExperiment",
-             countsLeft = "SummarizedExperiment",
+             countsTreatment = "SummarizedExperiment",
+             countsControl = "SummarizedExperiment",
              pVals = "SummarizedExperiment",
              step = "numeric",
              cores = "numeric"
           )
 #validity=function(roc) length(roc@sens)==length(roc@mspec)
 #          && length(roc@sens)==length(roc@test)
-# TODO check validity of kind of alignments, existence of PRE/POST ids
+# check validity of kind of alignments, existence of PRE/POST ids -> moved in other methods.
 )
 # prototype -> default values

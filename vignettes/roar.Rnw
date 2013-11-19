@@ -322,6 +322,7 @@ Portion lengths should be corrected to keep in consideration read lengths and th
 assignment to POST of the spanning reads, therefore:\vspace{0.5cm}\\
 \begin{math}
 l^{\prime}_{PRE} = l_{PRE}
+\end{math}
 \vspace{0.2cm} \\
 \begin{math}
 l^{\prime}_{POST} = l_{POST} + readLength - 1

@@ -15,8 +15,8 @@ arguments <- matrix(c(
    'help', 'h', 0, "logical",
    'debug', 'd', 1, "character",
    'gtf' , 'a', 1, "character",
-   'right'  , 'r', 1, "character",
-   'left'  , 'l', 1, "character"
+   'treatment'  , 't', 1, "character",
+   'control'  , 'c', 1, "character"
 ), ncol=4, byrow=T)
 
 library(getopt)
@@ -30,15 +30,15 @@ if (is.null(opt$gtf)) {
    stop("Missing gtf [-a filename] annotation option\n")
 }
 
-if (is.null(opt$right) | is.null(opt$left)) {
-   stop("Missing right or left [-r, -l followed by comma separated bam files] param")
+if (is.null(opt$treatment) | is.null(opt$control)) {
+   stop("Missing treatment or control [-t, -c followed by comma separated bam files] param")
 }
 
 library(roar)
-rightBams <- as.vector(unlist(strsplit(opt$right, ",")))
-leftBams <- as.vector(unlist(strsplit(opt$left, ",")))
+treatmentBams <- as.vector(unlist(strsplit(opt$treatment, ",")))
+controlBams <- as.vector(unlist(strsplit(opt$control, ",")))
 
-if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
+if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
 }
 
@@ -52,8 +52,8 @@ orderBam <- function(bam) {
       return(ordered)
 }
 
-orderedRightBams <- lapply(rightBams, orderBam)
-orderedLeftBams <- lapply(leftBams, orderBam)
+orderedTreatmentBams <- lapply(treatmentBams, orderBam)
+orderedControlBams <- lapply(controlBams, orderBam)
 
 workOnChr <- function(chr) {
    write(paste("Working on", chr), stderr())
@@ -68,10 +68,10 @@ workOnChr <- function(chr) {
       return(res)
    } 
 
-   rightBamsGenomicAlignments <- lapply(orderedRightBams, loadBam)
-   leftBamsGenomicAlignments <- lapply(orderedLeftBams, loadBam)
+   treatmentBamsGenomicAlignments <- lapply(orderedTreatmentBams, loadBam)
+   controlBamsGenomicAlignments <- lapply(orderedControlBams, loadBam)
    
-   rds <- RoarDataset(rightBamsGenomicAlignments, leftBamsGenomicAlignments, reduced)
+   rds <- RoarDataset(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, reduced)
    
    # Get counts
    rds <- countPrePost(rds, FALSE)
@@ -90,18 +90,18 @@ pre <- gtfGRanges[preElems,]
 preLen <- end(pre) - start(pre) + 1
 names <- sub("^\\s+","",sub("_PRE", "",elementMetadata(pre)$gene_id))
 meltedRes <- meltedRes[match(names, rownames(meltedRes)),]
-sumPreRight <- sum(meltedRes[,"rightValue"])
-sumPreLeft <- sum(meltedRes[,"leftValue"])
-meltedRes$rightFpkm <- (meltedRes[,"rightValue"]*1000000000)/(preLen*sumPreRight)
-meltedRes$leftFpkm <- (meltedRes[,"leftValue"]*1000000000)/(preLen*sumPreLeft)
+sumPreTreatment <- sum(meltedRes[,"treatmentValue"])
+sumPreControl <- sum(meltedRes[,"controlValue"])
+meltedRes$treatmentFpkm <- (meltedRes[,"treatmentValue"]*1000000000)/(preLen*sumPreTreatment)
+meltedRes$controlFpkm <- (meltedRes[,"controlValue"]*1000000000)/(preLen*sumPreControl)
 write.table(meltedRes, sep="\t", quote=FALSE)
 
-unlink(orderedRightBams)
-unlink(orderedLeftBams)
-rightBai <- sub(".bam", ".bai", orderedRightBams)
-leftBai <- sub(".bam", ".bai", orderedLeftBams)
-unlink(rightBai)
-unlink(leftBai)
+unlink(orderedTreatmentBams)
+unlink(orderedControlBams)
+treatmentBai <- sub(".bam", ".bai", orderedTreatmentBams)
+controlBai <- sub(".bam", ".bai", orderedControlBams)
+unlink(treatmentBai)
+unlink(controlBai)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)

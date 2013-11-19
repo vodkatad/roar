@@ -15,8 +15,8 @@ arguments <- matrix(c(
    'help', 'h', 0, "logical",
    'debug', 'd', 1, "character",
    'gtf' , 'a', 1, "character",
-   'right'  , 'r', 1, "character",
-   'left'  , 'l', 1, "character"
+   'treatment'  , 't', 1, "character",
+   'control'  , 'c', 1, "character"
 ), ncol=4, byrow=T)
 
 library(getopt)
@@ -30,20 +30,20 @@ if (is.null(opt$gtf)) {
    stop("Missing gtf [-a filename] annotation option\n")
 }
 
-if (is.null(opt$right) | is.null(opt$left)) {
-   stop("Missing right or left [-r, -l followed by comma separated bam files] param")
+if (is.null(opt$treatment) | is.null(opt$control)) {
+   stop("Missing treatment or control [-t, -c followed by comma separated bam files] param")
 }
 
 library(roar)
-rightBams <- as.vector(unlist(strsplit(opt$right, ",")))
-leftBams <- as.vector(unlist(strsplit(opt$left, ",")))
+treatmentBams <- as.vector(unlist(strsplit(opt$treatment, ",")))
+controlBams <- as.vector(unlist(strsplit(opt$control, ",")))
 
-if (!all(sapply(c(rightBams, leftBams, opt$gtf), checkReadable))) {
+if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
 }
 
 # Get counts
-rds <- RoarDatasetFromFiles(rightBams, leftBams, opt$gtf)
+rds <- RoarDatasetFromFiles(treatmentBams, controlBams, opt$gtf)
 rds <- countPrePost(rds, FALSE)
 
 # Get m/M and Roar
