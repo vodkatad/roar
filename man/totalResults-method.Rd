@@ -17,13 +17,14 @@
          The \code{\linkS4class{RoarDataset}} object given as rds with all the analysis steps performed.
          If one or more steps hadn't been performed they will be called automatically.
          The resulting dataframe will have the "gene_id" of the initial annotation as row names (without
-         the trailing "_PRE"/"_POST") and as columns the m/M ratio for the right and left conditions,
-         the roar value and the Fisher test pvalue (respectively: mM_right, mM_left, roar, pval).
+         the trailing "_PRE"/"_POST") and as columns the m/M ratio for the treatment and control conditions,
+         the roar value and the Fisher test pvalue (respectively: mM_treatment, mM_control, roar, pval).
          If more than one sample has been given for a condition the "pval" column will contain the
          multiplication of all the comparisons pvalue and there will be other columns containing
-         the pvalues resulting from all the pairwise right vs left contrasts, with names "pvalue_X_Y" where
-         X represent the position of the sample in the right list of bam files (or GappedAlignment) and
-         Y the position for the left list.
+         the pvalues resulting from all the pairwise treatment vs control contrasts, with names "pvalue_X_Y" 
+         where
+         X represent the position of the sample in the treatment list of bam files (or GappedAlignment) and
+         Y the position for the control list.
          \bold{WARNING}: this method does not filter in any way the results, therefore there will be negative
          m/M values/ROAR and also NA - in these cases there aren't enough information to draw a conclusion
          about the shortening/lengthening of the gene in the given samples and thus the pvalues

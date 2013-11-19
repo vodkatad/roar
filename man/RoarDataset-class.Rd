@@ -26,12 +26,12 @@ one of the methods to format results.
 }
 \section{Slots}{
   \describe{
-    \item{\code{rightBams}:}{Object of class \code{"list"} - a list of GappedAlignment objects for the first condition in analysis. }
-    \item{\code{leftBams}:}{Object of class \code{"list"} - a list of GappedAlignment objects for the second condition in analysis. }
+    \item{\code{treatmentBams}:}{Object of class \code{"list"} - a list of GappedAlignment objects for the first condition (by convention it is considered the ``treated'' condition) in analysis. }
+    \item{\code{controlBams}:}{Object of class \code{"list"} - a list of GappedAlignment objects for the second condition (by convention it is considered the ``control'' condition) in analysis. }
     \item{\code{prePostCoords}:}{Object of class \code{"GRanges"} - represents the APA sites coords, defining "PRE" (last exon coords up until the alternative APA, defining the shorter isoform) and "POST" (from the alternative APA to the ``standard'' one) regions of the genes. }
     \item{\code{postCoords}:}{Object of class \code{"GRanges"} - private object. }
-    \item{\code{countsRight}:}{Object of class \code{"SummarizedExperiment"} - private object. }
-    \item{\code{countsLeft}:}{Object of class \code{"SummarizedExperiment"} - private object. }
+    \item{\code{countsTreatment}:}{Object of class \code{"SummarizedExperiment"} - private object. }
+    \item{\code{countsControl}:}{Object of class \code{"SummarizedExperiment"} - private object. }
     \item{\code{pVals}:}{Object of class \code{"SummarizedExperiment"} - private object. }
     \item{\code{step}:}{Object of class \code{"numeric"} - private object. }
     \item{\code{cores}:}{Object of class \code{"numeric"} - private object. }
@@ -61,9 +61,9 @@ Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
     \item{\code{\link{cores}}}{\code{signature(rds = "RoarDataset")}: returns the number of cores used for computation, right now always 1. }
     }
 }
-\references{
-TODO site with gtf
-}
+%\references{
+% website for now? XXX
+%}
 \author{
 Elena Grassi, PhD student in  Biomedical Sciences and Oncology - Dept. of Molecular Biotechnologies and Health Sciences, Molecular Biotechnology Center, Torino
 }

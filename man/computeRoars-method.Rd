@@ -3,10 +3,10 @@
      \title{Computes m/M and roar values for this \code{\linkS4class{RoarDataset}} object}
      \description{
        This is the second step in the Roar analyses: it computes the ratio of prevalence
-       of the short and long isoforms for every gene in the right and left condition (m/M) and their
+       of the short and long isoforms for every gene in the treatment and control condition (m/M) and their
        ratio, roar, that indicates if there is a relative shortening-lengthening in a condition
-       over the other one. A roar > 1 for a given gene means that in the right condition
-       that gene has an higher ratio of short vs long isoforms with respect to the left condition (and
+       over the other one. A roar > 1 for a given gene means that in the treatment condition
+       that gene has an higher ratio of short vs long isoforms with respect to the control condition (and
        the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite situations,
        such as counts equal to zero for PRE or POST portions.
        If for one of the conditions there are more than one samples then calculations are performed

@@ -6,14 +6,16 @@
        alternative APA sites.
      }
      \usage{
-      RoarDatasetFromFiles(rightBams, leftBams, gtf)
+      RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
      }
      \arguments{
-            \item{rightBams}{
-           A list of filenames of bam alignments with data for the first condition
+            \item{treatmentBams}{
+           A list of filenames of bam alignments with data for the treatment condition  (by convention it is 
+            considered the ``treated'' condition: this simply means
+            that the package will compute roar values (ratios of the m/M) using this condition as the numerator)
            to be considered.}
-        \item{leftBams}{
-           A list of filenames of bam alignments with data for the second condition
+        \item{controlBams}{
+           A list of filenames of bam alignments with data for the control condition
            to be considered.}
        \item{gtf}{
            A filename of a gtf with coordinates for the portions of transcripts
@@ -38,6 +40,6 @@
        \code{\link{RoarDataset}}
      }
      \examples{
-     #rds <- RoarDatasetFromFiles(rightBams, leftBams, gtf)
+     #rds <- RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
     }
 \keyword{RoarDatasetFromFiles}

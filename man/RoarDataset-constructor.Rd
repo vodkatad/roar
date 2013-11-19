@@ -7,14 +7,16 @@
        alternative APA sites.
      }
      \usage{
-      RoarDataset(rightGappedAlign, leftGappedAlign, gtfGRanges)
+      RoarDataset(treatmentGappedAlign, controlGappedAlign, gtfGRanges)
      }
      \arguments{
-       \item{rightGappedAlign}{
-           A list of \code{\link{GappedAlignments}} representing alignment of samples for the first condition
+       \item{treatmentGappedAlign}{
+           A list of \code{\link{GappedAlignments}} representing alignment of samples for the treatment 
+           condition (by convention it is considered the ``treated'' condition: this simply means
+            that the package will compute roar values (ratios of the m/M) using this condition as the numerator)
            to be considered.}
-        \item{leftGappedAlign}{
-           A list of \code{\link{GappedAlignments}} representing alignment of samples for the second condition
+        \item{controlGappedAlign}{
+           A list of \code{\link{GappedAlignments}} representing alignment of samples for the control condition
            to be considered.}
        \item{gtfGRanges}{
            A \code{\link{GRanges}} object with coordinates for the portions of transcripts

@@ -16,8 +16,8 @@
       }
       \value{
          The resulting dataframe will be identical to that returned by \code{link{totalResults}} but
-         with two columns added: "rightValue" and "leftValue". These columns will contain a number
-         that indicates the level of expression of the relative gene in the right (or left) condition.
+         with two columns added: "treatmentValue" and "controlValue". These columns will contain a number
+         that indicates the level of expression of the relative gene in the treatment (or control) condition.
          This number derives from the counts (averages across samples when applicable) 
          obtained for the PRE portion of the gene and is similar
          to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette (XXX)

@@ -21,7 +21,7 @@
       }
       \value{
          The resulting dataframe will be identical to that returned by \code{link{fpkmResults}} but
-         it will contains rows relative only with genes with an expression estimate (right or leftValue)
+         it will contains rows relative only with genes with an expression estimate (treatment or controlValue)
          bigger than the given fpkmCutoff in both the conditions.
          %The pvalues (for multiple samples their multiplication, i.e.
          %the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
