@@ -17,7 +17,6 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    if (length(treatmentGappedAlign) == 0 || length(controlGappedAlign) == 0) {
       stop("Lists of GappedAlignments could not be empty")
    }
-   # here check _pre/ / _post
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 

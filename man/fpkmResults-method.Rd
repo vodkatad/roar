@@ -20,7 +20,7 @@
          that indicates the level of expression of the relative gene in the treatment (or control) condition.
          This number derives from the counts (averages across samples when applicable) 
          obtained for the PRE portion of the gene and is similar
-         to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette (XXX)
+         to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette
          for more details.
       }
      \examples{

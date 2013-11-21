@@ -19,7 +19,7 @@
          with two columns added: "treatmentValue" and "controlValue". These columns will contain a number
          that indicates the level of expression of the relative gene in the treatment (or control) condition.
          This number represents the counts (averages across samples when applicable) 
-         obtained for the PRE portion of the gene and is similar. See the vignette (XXX)
+         obtained for the PRE portion of the gene and is similar. See the vignette
          for more details.
       }
      \examples{

@@ -90,7 +90,14 @@ To summarize the package requirements are: every entry in the gtf should have an
 formed by a prefix representing unique gene identifiers and a suffix. The suffix defines if the given 
 coordinates refer to the portion of this gene common between the short and the long isoform (``\_PRE'')
 or to the portion pertaining only to the long isoform (``\_POST''). Every gene identifier must appear
-two (and only two) times in the gtf, one with the suffix ``\_PRE'' and one with ``\_POST''.
+two (and only two) times in the gtf, one with the suffix ``\_PRE'' and one with ``\_POST''. An example
+of how PRE and POST are defined is reported in Figure~\ref{Fig1}.
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{prepost.pdf}
+  \caption{An example of PRE/POST portions definition}
+  \label{Fig1}
+\end{figure}
 
 \section{Analysis steps}
 The suggestion is to use one of the two wrapper scripts 
@@ -129,22 +136,22 @@ library(roar)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
 # HNRNPC ko data
-bamRight <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(5,8)]
+bamTreatment <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(5,8)]
 # control (HeLa wt)
-bamLeft <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,3)]
-rds <- RoarDatasetFromFiles(bamRight, bamLeft, gtf)
+bamControl <- RNAseqData.HNRNPC.bam.chr14_BAMFILES[seq(1,3)]
+rds <- RoarDatasetFromFiles(bamTreatment, bamControl, gtf)
 @
 \subsection{Obtaining counts}
 This is the first step in the Roar analysis: it counts reads overlapping with the
 PRE/POST portions defined in the given gtf/GRanges annotation.
 Reads of the given bam are accounted for with the following rules:
-\textbf{XXX clarify}
+
 \begin{enumerate}
-       \item reads falling over different gene\_id PRE or POST portions are discarded
-       \item reads falling on a single gene\_id PRE (or POST) portion are considered, even if they fall 
-       outside of the portion boundaries
-       \item reads falling over coordinates of a single gene but both on PRE and POST are assigned 
-       to the POST portion, as long as the could be derived only from the long isoform
+       \item reads that align on only one of the given features are assigned to that feature, even if the
+       overlap is not complete 
+       \item reads that align on both a PRE and a POST feature of the same gene (spanning reads) are 
+       assigned
+       to the POST one, considering that they have clearly been obtained from the longer isoform
 \end{enumerate}
 If the alignments were derived from a strand-aware protocol it is possible
 to consider strandness when counting reads using the stranded=TRUE argument; in this
@@ -157,13 +164,15 @@ rds <- countPrePost(rds, FALSE)
 
 \subsection{Computing roar}
 This is the second step in the Roar analysis: it computes the ratio of prevalence
-of the short and long isoforms for every gene in the right and left condition (m/M) and their
+of the short and long isoforms for every gene in the treatment and control condition (m/M) and their
 ratio, roar, that indicates if there is a relative shortening-lengthening in a condition
-versus the other one.
+versus the other one (the choice of calling them ``treatment'' and ``control'' is simply a convention
+and reflects the fact that to calculate the roar the m/M of the treatment condition is used as the 
+numerator).
 For details about the m/M calculations see section~\ref{appendix}.
 
-A roar > 1 for a given gene means that in the right condition
-that gene has an higher ratio of short vs long isoforms with respect to the left condition (and
+A roar > 1 for a given gene means that in the treatment condition
+that gene has an higher ratio of short vs long isoforms with respect to the control condition (and
 the opposite for roar < 1). Negative or NA m/M or roar occurs in not definite situations,
 such as counts equal to zero for PRE or POST portions.
 If for one of the conditions there is more than one sample, like in this example
@@ -175,7 +184,8 @@ rds <- computeRoars(rds)
 @
 \subsection{Computing p-values}
 This is the third step in the Roar analyses: it applies a Fisher test comparing counts falling
-on the PRE and POST portion in the right and left conditions for every gene. If there are multiple samples for
+on the PRE and POST portion in the treatment and control conditions for every gene. If there are multiple 
+samples for
 a condition every combination of comparisons between the samples lists is considered - for example in this case we have four and three samples, therefore it will calculate 12 p-values.
 
 %<<eval=FALSE>>==
@@ -190,13 +200,15 @@ the first one is \emph{totalResults}:
 <<>>= 
 results <- totalResults(rds)
 @
-It returns a dataframe with gene\_id as rownames and several columns: ``mM\_right'', ``mM\_left'', ``roar'',
+It returns a dataframe with gene\_id as rownames and several columns: ``mM\_treatment'', ``mM\_control'', 
+``roar'',
 ``pval'' and a number of columns called ``pvalue\_X\_Y'' 
-(when there are multiple samples for at least one condition, X refers to the right samples and
-Y to the left ones).
+(when there are multiple samples for at least one condition, X refers to the treatment samples and
+Y to the control ones).
 The first two columns have the value of the ratio showing the relative abundance of the
-short isoform with respect to the long one in the right (or left) condition, the third one
-represents the roar and it's bigger than one when the shorter isoform is relatively more expressed in the right
+short isoform with respect to the long one in the treatment (or control) condition, the third one
+represents the roar and it's bigger than one when the shorter isoform is relatively more expressed in the 
+treatment
 condition (and the other way around when it's smaller than one). The pval column stores the results
 of the Fisher tests when both conditions have a single sample, while the multiplication of all the
 possible combinations p-values for multiple samples analysis. Single users will be able
@@ -204,14 +216,15 @@ to apply more significant procedures (eg. the Fisher or the Kost methods~\cite{F
 to combine p-values considering their specific experimental setting.
 
 In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_3'': the first
-number represents the number of the considered sample for the right condition, while
-the second for the left one (the samples are considered in the same order given in
+number represents the number of the considered sample for the treatment condition, while
+the second for the control one (the samples are considered in the same order given in
 the lists passed to the \Rclass{RoarDataset} constructors).
 
-All other functions are simply helper functions: \emph{fpkmResults} adds columns "rightValue" and "leftValue"
-representing the level of expression of the relative gene in the right (or left) condition, while
+All other functions are simply helper functions: \emph{fpkmResults} adds columns "treatmentValue" and 
+"controlValue"
+representing the level of expression of the relative gene in the two conditions, while
 \emph{countResults} puts in that columns the number of read that were counted on the PRE portion of genes.
-\textbf{XXX right should be treatment and left control}
+
 \emph{standardFilter} get a parameter with a cutoff for the FPKM value and 
 selects only genes with an expression
 higher than that and without any NA/Inf value for m/M or roar (deriving from not definite situations
@@ -231,7 +244,7 @@ nrow(results_filtered[results_filtered$nUnderCutoff==12,])
 @
 Note that for FPKM we used -Inf as a cutoff because in this case we didn't want to filter out
 genes considering their expression values (and because we used only partial alignments
-deriving from a single chromosome, thus the usual FPKM cutoff are not directly applicable)
+deriving from a single chromosome, thus the usual FPKM cutoff are not directly applicable).
 
 Another thing to point out is that the FPKM values derive from the total reads falling
 over the genes given in the annotation, therefore when doing the analysis ``stepwise''
@@ -327,7 +340,7 @@ l^{\prime}_{PRE} = l_{PRE}
 \begin{math}
 l^{\prime}_{POST} = l_{POST} + readLength - 1
 \end{math}
-\vspace{0.5cm} \\ % find a suitable relative measure XXX TODO
+\vspace{0.5cm} \\ % find a suitable relative measure XXX
 
 Normally we should have added readLength to both the lengths but in this case we do not expect
 reads to fall after the POST portion (that is the end of transcripts) and thus we only have to correct
