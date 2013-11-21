@@ -7,8 +7,8 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    gtfGRanges<- import(gtf, asRangedData=FALSE)
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
-   treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGappedAlignments)
-   controlBamsGenomicAlignments <- lapply(controlBams, readGappedAlignments)
+   treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
+   controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
        prePostCoords=gtfGRanges, step = 0, cores=1)
 }
