@@ -200,7 +200,7 @@ test_standardFilter_singleSamples <- function() {
                            controlValue=10)
                            #bonferroniPval=0.1)
    checkEquals(dat, dat_wanted, tolerance=1e-5)
-   # XXX TODO check whi 9.9999 is rounded to 10
+   # XXX TODO check why 9.9999 is rounded to 10
 }
    
 test_pvalueFilter_singleSamples <- function() {
