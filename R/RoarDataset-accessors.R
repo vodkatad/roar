@@ -15,7 +15,7 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
 
 RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    if (length(treatmentGappedAlign) == 0 || length(controlGappedAlign) == 0) {
-      stop("Lists of GappedAlignments could not be empty")
+      stop("Lists of GAlignments could not be empty")
    }
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]

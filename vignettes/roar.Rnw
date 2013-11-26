@@ -51,7 +51,7 @@ A roar analysis starts from some alignments, obtained via standard RNAseq experi
 and data processing.
 It is possible to build a \Rclass{RoarDataset} object giving its constructor
 two lists of bam files obtained from samples of the two conditions to be compared or to
-use another constructor that takes directly two lists of \Rclass{GappedAlignments}.
+use another constructor that takes directly two lists of \Rclass{GAlignments}.
 
 \subsection{Alternative polyadenylation annotations}
 The other information needed to build a \Rclass{RoarDataset} object are

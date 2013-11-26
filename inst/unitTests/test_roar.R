@@ -14,10 +14,10 @@ test_countPrePost_singleSamples <- function() {
          width=c(500, 900, 500, 300, 600, 300, 500, 900)),
       DataFrame(gene_id)
    )
-   rd1 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
-   rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
-   rd4 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
+   rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
+   rd3 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
+   rd4 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
    
    rds <- RoarDataset(list(c(rd1,rd2)), list(c(rd3,rd4)), features)
    rds <- countPrePost(rds, FALSE)
@@ -37,10 +37,10 @@ test_countPrePost_mulSamples <- function() {
          width=c(500, 900, 500, 300, 600, 300, 500, 900)),
       DataFrame(gene_id)
    )
-   rd1 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
-   rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
-   rd4 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
+   rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
+   rd3 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
+   rd4 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
    
    rds <- RoarDataset(list(rd1,rd2), list(rd3,rd4), features)
    rds <- countPrePost(rds, FALSE)
@@ -61,11 +61,11 @@ test_countPrePost_preferPOST <- function() {
    )
    # Had to change from Rle() to factor for seqnames otherwise there was a warning about the list for the control
    # alignments about having only chr1 for some reads and chr2 for the others.
-   rd1 <- GappedAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
-   rd3 <- GappedAlignments("a", seqnames = factor("chr2", levels=c("chr1","chr2")), pos = as.integer(2800), cigar = "300M", strand = strand("+"))
-   rd4 <- GappedAlignments("a", seqnames = factor("chr2", levels=c("chr1","chr2")), pos = as.integer(3500), cigar = "300M", strand = strand("+"))
-   rd5 <- GappedAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
+   rd1 <- GAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "3000M", strand = strand("+"))
+   rd3 <- GAlignments("a", seqnames = factor("chr2", levels=c("chr1","chr2")), pos = as.integer(2800), cigar = "300M", strand = strand("+"))
+   rd4 <- GAlignments("a", seqnames = factor("chr2", levels=c("chr1","chr2")), pos = as.integer(3500), cigar = "300M", strand = strand("+"))
+   rd5 <- GAlignments("a", seqnames = factor("chr1", levels=c("chr1","chr2")), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
    
    rds <- RoarDataset(list(c(rd1,rd2)), list(c(rd3,rd4,rd5)), features)
    rds <- countPrePost(rds, FALSE)
@@ -89,12 +89,12 @@ test_countPrePost_stranded <- function() {
          width=c(1000, 900, 600, 300)),
       DataFrame(gene_id)
    )
-   rd1 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("-"))
-   rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
-   rd4 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("-"))
-   rd5 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
-   rd6 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
+   rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("-"))
+   rd3 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
+   rd4 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("-"))
+   rd5 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
+   rd6 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3200), cigar = "300M", strand = strand("+"))
    
    rds <- RoarDataset(list(rd1,rd2), list(rd3,rd4,c(rd5,rd6)), features)
    rds <- countPrePost(rds, TRUE)
@@ -122,15 +122,15 @@ test_computeRoars_singleSamples <- function() {
          width=c(10, 5, 20, 5, 10, 10)),
       DataFrame(gene_id)
    )
-   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
-   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
-   a_pre_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
-   b_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
-   b_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
+   a_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
+   b_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
+   b_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
    # The next one is an overlapping read only if strandness is not considered. 
    # Otherwise it will be counted for pre_C. I will add a check on this in this test, even if it's not correct.
-   overlapbc <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
-   c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
+   overlapbc <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
+   c_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
    
    treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
@@ -178,13 +178,13 @@ test_computeRoars_singlevsMulSamples <- function() {
          width=c(10, 5, 20, 5, 10, 10)),
       DataFrame(gene_id)
    )
-   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
-   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
-   a_pre_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
-   b_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
-   b_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
-   overlapbc <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
-   c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
+   a_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
+   b_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
+   b_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
+   overlapbc <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
+   c_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
    treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
    controlAlign <- list(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post)
@@ -215,8 +215,8 @@ test_computeRoars_multipleSamples <- function() {
          width=c(10, 5)),
       DataFrame(gene_id)
    )
-   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
-   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
       
    treatmentAlign <- list(rep(a_pre, 2),rep(a_post, 3))
    controlAlign <- list(a_post, rep(a_pre, 4), a_post)
@@ -398,15 +398,15 @@ test_computeRoars_singleSamples_GRanges_order <- function() {
       DataFrame(gene_id)
    )
    
-   a_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
-   a_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
-   a_pre_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
-   b_pre <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
-   b_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
+   a_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
+   b_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
+   b_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
    # The next one is an overlapping read only if strandness is not considered. 
    # Otherwise it will be counted for pre_C. I will add a check on this in this test, even if it's not correct.
-   overlapbc <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
-   c_post <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
+   overlapbc <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
+   c_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
    
    
    treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))

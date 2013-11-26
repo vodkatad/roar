@@ -64,7 +64,7 @@ workOnChr <- function(chr) {
    spanChr <- GRanges(seqnames=chr,ranges=IRanges(start=begin,width=end-begin+1))
    loadBam <- function(bam) {
       param <- ScanBamParam(which=spanChr)
-      res <- readGappedAlignments(file=bam, param = param)
+      res <- readGAlignments(file=bam, param = param)
       return(res)
    } 
 

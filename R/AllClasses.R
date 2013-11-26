@@ -2,7 +2,7 @@
 setClass( "RoarDataset",
           contains = "SummarizedExperiment", # Superclasses
           representation = representation( # Slots
-             treatmentBams = "list",  #list of GappedAlignments 
+             treatmentBams = "list",  #list of GAlignments 
              controlBams = "list",
              prePostCoords = "GRanges",
              postCoords = "GRanges",
