@@ -3,7 +3,7 @@
      \title{Creates a \code{\link[=RoarDataset-class]{RoarDataset}} object}
      \description{
        This function creates an \code{\link[=RoarDataset-class]{RoarDataset}} object from two lists of 
-       of \code{\link{GappedAlignments}} and a \code{\link{GRanges}} containing a suitable annotation of 
+       of \code{\link{GAlignments}} and a \code{\link{GRanges}} containing a suitable annotation of 
        alternative APA sites.
      }
      \usage{
@@ -11,12 +11,12 @@
      }
      \arguments{
        \item{treatmentGappedAlign}{
-           A list of \code{\link{GappedAlignments}} representing alignment of samples for the treatment 
+           A list of \code{\link{GAlignments}} representing alignment of samples for the treatment 
            condition (by convention it is considered the ``treated'' condition: this simply means
             that the package will compute roar values (ratios of the m/M) using this condition as the numerator)
            to be considered.}
         \item{controlGappedAlign}{
-           A list of \code{\link{GappedAlignments}} representing alignment of samples for the control condition
+           A list of \code{\link{GAlignments}} representing alignment of samples for the control condition
            to be considered.}
        \item{gtfGRanges}{
            A \code{\link{GRanges}} object with coordinates for the portions of transcripts
@@ -49,9 +49,9 @@
          width=c(1000, 900, 600, 300)),
       DataFrame(gene_id)
    )
-   rd1 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
-   rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
+   rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
+   rd3 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
    rds <- RoarDataset(list(c(rd1,rd2)), list(rd3), features)
     }
 \keyword{RoarDataset}
