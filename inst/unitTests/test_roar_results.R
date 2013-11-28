@@ -255,7 +255,6 @@ test_pvalueFilter_singleSamples <- function() {
                            controlValue=c(10, 10))
                            #bonferroniPval=c(0.03, 0.003))
    checkEquals(dat, dat_wanted, tolerance=1e-5)
-   # XXX TODO check whi 9.9999 is rounded to 10
 }
 
 test_pvalueFilter_mulSamples <- function() {
@@ -318,5 +317,4 @@ test_pvalueFilter_mulSamples <- function() {
                            #bonferroniPval=c(0.02, 0.2)
                            nUnderCutoff=c(2,3))
    checkEquals(dat, dat_wanted, tolerance=1e-5)
-   # XXX TODO check whi 9.9999 is rounded to 10
 }

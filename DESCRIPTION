@@ -8,6 +8,5 @@ Maintainer: Elena Grassi <grassi.e@gmail.com>
 Description: Identify preferential usage of APA sites, comparing two biological conditions, starting from known alternative sites and alignments obtained from standard RNA-seq experiments.
 biocViews: Sequencing, HighThroughputSequencing, RNAseq, Transcription
 License: GPL-3
-Depends: R (>= 3.0.1), GenomicRanges(>= 1.14.3), GenomicAlignments, rtracklayer, Rsamtools, methods
+Depends: R (>= 3.0.1), GenomicRanges, GenomicAlignments(>= 0.99.4), rtracklayer, Rsamtools, methods
 Suggests: RUnit, BiocGenerics, RNAseqData.HNRNPC.bam.chr14
-URL: TODO
