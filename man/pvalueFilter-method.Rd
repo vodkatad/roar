@@ -31,7 +31,7 @@
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
       } 
      \examples{
-        gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
       seqnames = Rle(c("chr1", "chr1", "chr2", "chr2")),
       strand = strand(rep("+", length(gene_id))),

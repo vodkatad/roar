@@ -23,7 +23,7 @@
          for more details.
       }
      \examples{
-        gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
       seqnames = Rle(c("chr1", "chr1", "chr2", "chr2")),
       strand = strand(rep("+", length(gene_id))),
@@ -33,8 +33,8 @@
       DataFrame(gene_id)
    )
    rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(1000), cigar = "300M", strand = strand("+"))
-   rd2 <- GappedAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
-   rd3 <- GappedAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
+   rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2000), cigar = "300M", strand = strand("+"))
+   rd3 <- GAlignments("a", seqnames = Rle("chr2"), pos = as.integer(3000), cigar = "300M", strand = strand("+"))
    rds <- RoarDataset(list(c(rd1,rd2)), list(rd3), features)
    rds <- countPrePost(rds, FALSE)
    rds <- computeRoars(rds)

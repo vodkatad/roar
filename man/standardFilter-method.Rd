@@ -29,7 +29,7 @@
          %in analysis.
       }
      \examples{
-        gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
       seqnames = Rle(c("chr1", "chr1", "chr2", "chr2")),
       strand = strand(rep("+", length(gene_id))),
