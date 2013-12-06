@@ -75,7 +75,7 @@ coordinates of alternative polyadenylation sites (from now on addressed as APA).
 Every gene with at least one APA site is considered; 
 their longest transcript is used to get the ``classical'' polyadenylation syte (canonical end
 of the longest transcript stored
-in UCSC) and the more proximal  (with respect to the TSS, that is the farther to the canonical end
+in UCSC) and the most proximal  (with respect to the TSS, that is the farther to the canonical end
 of the transcript) reported APA
 site found in PolyA\_DB is used to define the end of the short isoform. 
 Therefore
