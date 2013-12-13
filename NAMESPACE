@@ -1,9 +1,7 @@
-#exportPattern("^[[:alpha:]]+") # Exports all alphanumeric variables (and S4 classes from 2.13.0). Not suggested in production code.
-
-import(GenomicRanges, Rsamtools, methods, GenomicAlignments)
 importFrom(rtracklayer, import)
-importFrom(GenomicRanges, SummarizedExperiment, GRanges, assays, assay, rowData, colData, qwidth)
-importFrom(GenomicAlignments, readGAlignments, summarizeOverlaps)
+#importFrom(GenomicRanges, SummarizedExperiment, GRanges, assays, assay, rowData, colData)
+#importFrom(GenomicAlignments, readGAlignments, summarizeOverlaps, qwidth)
+import(methods, GenomicRanges, GenomicAlignments)
 
 exportClasses("RoarDataset")
 
