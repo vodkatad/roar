@@ -2,6 +2,8 @@
 
 import(GenomicRanges, Rsamtools, methods, GenomicAlignments)
 importFrom(rtracklayer, import)
+importFrom(GenomicRanges, SummarizedExperiment, GRanges, assays, assay, rowData, colData, qwidth)
+importFrom(GenomicAlignments, readGAlignments, summarizeOverlaps)
 
 exportClasses("RoarDataset")
 
