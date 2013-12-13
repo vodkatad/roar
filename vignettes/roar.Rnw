@@ -1,5 +1,3 @@
-%\VignetteIndexEntry{Identify differential APA usage from RNA-seq alignments}
-%\VignettePackage{roar}
 \documentclass{article}
 \author{Elena Grassi\\
 Department of Molecular Biotechnologies and Health Sciences,\\ MBC, University of Turin, Italy\\
@@ -17,7 +15,6 @@ Department of Molecular Biotechnologies and Health Sciences,\\ MBC, University o
 \date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-11-19)}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
-%\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
@@ -129,8 +126,8 @@ In the following sections we will show an example of this package usage on the
 The analysis begins by creating a \Rclass{RoarDataset} object that holds
 the alignment data (4 HNRNPC ko samples and 3 control samples) 
 and the annotation regarding 3'UTRs coordinates.
-%<<eval=FALSE>>=
-<<>>=
+
+<<loadLibAndCreateRoarObject>>=
 library(roar)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
@@ -156,8 +153,7 @@ If the alignments were derived from a strand-aware protocol it is possible
 to consider strandness when counting reads using the stranded=TRUE argument; in this
 case we use FALSE as long as we don't want to consider strandness.
 
-%<<eval=FALSE>>= 
-<<>>= 
+<<countReads>>= 
 rds <- countPrePost(rds, FALSE)
 @
 
@@ -177,8 +173,7 @@ such as counts equal to zero for PRE or POST portions.
 If for one of the conditions there is more than one sample, like in this example
 that has four and three samples for the two conditions, then calculations are performed on average counts.
 
-%<<eval=FALSE>>=
-<<>>= 
+<<computeRoars>>= 
 rds <- computeRoars(rds)
 @
 \subsection{Computing p-values}
@@ -187,16 +182,15 @@ on the PRE and POST portion in the treatment and control conditions for every ge
 samples for
 a condition every combination of comparisons between the samples lists is considered - for example in this case we have four and three samples, therefore it will calculate 12 p-values.
 
-%<<eval=FALSE>>==
-<<>>= 
+<<computePvals>>= 
 rds <- computePvals(rds)
 @
 
 \subsection{Obtaining results}
 There are various functions aimed at extracting results from a \Rclass{RoarDataset};
 the first one is \emph{totalResults}:
-%<<eval=FALSE>>==
-<<>>= 
+
+<<getResults>>= 
 results <- totalResults(rds)
 @
 It returns a dataframe with gene\_id as rownames and several columns: ``mM\_treatment'', ``mM\_control'', 
@@ -235,8 +229,8 @@ test corrections should be carried out by the user when they are needed.
 
 For example in our case we can see how many genes have a pvalue under 0.05
 in every comparisons in this way:
-%<<eval=FALSE>>==
-<<>>= 
+
+<<getFilteredResults>>= 
 results_filtered <- pvalueFilter(rds, fpkmCutoff=-Inf, 
                                  pvalCutoff=0.05)
 nrow(results_filtered[results_filtered$nUnderCutoff==12,])
@@ -264,7 +258,6 @@ from the longer one; another more trivial question that has to be addressed is t
 frequencies on longer stretches of RNA.
 
 We can say that the total number of reads falling over a transcript in its entirety ($N$) derives
-%and we know that the total number of reads falling over a transcript ($N$) in its entirety derives
 from the relative abundance of the two isoforms and their potential of generating reads; 
 that is: $ N = \epsilon_{M}  M + \epsilon_{m}  m$
 where $m$ is the quantity of the short isoform, $M$ of the long one and $\epsilon$ identifies their
@@ -280,10 +273,6 @@ related to their lengths (with the addition of a constant of proportionality $k$
 \begin{math}
 \epsilon_{m} = k (l_{PRE})
 \end{math}
-%\vspace{0.4cm}\\
-%\begin{math}
-%k \sim l_{PRE} + l_{PRE} + l_{POST}
-%\end{math}
 \vspace{0.4cm}\\
 
 Defining $l_{PRE}$ as the length of the PRE portion and $l_{POST}$ as the length of the POST 
