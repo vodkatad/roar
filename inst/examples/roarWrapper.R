@@ -35,6 +35,7 @@ if (is.null(opt$treatment) | is.null(opt$control)) {
 }
 
 library(roar)
+library(rtracklayer)
 treatmentBams <- as.vector(unlist(strsplit(opt$treatment, ",")))
 controlBams <- as.vector(unlist(strsplit(opt$control, ",")))
 

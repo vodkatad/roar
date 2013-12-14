@@ -131,6 +131,7 @@ and the annotation regarding 3'UTRs coordinates.
 
 <<loadLibAndCreateRoarObject>>=
 library(roar)
+library(rtracklayer)
 library(RNAseqData.HNRNPC.bam.chr14)
 gtf <- system.file("examples", "apa.gtf", package="roar")
 # HNRNPC ko data
