@@ -29,6 +29,7 @@
          %in analysis.
       }
      \examples{
+   library(GenomicAlignments)
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
       seqnames = Rle(c("chr1", "chr1", "chr2", "chr2")),
