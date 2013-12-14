@@ -1,5 +1,7 @@
 # To manually perform single tests: source("inst/unitTests/test_roar_results.R")
-# To perform all tests: BiocGenerics:::testPackage("roar")
+# To perform all tests: 
+# library("GenomicAlignments")
+# BiocGenerics:::testPackage("roar")
 
 test_totalResults_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")

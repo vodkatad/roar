@@ -1,6 +1,7 @@
 # To manually perform single tests: source("inst/unitTests/test_roar.R")
-# To perform all tests: BiocGenerics:::testPackage("roar")
-
+# To perform all tests: 
+# library("GenomicAlignments")
+# BiocGenerics:::testPackage("roar")
 # countPrePost ------------------------------------------------------------
 
 test_countPrePost_singleSamples <- function() {
