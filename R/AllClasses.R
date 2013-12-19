@@ -1,0 +1,19 @@
+# This class will old a GenomicAnnotation (pre-post GTF) and count results in a SummarizedExperiment
+setClass( "RoarDataset",
+          contains = "SummarizedExperiment", # Superclasses
+          representation = representation( # Slots
+             treatmentBams = "list",  #list of GAlignments 
+             controlBams = "list",
+             prePostCoords = "GRanges",
+             postCoords = "GRanges",
+             countsTreatment = "SummarizedExperiment",
+             countsControl = "SummarizedExperiment",
+             pVals = "SummarizedExperiment",
+             step = "numeric",
+             cores = "numeric"
+          )
+#validity=function(roc) length(roc@sens)==length(roc@mspec)
+#          && length(roc@sens)==length(roc@test)
+# check validity of kind of alignments, existence of PRE/POST ids -> moved in other methods.
+)
+# prototype -> default values
