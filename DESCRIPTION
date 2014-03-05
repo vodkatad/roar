@@ -1,7 +1,7 @@
 Package: roar
 Type: Package
 Title: Identify differential APA usage from RNA-seq alignments
-Version: 0.99.4
+Version: 0.99.5
 Date: 2013-05-04
 Author: Elena Grassi
 Maintainer: Elena Grassi <grassi.e@gmail.com>
@@ -13,4 +13,4 @@ Depends: R (>= 3.0.1)
 Imports: GenomicRanges, GenomicAlignments(>= 0.99.4), methods,
         rtracklayer, IRanges
 Suggests: RUnit, BiocGenerics, RNAseqData.HNRNPC.bam.chr14
-biocViews: Sequencing, Sequencing, RNASeq, Transcription
+biocViews: Sequencing, RNASeq, Transcription
