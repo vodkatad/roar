@@ -1,7 +1,7 @@
 Package: roar
 Type: Package
 Title: Identify differential APA usage from RNA-seq alignments
-Version: 1.1.0
+Version: 1.1.1
 Date: 2013-05-04
 Author: Elena Grassi
 Maintainer: Elena Grassi <grassi.e@gmail.com>
@@ -11,6 +11,6 @@ Description: Identify preferential usage of APA sites, comparing two
 License: GPL-3
 Depends: R (>= 3.0.1)
 Imports: GenomicRanges, GenomicAlignments(>= 0.99.4), methods,
-        rtracklayer, IRanges
+        rtracklayer, S4Vectors
 Suggests: RUnit, BiocGenerics, RNAseqData.HNRNPC.bam.chr14
 biocViews: Sequencing, RNASeq, Transcription
