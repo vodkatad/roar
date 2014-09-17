@@ -10,7 +10,7 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
-       prePostCoords=gtfGRanges, step = 0, cores=1)
+       prePostCoords=gtfGRanges, step = 0, paired=FALSE, cores=1)
 }
 
 RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
@@ -20,7 +20,7 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
-       prePostCoords=gtfGRanges, step = 0, cores=1)
+       prePostCoords=gtfGRanges, step = 0, paired=FALSE, cores=1)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
@@ -254,6 +254,52 @@ setMethod("computePvals", signature(rds="RoarDataset"),
    }
 )
 
+setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="list", controlSamples="list"),
+   function(rds, treatmentSamples, controlSamples) {
+      goOn <- checkStep(rds, 2)
+      if (!goOn[[1]]) {
+         return(rds)
+      }
+      rds <- goOn[[2]]
+      if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
+         # ERROR conditions
+      } else {      
+         # We have raw counts in two SE slots (countsTreatment/Control) and need to
+         # compute pvalues for every combination of treatment/control samples.
+         # We need a function that given two assays returns the fisher pvalue
+         # and we need to pass every combination there. The results will be but
+         # in still another SE slot with a number of columns in the matrix equal to
+         # the number of combinations. The product of all the pvalues will be put in the
+         # rds/SE object in place of the pvalue for the single sample case.
+         countsTreatmentAssays <- assays(rds@countsTreatment)
+         countsControlAssays <- assays(rds@countsControl)
+         nTreatment <- length(countsTreatmentAssays)
+         nControl <- length(countsControlAssays)
+         comparisons <- nTreatment*nControl
+         rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
+                                           rowData=rowData(rds), 
+                                           # To obtain all combination of two vectors (x,y) in the treatment order:
+                                           # as.vector(t(outer(x,y,paste,sep=""))
+                                           colData=DataFrame(row.names=paste("pvalue_", 
+                                                                             as.vector(t(outer(seq(1,nTreatment), seq(1,nControl), paste, sep="_"))),
+                                                                             sep=""))
+                                          )
+         # Ok, I know that we are in R, but these two for seems straightforward to me.
+         for (i in 1:nTreatment) { # the y
+            for (j in 1:nControl) { # the x
+               mat <- cbind(countsTreatmentAssays[[i]], countsControlAssays[[j]])
+               assay(rds@pVals,1)[,nControl*(i-1)+j] <- apply(mat, 1, getFisher)
+            }
+         }
+         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, prod)
+         # Here in theory we could remove countsTreatment/control slots, TODO check memory footprint and decide.
+      }
+      rds@paired <- TRUE
+      rds@step <- 3
+      return(rds)
+   }
+)
+
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds) {
       goOn <- checkStep(rds, 3)
@@ -318,7 +364,6 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       #dat <- subset(dat, controlValue > fpkmCutoff)
       dat <- dat[dat$treatmentValue > fpkmCutoff,]
       dat <- dat[dat$controlValue > fpkmCutoff,]
-      #dat$bonferroniPval <- p.adjust(dat$pval, method="bonferroni")
       return(dat)
    }                  
 )
@@ -326,7 +371,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
 setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {
       dat <- standardFilter(rds, fpkmCutoff)
-      if (length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) {
+      if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
          # In this case we add to dat a col that says how many comparisons yielded
          # a pvalue < pvalCutoff.
          # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
@@ -337,12 +382,31 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
             dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
          }
       } else {
-         #dat <- subset(dat, bonferroniPval < pvalCutoff)  
-         #dat <- dat[dat$bonferroniPval < pvalCutoff,]
          dat <- dat[dat$pval < pvalCutoff,]
       }   
       return(dat)
    }                  
+)
+
+setMethod("pvalueCorrectFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric", method="character"),
+   function(rds, fpkmCutoff, pvalCutoff, method) {
+      dat <- standardFilter(rds, fpkmCutoff)
+      if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+         # In this case we add to dat a col that says how many comparisons yielded
+         # a pvalue < pvalCutoff.
+         # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+         if(nrow(dat) != 0) {
+            cols <- grep("^pvalue_", colnames(dat))
+            sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+            # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+            dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         }
+      } else {
+         dat$pval <- p.adjust(dat$pval, method=method)
+         dat <- dat[dat$pval < pvalCutoff,]
+      }   
+      return(dat)
+   }                 
 )
 
 # Simple getters and setters.
