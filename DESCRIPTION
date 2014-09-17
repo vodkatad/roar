@@ -11,3 +11,4 @@ License: GPL-3
 Depends: R (>= 3.0.1)
 Imports: GenomicRanges, GenomicAlignments(>= 0.99.4), methods, rtracklayer, IRanges
 Suggests: RUnit, BiocGenerics, RNAseqData.HNRNPC.bam.chr14
+URL: https://github.com/vodkatad/roar/
