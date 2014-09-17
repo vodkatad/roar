@@ -1,5 +1,5 @@
 importFrom(rtracklayer, import)
-import(S4Vectors)
+importFrom(IRanges, DataFrame)
 #importFrom(GenomicRanges, SummarizedExperiment, GRanges, assays, assay, rowData, colData)
 #importFrom(GenomicAlignments, readGAlignments, summarizeOverlaps, qwidth)
 import(methods, GenomicRanges, GenomicAlignments)
