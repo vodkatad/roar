@@ -351,7 +351,7 @@ test_computePvals_multipleSamples <- function() {
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
-   # We need to set these lengths to choose the treatment branch of the if in computePvals (about number of samples).
+   # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
    length(rds@treatmentBams)  <- 3
    length(rds@controlBams)  <- 2
    rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
@@ -432,7 +432,7 @@ test_computePairedPvals <- function() {
    assay(rds@countsControl,2)[1,] <- c(10,20)
    # 2_1 -> 0.00522109
    # 3_2 -> 0.01938319
-   # We need to setup the second assay that computePVals will fill.
+   # We need to setup the second assay that computePairedVals will fill.
    assay(rds,2) <- matrix(nrow=1, ncol=4)
    rds <- computePairedPvals(rds, c(2,3), c(1,2))
    checkEqualsNumeric(assay(rds@pVals,1)[1,1], 0.00522109, tolerance=1e-5)

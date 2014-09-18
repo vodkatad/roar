@@ -183,7 +183,7 @@ test_standardFilter_singleSamples <- function() {
    # We set pre counts for all genes:
    assay(rds,1)[,"treatment_pre"] <- c(1,1e9,1e9,20)
    assay(rds,1)[,"control_pre"] <- c(20,1e9,1e9,20)
-   # D treatment FPKM 9.9999
+   # D treatment FPKM 9.9999 XXX TODO check precision issue.
    
    # We set a negative m/M for B, a NA roar for C. Other values are ok.
    assay(rds,2) <- matrix(ncol=4, nrow=4)
@@ -202,7 +202,6 @@ test_standardFilter_singleSamples <- function() {
                            controlValue=10)
                            #bonferroniPval=0.1)
    checkEquals(dat, dat_wanted, tolerance=1e-5)
-   # XXX TODO check why 9.9999 is rounded to 10
 }
    
 test_pvalueFilter_singleSamples <- function() {
@@ -318,5 +317,114 @@ test_pvalueFilter_mulSamples <- function() {
                            controlValue=c(20, 1e9),
                            #bonferroniPval=c(0.02, 0.2)
                            nUnderCutoff=c(2,3))
+   checkEquals(dat, dat_wanted, tolerance=1e-5)
+}
+
+test_pvalueFilter_mulSamples_paired <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 1, 2),
+         width=rep(1, length(gene_id))),
+      DataFrame(gene_id)
+   )
+   # prelen A-1, B-1
+   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+              prePostCoords=features, step = 3, cores=1, paired=TRUE)
+   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+                              rowData=preCoords, 
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
+   )
+   rowData(rds) <- rowData(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   length(rds@treatmentBams)  <- 2
+   length(rds@controlBams)  <- 2
+   assay(rds,1)[,"treatment_pre"] <- c(1,1e9)
+   assay(rds,1)[,"control_pre"] <- c(20,1e9)
+   assay(rds,2) <- matrix(ncol=4, nrow=2)
+   assay(rds,2)[, "treatment_pre"] <- c(1,1)
+   assay(rds,2)[, "treatment_post"] <- c(2,1)
+   assay(rds,2)[, "control_pre"] <- c(10,1)
+   assay(rds,2)[, "control_post"] <- c(0.01,0.1)
+   rds@pVals <- SummarizedExperiment(assays = matrix(nrow=2, ncol=2),
+                                     rowData=preCoords, 
+                                     colData=DataFrame(row.names=c("pvalue_1_2","pvalue_2_1"))
+   )
+   assay(rds@pVals,1)[1,] <- c(1, 20)
+   assay(rds@pVals,1)[2,] <- c(5, 5)
+   
+   
+   dat <- pvalueFilter(rds, 0.01, 0.05)
+   dat_wanted <- data.frame(row.names="A", 
+                            mM_treatment=1, 
+                            mM_control=2,
+                            roar=10,
+                            pval=0.01,
+                            pvalue_1_2= 1,
+                            pvalue_2_1 = 20,
+                            treatmentValue=1,
+                            controlValue=20)
+   checkEquals(dat, dat_wanted, tolerance=1e-5)
+}
+
+
+test_pvalueCorrectFilter_singleSamples <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST", "C_PRE", "C_POST", "D_PRE", "D_POST")
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 1, 2, 3, 4, 5, 6),
+         width=rep(1, length(gene_id))),
+      DataFrame(gene_id)
+   )
+   # prelen A-1, B-1, C-1, D-1
+   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+              prePostCoords=features, step = 3, cores=1, paired = FALSE)
+   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
+                              rowData=preCoords, 
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
+   )
+   rowData(rds) <- rowData(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   length(rds@treatmentBams)  <- 1
+   length(rds@controlBams)  <- 1
+   # Here we will filter out A for the FPKM filter and then correct pvalues for B, C and D
+   # and kick out D for filter matters.
+   # We set pre counts for all genes:
+   assay(rds,1)[,"treatment_pre"] <- c(1,1e9,1e9,20)
+   assay(rds,1)[,"control_pre"] <- c(20,1e9,1e9,20)
+   
+   # m/M and roar values are all ok. Pvalues will bring D to be larger than the given cutoff
+   # after bonferroni correction.
+   assay(rds,2) <- matrix(ncol=4, nrow=4)
+   assay(rds,2)[, "treatment_pre"] <- c(1,1,1,1)
+   assay(rds,2)[, "treatment_post"] <- c(1,1,1,1)
+   assay(rds,2)[, "control_pre"] <- c(1,1,1,1)
+   assay(rds,2)[, "control_post"] <- c(0.00002,0.001,0.001,0.01)
+   
+   dat <- pvalueCorrectFilter(rds, 1, 0.02, "bonferroni")
+   dat_wanted <- data.frame(row.names=c("B", "C"), 
+                            mM_treatment=c(1,1), 
+                            mM_control=c(1,1),
+                            roar=c(1,1),
+                            pval=c(0.003, 0.003),
+                            treatmentValue=c(5e8, 5e8),
+                            controlValue=c(5e8, 5e8))
+   #bonferroniPval=0.1)
    checkEquals(dat, dat_wanted, tolerance=1e-5)
 }
