@@ -8,6 +8,14 @@ getFisher <- function(counts) {
    return(f$p.value)
 }
 
+combineFisherMethod <- function(pvals) {
+   # Computes the combined pvalue from a list of independent tests resulting pvalues
+   # following the fisher method.
+   # http://en.wikipedia.org/wiki/Fisher%27s_method
+   chisq <- -2*sum(log(pvals))
+   return(1-pchisq(chisq, df = 2*length(pvals)))
+}
+
 checkStep <- function(rds, neededStep) {
    if (rds@step > neededStep) { # Already done, not repeating. Give a reset method?
       warning("Not repeating a step already done")

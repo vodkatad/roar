@@ -163,7 +163,7 @@ test_standardFilter_singleSamples <- function() {
    )
    # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
-              prePostCoords=features, step = 3, cores=1)
+              prePostCoords=features, step = 3, cores=1, paired = FALSE)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
@@ -217,7 +217,7 @@ test_pvalueFilter_singleSamples <- function() {
    )
    # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
-              prePostCoords=features, step = 3, cores=1)
+              prePostCoords=features, step = 3, cores=1, paired=FALSE)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
@@ -271,7 +271,7 @@ test_pvalueFilter_mulSamples <- function() {
    )
    # prelen A-1, B-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
-              prePostCoords=features, step = 3, cores=1)
+              prePostCoords=features, step = 3, cores=1, paired=FALSE)
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]

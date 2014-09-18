@@ -16,11 +16,13 @@ exportMethods(
    countPrePost,
    computeRoars,
    computePvals,
+   computePairedPvals,
    totalResults,
    fpkmResults,
    countResults,
    standardFilter,
-   pvalueFilter
+   pvalueFilter,
+   pvalueCorrectFilter
 #   cores
 #  "cores<-"
 )

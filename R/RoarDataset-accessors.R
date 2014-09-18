@@ -10,7 +10,7 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
-       prePostCoords=gtfGRanges, step = 0, paired=FALSE, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
 RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
@@ -20,7 +20,7 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
-       prePostCoords=gtfGRanges, step = 0, paired=FALSE, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
@@ -254,44 +254,39 @@ setMethod("computePvals", signature(rds="RoarDataset"),
    }
 )
 
-setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="list", controlSamples="list"),
+setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="numeric", controlSamples="numeric"),
    function(rds, treatmentSamples, controlSamples) {
       goOn <- checkStep(rds, 2)
       if (!goOn[[1]]) {
          return(rds)
       }
       rds <- goOn[[2]]
-      if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
-         # ERROR conditions
-      } else {      
-         # We have raw counts in two SE slots (countsTreatment/Control) and need to
-         # compute pvalues for every combination of treatment/control samples.
-         # We need a function that given two assays returns the fisher pvalue
-         # and we need to pass every combination there. The results will be but
-         # in still another SE slot with a number of columns in the matrix equal to
-         # the number of combinations. The product of all the pvalues will be put in the
-         # rds/SE object in place of the pvalue for the single sample case.
+      if (length(rds@treatmentBams) == 1 || length(rds@controlBams) == 1) {
+         stop("computePairedPvals can be used only with RoarDataset objects with multiple samples for both conditions")
+      } else if (any(table(treatmentSamples)>1) || any(table(controlSamples)>1)) {
+         stop("treatmentSamples and controlSamples should not contain repeated elements: each sample of a given group could be paired with only one of the other")
+      } else if (length(treatmentSamples) != length(controlSamples)) {
+         stop("treatmentSamples and controlSamples should have the same lengths")
+      } else if (max(treatmentSamples) > length(rds@treatmentBams) || max(controlSamples) > length(rds@controlBams)) {
+         stop("The given treatmentSamples or controlSamples numbers are wrong: the max is bigger than the given number of alignments")
+      } else {     
          countsTreatmentAssays <- assays(rds@countsTreatment)
          countsControlAssays <- assays(rds@countsControl)
-         nTreatment <- length(countsTreatmentAssays)
-         nControl <- length(countsControlAssays)
-         comparisons <- nTreatment*nControl
+         comparisons <- length(treatmentSamples)
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
                                            rowData=rowData(rds), 
                                            # To obtain all combination of two vectors (x,y) in the treatment order:
                                            # as.vector(t(outer(x,y,paste,sep=""))
                                            colData=DataFrame(row.names=paste("pvalue_", 
-                                                                             as.vector(t(outer(seq(1,nTreatment), seq(1,nControl), paste, sep="_"))),
+                                                                             mapply(FUN=function(x,y) {paste(x, y, sep="_")}, treatmentSamples, controlSamples),
                                                                              sep=""))
                                           )
-         # Ok, I know that we are in R, but these two for seems straightforward to me.
-         for (i in 1:nTreatment) { # the y
-            for (j in 1:nControl) { # the x
-               mat <- cbind(countsTreatmentAssays[[i]], countsControlAssays[[j]])
-               assay(rds@pVals,1)[,nControl*(i-1)+j] <- apply(mat, 1, getFisher)
-            }
+         # Ok, I know that we are in R, but this seems straightforward to me.
+         for (i in 1:length(treatmentSamples)) { 
+            mat <- cbind(countsTreatmentAssays[[treatmentSamples[i]]], countsControlAssays[[controlSamples[i]]])
+            assay(rds@pVals,1)[,i] <- apply(mat, 1, getFisher)
          }
-         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, prod)
+         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, combineFisherMethod)
          # Here in theory we could remove countsTreatment/control slots, TODO check memory footprint and decide.
       }
       rds@paired <- TRUE
@@ -435,6 +430,7 @@ setMethod("show", "RoarDataset",
       cat("N. of genes in study:", length(object@prePostCoords)/2 , "\n")
       cat("N. of cores:", object@cores, "\n")
       cat("Analysis step reached [0-3]:", object@step, "\n")
+      cat("Paired?", object@paired, "\n")
       cat("\n")     
    }
 )
