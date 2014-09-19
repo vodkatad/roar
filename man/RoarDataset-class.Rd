@@ -3,6 +3,7 @@
 \docType{class}
 \alias{RoarDataset-class}
 \alias{computePvals,RoarDataset-method}
+\alias{computePairedPvals,RoarDataset,numeric,numeric-method}
 \alias{computeRoars,RoarDataset-method}
 \alias{cores,RoarDataset-method}
 \alias{countPrePost,RoarDataset,logical-method}
@@ -12,6 +13,7 @@
 \alias{totalResults,RoarDataset-method}
 \alias{standardFilter,RoarDataset,numeric-method}
 \alias{pvalueFilter,RoarDataset,numeric,numeric-method}
+\alias{pvalueCorrectFilter,RoarDataset,numeric,numeric,character-method}
 
 \title{Class \code{"RoarDataset"}}
 \description{
@@ -33,8 +35,9 @@ one of the methods to format results.
     \item{\code{countsTreatment}:}{Object of class \code{"SummarizedExperiment"} - private object. }
     \item{\code{countsControl}:}{Object of class \code{"SummarizedExperiment"} - private object. }
     \item{\code{pVals}:}{Object of class \code{"SummarizedExperiment"} - private object. }
-    \item{\code{step}:}{Object of class \code{"numeric"} - private object. }
-    \item{\code{cores}:}{Object of class \code{"numeric"} - private object. }
+    \item{\code{paired}:}{\code{"logical"} slot - private. }
+    \item{\code{step}:}{\code{"numeric"} slot - private. }
+    \item{\code{cores}:}{\code{"numeric"} slot - private. }
     \item{\code{exptData}:}{Object of class \code{"SimpleList"} - private object. }
     \item{\code{rowData}:}{Object of class \code{"GenomicRangesORGRangesList"} - private object. }
     \item{\code{colData}:}{Object of class \code{"DataFrame"} - private object. }

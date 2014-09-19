@@ -4,8 +4,8 @@
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
-         with an expression estimate bigger than a given cutoff will be considered. Also pvalues
-         will be considered for filtering.
+         with an expression estimate bigger than a given cutoff will be considered. Also pvalues, corrected
+         considering for multiple testing, will be considered for filtering.
      }
      \usage{
       pvalueCorrectFilter(rds, fpkmCutoff, pvalCutoff, method)
@@ -19,16 +19,20 @@
          The cutoff that will be used to determine if a gene is expressed or not.}
        \item{pvalCutoff}{
          The cutoff that will be used to determine if a pvalue is significative or not.}
-       \item{method}{ TODO}
+       \item{method}{ The multiple test correction method that has to be used (used only for multiple
+       paired samples or single samples, not used for multiple unpaired samples.)}
       }
       \value{
          The resulting dataframe will be identical to that returned by \code{link{standardFilter}} but
          after gene expression filtering and pvalue correction another step will be performed:
-         for single samples comparisons only genes with a nominal pvalue smaller than the given cutoff
-         will be considered, while for multiple samples a column (nUnderCutoff) will be added to the
+         for single samples comparisons or multiple paired samples comparisons
+         only genes with a corrected (with the given method)
+         pvalue (for paired datasets this is the combined pvalue obtained with the Fisher method)
+         smaller than the given cutoff
+         will be returned, while for multiple samples a column (nUnderCutoff) will be added to the
          dataframe. This column will contain an integer number representing the number of comparisons
          between the samples of the two conditions that results in a nominal pvalue lower than the given    
-         cutoff (pvalCutoff).
+         cutoff (pvalCutoff). 
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
       } 
      \examples{

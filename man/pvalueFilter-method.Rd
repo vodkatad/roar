@@ -27,7 +27,9 @@
          will be considered, while for multiple samples a column (nUnderCutoff) will be added to the
          dataframe. This column will contain an integer number representing the number of comparisons
          between the samples of the two conditions that results in a nominal pvalue lower than the given    
-         cutoff (pvalCutoff).
+         cutoff (pvalCutoff). For multiple samples with a paired design (i.e. if computePairedPvals was used)
+         the pvalues of the requested pairings will be listed together with the combined pvalued
+         obtained with the Fisher method and the filtering will be done on this pvalue.
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
       } 
      \examples{
