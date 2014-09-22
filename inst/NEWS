@@ -1,3 +1,19 @@
+CHANGES IN VERSION 1.1.2
+-----------------------
+
+NEW FEATURES
+   
+    o New code to deal with experimental setups with a natural pairing between   
+      treatment and control samples. The user have to define the pairings 
+      and the resulting p-values of the independent tests are combined
+      with the Fisher method. A method that corrects these p-values
+      (and also those obtained in single samples settings) considering the
+      multiple testing issue has also been added.
+      
+BUG FIXES
+
+    o No changes classified as 'bug fixes'
+
 CHANGES IN VERSION 0.99.6
 -----------------------
 
