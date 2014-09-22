@@ -10,7 +10,7 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
-       prePostCoords=gtfGRanges, step = 0, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
 RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
@@ -20,7 +20,7 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    ordered <- order(elementMetadata(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
-       prePostCoords=gtfGRanges, step = 0, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
@@ -254,6 +254,47 @@ setMethod("computePvals", signature(rds="RoarDataset"),
    }
 )
 
+setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="numeric", controlSamples="numeric"),
+   function(rds, treatmentSamples, controlSamples) {
+      goOn <- checkStep(rds, 2)
+      if (!goOn[[1]]) {
+         return(rds)
+      }
+      rds <- goOn[[2]]
+      if (length(rds@treatmentBams) == 1 || length(rds@controlBams) == 1) {
+         stop("computePairedPvals can be used only with RoarDataset objects with multiple samples for both conditions")
+      } else if (any(table(treatmentSamples)>1) || any(table(controlSamples)>1)) {
+         stop("treatmentSamples and controlSamples should not contain repeated elements: each sample of a given group could be paired with only one of the other")
+      } else if (length(treatmentSamples) != length(controlSamples)) {
+         stop("treatmentSamples and controlSamples should have the same lengths")
+      } else if (max(treatmentSamples) > length(rds@treatmentBams) || max(controlSamples) > length(rds@controlBams)) {
+         stop("The given treatmentSamples or controlSamples numbers are wrong: the max is bigger than the given number of alignments")
+      } else {     
+         countsTreatmentAssays <- assays(rds@countsTreatment)
+         countsControlAssays <- assays(rds@countsControl)
+         comparisons <- length(treatmentSamples)
+         rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
+                                           rowData=rowData(rds), 
+                                           # To obtain all combination of two vectors (x,y) in the treatment order:
+                                           # as.vector(t(outer(x,y,paste,sep=""))
+                                           colData=DataFrame(row.names=paste("pvalue_", 
+                                                                             mapply(FUN=function(x,y) {paste(x, y, sep="_")}, treatmentSamples, controlSamples),
+                                                                             sep=""))
+                                          )
+         # Ok, I know that we are in R, but this seems straightforward to me.
+         for (i in 1:length(treatmentSamples)) { 
+            mat <- cbind(countsTreatmentAssays[[treatmentSamples[i]]], countsControlAssays[[controlSamples[i]]])
+            assay(rds@pVals,1)[,i] <- apply(mat, 1, getFisher)
+         }
+         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, combineFisherMethod)
+         # Here in theory we could remove countsTreatment/control slots, TODO check memory footprint and decide.
+      }
+      rds@paired <- TRUE
+      rds@step <- 3
+      return(rds)
+   }
+)
+
 setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds) {
       goOn <- checkStep(rds, 3)
@@ -318,7 +359,6 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
       #dat <- subset(dat, controlValue > fpkmCutoff)
       dat <- dat[dat$treatmentValue > fpkmCutoff,]
       dat <- dat[dat$controlValue > fpkmCutoff,]
-      #dat$bonferroniPval <- p.adjust(dat$pval, method="bonferroni")
       return(dat)
    }                  
 )
@@ -326,7 +366,7 @@ setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
 setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {
       dat <- standardFilter(rds, fpkmCutoff)
-      if (length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) {
+      if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
          # In this case we add to dat a col that says how many comparisons yielded
          # a pvalue < pvalCutoff.
          # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
@@ -337,12 +377,31 @@ setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pva
             dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
          }
       } else {
-         #dat <- subset(dat, bonferroniPval < pvalCutoff)  
-         #dat <- dat[dat$bonferroniPval < pvalCutoff,]
          dat <- dat[dat$pval < pvalCutoff,]
       }   
       return(dat)
    }                  
+)
+
+setMethod("pvalueCorrectFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric", method="character"),
+   function(rds, fpkmCutoff, pvalCutoff, method) {
+      dat <- standardFilter(rds, fpkmCutoff)
+      if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+         # In this case we add to dat a col that says how many comparisons yielded
+         # a pvalue < pvalCutoff.
+         # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+         if(nrow(dat) != 0) {
+            cols <- grep("^pvalue_", colnames(dat))
+            sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+            # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+            dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+         }
+      } else {
+         dat$pval <- p.adjust(dat$pval, method=method)
+         dat <- dat[dat$pval < pvalCutoff,]
+      }   
+      return(dat)
+   }                 
 )
 
 # Simple getters and setters.
@@ -371,6 +430,7 @@ setMethod("show", "RoarDataset",
       cat("N. of genes in study:", length(object@prePostCoords)/2 , "\n")
       cat("N. of cores:", object@cores, "\n")
       cat("Analysis step reached [0-3]:", object@step, "\n")
+      cat("Paired?", object@paired, "\n")
       cat("\n")     
    }
 )

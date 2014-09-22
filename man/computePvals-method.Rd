@@ -16,7 +16,7 @@
            in the two conditions to be compared via pvalues.}
       }
       \value{
-         The \code{\linkS4class{RoarDataset}} object given as rds with the compute Roars phase of the           analysis done. Pvalues will be held in the RoarDataset object itself in the case of single samples, while
+         The \code{\linkS4class{RoarDataset}} object given as rds with the compute pvalue phase of the analysis done. Pvalues will be held in the RoarDataset object itself in the case of single samples, while
          in a separate slot otherwise, but end user normally should not analyze those directly but use
          \code{\link{totalResults}} or \code{\link{fpkmResults}} at the end of the analysis. 
       }

@@ -10,6 +10,7 @@ setClass( "RoarDataset",
              countsControl = "SummarizedExperiment",
              pVals = "SummarizedExperiment",
              step = "numeric",
+             paired = "logical",
              cores = "numeric"
           )
 #validity=function(roc) length(roc@sens)==length(roc@mspec)
