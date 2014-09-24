@@ -14,7 +14,7 @@ Department of Molecular Biotechnologies and Health Sciences,\\ MBC, University o
 
 \title{Identify differential APA usage from RNA-seq alignments}
 
-\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2013-11-19)}
+\date{\Rpackage{roar} version \Sexpr{packageDescription("roar")$Version} (Last revision 2014-09-24)}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
@@ -69,13 +69,13 @@ associated with only one ``\_PRE'' and one ``\_POST'', leading to two genomic re
 gene\_id.
 
 In the package we added a file (examples/apa.gtf) that follows these directives: it is build
-upon the hg19 human genome release using the PolyA\_DB (\cite{Cheng2006}) UCSC track to obtain
-coordinates of alternative polyadenylation sites (from now on addressed as APA).
+upon the hg19 human genome release using PolyA\_DB (\cite{Cheng2006}) version 2 to obtain
+coordinates of alternative polyadenylation (from now on addressed as APA) sites.
 Every gene with at least one APA site is considered; 
 their longest transcript is used to get the ``classical'' polyadenylation syte (canonical end
 of the longest transcript stored
 in UCSC) and the most proximal  (with respect to the TSS, that is the farther to the canonical end
-of the transcript) reported APA
+of the transcript; but preferring sites still in the 3'UTR) reported APA
 site found in PolyA\_DB is used to define the end of the short isoform. 
 Therefore
 we define the ``PRE'' portion as the stretch of DNA starting from the beginning of the exon containing 
@@ -189,6 +189,15 @@ a condition every combination of comparisons between the samples lists is consid
 rds <- computePvals(rds)
 @
 
+Computing all samples pairing is not the preferrable choice when a paired experimental design exists:
+in this case only the correct pairs between control and treatment samples should be compared with the Fisher
+test; then their p-values can be combined following the Fisher method (\cite{Fisher}) 
+because we have different
+independent tests on the same null hypothesis. For these situations there is an alternative way
+to obtain the p-values: \emph{computePairedPvals}, which require the user to specify as arguments
+not only the \Rclass{RoarDataset} object but also two vectors containining the ordered samples
+for treatment and control - see the related man page for details.
+
 \subsection{Obtaining results}
 There are various functions aimed at extracting results from a \Rclass{RoarDataset};
 the first one is \emph{totalResults}:
@@ -207,9 +216,8 @@ represents the roar and it's bigger than one when the shorter isoform is relativ
 treatment
 condition (and the other way around when it's smaller than one). The pval column stores the results
 of the Fisher tests when both conditions have a single sample, while the multiplication of all the
-possible combinations p-values for multiple samples analysis. Single users will be able
-to apply more significant procedures (eg. the Fisher or the Kost methods~\cite{Fisher,Kost})
-to combine p-values considering their specific experimental setting.
+possible combinations p-values for un-paired multiple samples analysis or the combined
+p-values following the Fisher method if \emph{computePairedPvals} has been used.
 
 In this case for example there will be columns ``pvalue\_1\_1'' up to ``pvalue\_4\_3'': the first
 number represents the number of the considered sample for the treatment condition, while
@@ -227,8 +235,12 @@ higher than that and without any NA/Inf value for m/M or roar (deriving from not
 with counts equal to zero). \emph{pvalueFilter} further selects only genes with a Fisher test pvalue
 smaller than the given cutoff in the single sample case, while if more than one sample has been given
 for one condition it adds a column named "nUnderCutoff" that stores the number of p-values that are
-smaller than the given cutoff. It is worth noting that all this p-values are nominal and multiple
-test corrections should be carried out by the user when they are needed.
+smaller than the given cutoff. It is worth noting that all the p-values are nominal with this
+method, while \emph{pvalueCorrectFilter}
+applies an user requested multiple correction procedure (after FPKM filtering) for single sample
+or paired (that is when \emph{computePairedPvals} has been used) analyses and filters with the
+given cutoff on these corrected value (for un-paired multiple samples design this does exactly
+the same as \emph{pvalueFilter}).
 
 For example in our case we can see how many genes have a pvalue under 0.05
 in every comparisons in this way:
