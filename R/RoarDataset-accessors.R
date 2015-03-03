@@ -95,7 +95,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          assay(se,1)[,"treatment_post"] <- assays(treatmentSEpost)$counts 
          assay(se,1)[,"control_pre"] <- assays(controlSE)$counts[preElems,]
          assay(se,1)[,"control_post"] <- assays(controlSEpost)$counts
-         rowData(rds) <- rowData(se)
+         rowRanges(rds) <- rowRanges(se)
          colData(rds) <- colData(se)
          assays(rds) <- assays(se)
          names(assays(rds)) <- "counts"
@@ -137,7 +137,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          rds@countsTreatment <- countsTreatment
          rds@countsControl <- countsControl
       }
-      rowData(rds) <- rowData(se)
+      rowRanges(rds) <- rowRanges(se)
       colData(rds) <- colData(se)
       assays(rds) <- assays(se)
       names(assays(rds)) <- "counts"
@@ -160,8 +160,8 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       # m/M = ((Lpost*Cpre)/(Lpre*Cpost))-1
       # Negative m/M are discarded.
       #roar = (m/M_treatment)/(m/M_control)
-      # We must obtain the list of lengths from rds@postCoords and rowData(rds) (which is pre).
-      preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
+      # We must obtain the list of lengths from rds@postCoords and rowRanges(rds) (which is pre).
+      preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
       postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
       # I had to add "+1" as long as the end coords are not inclusive.
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
@@ -232,7 +232,7 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          nControl <- length(countsControlAssays)
          comparisons <- nTreatment*nControl
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
-                                           rowData=rowData(rds), 
+                                           rowData=rowRanges(rds), 
                                            # To obtain all combination of two vectors (x,y) in the treatment order:
                                            # as.vector(t(outer(x,y,paste,sep=""))
                                            colData=DataFrame(row.names=paste("pvalue_", 
@@ -274,7 +274,7 @@ setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="n
          countsControlAssays <- assays(rds@countsControl)
          comparisons <- length(treatmentSamples)
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
-                                           rowData=rowData(rds), 
+                                           rowData=rowRanges(rds), 
                                            # To obtain all combination of two vectors (x,y) in the treatment order:
                                            # as.vector(t(outer(x,y,paste,sep=""))
                                            colData=DataFrame(row.names=paste("pvalue_", 
@@ -320,7 +320,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
       dat <- totalResults(rds)
-      preLen <- end(rowData(rds)) - start(rowData(rds)) + 1
+      preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
       sumPreTreatment <- sum(assay(rds, 1)[,"treatment_pre"])
       sumPreControl <- sum(assay(rds, 1)[,"control_pre"])
       dat$treatmentValue <- (assay(rds, 1)[,"treatment_pre"]*1000000000)/(preLen*sumPreTreatment)

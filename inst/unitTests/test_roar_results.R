@@ -22,7 +22,7 @@ test_totalResults_singleSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -67,7 +67,7 @@ test_totalResults_mulSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -126,7 +126,7 @@ test_fpkmResults_singleSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -171,7 +171,7 @@ test_standardFilter_singleSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -224,7 +224,7 @@ test_pvalueFilter_singleSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -278,7 +278,7 @@ test_pvalueFilter_mulSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -340,7 +340,7 @@ test_pvalueFilter_mulSamples_paired <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -396,7 +396,7 @@ test_pvalueCorrectFilter_singleSamples <- function() {
                               rowData=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
