@@ -256,7 +256,7 @@ test_computePvals_single <- function() {
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -298,7 +298,7 @@ test_computePvals_singlevsMul <- function() {
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -347,7 +347,7 @@ test_computePvals_multipleSamples <- function() {
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
@@ -407,7 +407,7 @@ test_computePairedPvals <- function() {
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
-   rowData(rds) <- rowData(se)
+   rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
