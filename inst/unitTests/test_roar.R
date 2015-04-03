@@ -252,7 +252,7 @@ test_computePvals_single <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
@@ -294,7 +294,7 @@ test_computePvals_singlevsMul <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
@@ -306,11 +306,11 @@ test_computePvals_singlevsMul <- function() {
    length(rds@treatmentBams)  <- 1
    length(rds@controlBams)  <- 3
    rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                                        rowData=preCoords, 
+                                                        rowRanges=preCoords, 
                                                         colData=DataFrame(row.names=c("pre","post"))
    )
    rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                       rowData=preCoords, 
+                                       rowRanges=preCoords, 
                                        colData=DataFrame(row.names=c("pre","post"))
    )
    assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
@@ -343,7 +343,7 @@ test_computePvals_multipleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
@@ -355,11 +355,11 @@ test_computePvals_multipleSamples <- function() {
    length(rds@treatmentBams)  <- 3
    length(rds@controlBams)  <- 2
    rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                           rowData=preCoords, 
+                                           rowRanges=preCoords, 
                                            colData=DataFrame(row.names=c("pre","post"))
    )
    rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                          rowData=preCoords, 
+                                          rowRanges=preCoords, 
                                           colData=DataFrame(row.names=c("pre","post"))
    )
    assay(rds@countsTreatment,2) <- matrix(nrow=1,ncol=2)
@@ -403,7 +403,7 @@ test_computePairedPvals <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    
@@ -415,11 +415,11 @@ test_computePairedPvals <- function() {
    length(rds@treatmentBams)  <- 3
    length(rds@controlBams)  <- 2
    rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                               rowData=preCoords, 
+                                               rowRanges=preCoords, 
                                                colData=DataFrame(row.names=c("pre","post"))
    )
    rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
-                                             rowData=preCoords, 
+                                             rowRanges=preCoords, 
                                              colData=DataFrame(row.names=c("pre","post"))
    )
    assay(rds@countsTreatment,2) <- matrix(nrow=1,ncol=2)

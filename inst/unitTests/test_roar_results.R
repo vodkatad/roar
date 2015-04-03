@@ -19,7 +19,7 @@ test_totalResults_singleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -64,7 +64,7 @@ test_totalResults_mulSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -84,7 +84,7 @@ test_totalResults_mulSamples <- function() {
    assay(rds,2)[2,3] <- 7
    assay(rds,2)[2,4] <- 8
    rds@pVals <- SummarizedExperiment(assays = matrix(nrow=2, ncol=6),
-                                          rowData=preCoords, 
+                                          rowRanges=preCoords, 
                                           colData=DataFrame(row.names=c("pvalue_1_1","pvalue_1_2","pvalue_1_3",
                                                                         "pvalue_2_1", "pvalue_2_2", "pvalue_2_3"))
    )
@@ -123,7 +123,7 @@ test_fpkmResults_singleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -168,7 +168,7 @@ test_standardFilter_singleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -221,7 +221,7 @@ test_pvalueFilter_singleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -275,7 +275,7 @@ test_pvalueFilter_mulSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -295,7 +295,7 @@ test_pvalueFilter_mulSamples <- function() {
    # To test multiple samples we keep all the values equal to the previous test (with only two genes), 
    # therefore we will have a working object. We just need to add the rds@pVals slot with the needed data.
    rds@pVals <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                                     rowData=preCoords, 
+                                     rowRanges=preCoords, 
                                      colData=DataFrame(row.names=c("pvalue_1_1","pvalue_1_2","pvalue_2_1",
                                                                    "pvalue_2_2"))
    )
@@ -337,7 +337,7 @@ test_pvalueFilter_mulSamples_paired <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
@@ -355,7 +355,7 @@ test_pvalueFilter_mulSamples_paired <- function() {
    assay(rds,2)[, "control_pre"] <- c(10,1)
    assay(rds,2)[, "control_post"] <- c(0.01,0.1)
    rds@pVals <- SummarizedExperiment(assays = matrix(nrow=2, ncol=2),
-                                     rowData=preCoords, 
+                                     rowRanges=preCoords, 
                                      colData=DataFrame(row.names=c("pvalue_1_2","pvalue_2_1"))
    )
    assay(rds@pVals,1)[1,] <- c(1, 20)
@@ -393,7 +393,7 @@ test_pvalueCorrectFilter_singleSamples <- function() {
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
-                              rowData=preCoords, 
+                              rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
    rowRanges(rds) <- rowRanges(se)
