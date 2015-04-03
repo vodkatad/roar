@@ -1,9 +1,6 @@
 importFrom(rtracklayer, import)
 importFrom(S4Vectors, DataFrame)
-#importFrom(GenomicRanges, SummarizedExperiment, GRanges, assays, assay, rowData, colData)
-#importFrom(GenomicAlignments, readGAlignments, summarizeOverlaps, qwidth)
 import(methods, GenomicRanges, GenomicAlignments)
-#import(methods)
 
 exportClasses("RoarDataset")
 

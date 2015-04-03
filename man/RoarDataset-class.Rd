@@ -39,7 +39,7 @@ one of the methods to format results.
     \item{\code{step}:}{\code{"numeric"} slot - private. }
     \item{\code{cores}:}{\code{"numeric"} slot - private. }
     \item{\code{exptData}:}{Object of class \code{"SimpleList"} - private object. }
-    \item{\code{rowData}:}{Object of class \code{"GenomicRangesORGRangesList"} - private object. }
+    \item{\code{rowRanges}:}{Object of class \code{"GenomicRangesORGRangesList"} - private object. }
     \item{\code{colData}:}{Object of class \code{"DataFrame"} - private object. }
     \item{\code{assays}:}{Object of class \code{"Assays"} - private object. }
   }
