@@ -74,7 +74,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
-                                 rowData=preCoords, 
+                                 rowRanges=preCoords, 
                                  colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
                                  )
       if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
@@ -110,13 +110,13 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          # x <- vector(mode = "list", length = 10)
          # ma <- matrix(nrow=5, ncol=2)
          # test <- list(ma, ma)
-         # testse <- SummarizedExperiment(assays=test, rowData=gtfGRanges[c(1,2,3,4,5)], colData=DataFrame(row.names=c("a","b")))
+         # testse <- SummarizedExperiment(assays=test, rowRanges=gtfGRanges[c(1,2,3,4,5)], colData=DataFrame(row.names=c("a","b")))
          countsControl <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
-                                            rowData=preCoords, 
+                                            rowRanges=preCoords, 
                                             colData=DataFrame(row.names=c("pre","post"))
                                             )
          countsTreatment <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
-                                             rowData=preCoords, 
+                                             rowRanges=preCoords, 
                                              colData=DataFrame(row.names=c("pre","post"))
                                              )
 
@@ -232,7 +232,7 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          nControl <- length(countsControlAssays)
          comparisons <- nTreatment*nControl
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
-                                           rowData=rowRanges(rds), 
+                                           rowRanges=rowRanges(rds), 
                                            # To obtain all combination of two vectors (x,y) in the treatment order:
                                            # as.vector(t(outer(x,y,paste,sep=""))
                                            colData=DataFrame(row.names=paste("pvalue_", 
@@ -274,7 +274,7 @@ setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="n
          countsControlAssays <- assays(rds@countsControl)
          comparisons <- length(treatmentSamples)
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
-                                           rowData=rowRanges(rds), 
+                                           rowRanges=rowRanges(rds), 
                                            # To obtain all combination of two vectors (x,y) in the treatment order:
                                            # as.vector(t(outer(x,y,paste,sep=""))
                                            colData=DataFrame(row.names=paste("pvalue_", 
