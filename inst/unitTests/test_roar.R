@@ -251,7 +251,7 @@ test_computePvals_single <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -271,8 +271,6 @@ test_computePvals_single <- function() {
    assay(rds, 1)[2,2] <- 20
    assay(rds, 1)[2,3] <- 20
    assay(rds, 1)[2,4] <- 20
-   # We need to setup the second assay that computePVals will fill.
-   assay(rds,2) <- matrix(nrow=2, ncol=4)
    rds <- computePvals(rds)
    checkEqualsNumeric(assay(rds,2)[1,4], 0.0000002212406, tolerance=1e-5)
    checkEqualsNumeric(assay(rds,2)[2,4], 0.22337243, tolerance=1e-5)
@@ -293,7 +291,7 @@ test_computePvals_singlevsMul <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -309,18 +307,14 @@ test_computePvals_singlevsMul <- function() {
                                                         rowRanges=preCoords, 
                                                         colData=DataFrame(row.names=c("pre","post"))
    )
-   rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsControl <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=2)),3),
                                        rowRanges=preCoords, 
                                        colData=DataFrame(row.names=c("pre","post"))
    )
-   assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsControl,3) <- matrix(nrow=1,ncol=2)
    assay(rds@countsTreatment,1)[1,] <- c(10,10)
    assay(rds@countsControl,1)[1,] <- c(10,10)
    assay(rds@countsControl,2)[1,] <- c(10,5)
    assay(rds@countsControl,3)[1,] <- c(10,20)
-   # We need to setup the second assay that computePVals will fill.
-   assay(rds,2) <- matrix(nrow=1, ncol=4)
    rds <- computePvals(rds)
    checkEqualsNumeric(assay(rds@pVals,1)[1,1], 1, tolerance=1e-5)
    checkEqualsNumeric(assay(rds@pVals,1)[1,2], 0.491599, tolerance=1e-5)
@@ -342,7 +336,7 @@ test_computePvals_multipleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -354,17 +348,14 @@ test_computePvals_multipleSamples <- function() {
    # We need to set these lengths to choose the right branch of the if in computePvals (about number of samples).
    length(rds@treatmentBams)  <- 3
    length(rds@controlBams)  <- 2
-   rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsTreatment <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=2)),3),
                                            rowRanges=preCoords, 
                                            colData=DataFrame(row.names=c("pre","post"))
    )
-   rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsControl <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=2)),2),
                                           rowRanges=preCoords, 
                                           colData=DataFrame(row.names=c("pre","post"))
    )
-   assay(rds@countsTreatment,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsTreatment,3) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
    assay(rds@countsTreatment,1)[1,] <- c(10,10)
    assay(rds@countsTreatment,2)[1,] <- c(1,10)
    assay(rds@countsTreatment,3)[1,] <- c(20,10)
@@ -376,8 +367,6 @@ test_computePvals_multipleSamples <- function() {
    # 2_2 -> 0.23264154
    # 3_1 -> 1
    # 3_2 -> 0.01938319
-   # We need to setup the second assay that computePVals will fill.
-   assay(rds,2) <- matrix(nrow=1, ncol=4)
    rds <- computePvals(rds)
    checkEqualsNumeric(assay(rds@pVals,1)[1,1], 0.491599, tolerance=1e-5)
    checkEqualsNumeric(assay(rds@pVals,1)[1,2], 0.257549, tolerance=1e-5)
@@ -402,7 +391,7 @@ test_computePairedPvals <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=1, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -414,17 +403,14 @@ test_computePairedPvals <- function() {
    # We need to set these lengths to choose the treatment branch of the if in computePvals (about number of samples).
    length(rds@treatmentBams)  <- 3
    length(rds@controlBams)  <- 2
-   rds@countsTreatment <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsTreatment <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=2)),3),
                                                rowRanges=preCoords, 
                                                colData=DataFrame(row.names=c("pre","post"))
    )
-   rds@countsControl <- SummarizedExperiment(assays = matrix(nrow=1, ncol=2),
+   rds@countsControl <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=2)),2),
                                              rowRanges=preCoords, 
                                              colData=DataFrame(row.names=c("pre","post"))
    )
-   assay(rds@countsTreatment,2) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsTreatment,3) <- matrix(nrow=1,ncol=2)
-   assay(rds@countsControl,2) <- matrix(nrow=1,ncol=2)
    assay(rds@countsTreatment,1)[1,] <- c(10,10)
    assay(rds@countsTreatment,2)[1,] <- c(1,10)
    assay(rds@countsTreatment,3)[1,] <- c(20,10)
@@ -432,8 +418,6 @@ test_computePairedPvals <- function() {
    assay(rds@countsControl,2)[1,] <- c(10,20)
    # 2_1 -> 0.00522109
    # 3_2 -> 0.01938319
-   # We need to setup the second assay that computePairedVals will fill.
-   assay(rds,2) <- matrix(nrow=1, ncol=4)
    rds <- computePairedPvals(rds, c(2,3), c(1,2))
    checkEqualsNumeric(assay(rds@pVals,1)[1,1], 0.00522109, tolerance=1e-5)
    checkEqualsNumeric(assay(rds@pVals,1)[1,2], 0.01938319, tolerance=1e-5)

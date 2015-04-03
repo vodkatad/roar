@@ -18,7 +18,7 @@ test_totalResults_singleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -29,7 +29,6 @@ test_totalResults_singleSamples <- function() {
    rds@postCoords <- rds@prePostCoords[postElems,]
    length(rds@treatmentBams)  <- 1
    length(rds@controlBams)  <- 1
-   assay(rds,2) <- matrix(ncol=4, nrow=2)
    assay(rds,2)[1,1] <- 1
    assay(rds,2)[1,2] <- 2
    assay(rds,2)[1,3] <- 3
@@ -63,7 +62,7 @@ test_totalResults_mulSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -74,7 +73,6 @@ test_totalResults_mulSamples <- function() {
    rds@postCoords <- rds@prePostCoords[postElems,]
    length(rds@treatmentBams)  <- 2
    length(rds@controlBams)  <- 3
-   assay(rds,2) <- matrix(ncol=4, nrow=2)
    assay(rds,2)[1,1] <- 1
    assay(rds,2)[1,2] <- 2
    assay(rds,2)[1,3] <- 3
@@ -122,7 +120,7 @@ test_fpkmResults_singleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -141,7 +139,6 @@ test_fpkmResults_singleSamples <- function() {
    assay(rds,1)[2,2] <- NA
    assay(rds,1)[2,3] <- 10 # control_pre B
    assay(rds,1)[2,4] <- NA
-   assay(rds,2) <- matrix(ncol=4, nrow=2)
    
    dat <- fpkmResults(rds)
 
@@ -167,7 +164,7 @@ test_standardFilter_singleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -186,7 +183,6 @@ test_standardFilter_singleSamples <- function() {
    # D treatment FPKM 9.9999 XXX TODO check precision issue.
    
    # We set a negative m/M for B, a NA roar for C. Other values are ok.
-   assay(rds,2) <- matrix(ncol=4, nrow=4)
    assay(rds,2)[, "treatment_pre"] <- c(1,-1,1,1)
    assay(rds,2)[, "treatment_post"] <- c(1,1,1,1)
    assay(rds,2)[, "control_pre"] <- c(1,1,NA,1)
@@ -220,7 +216,7 @@ test_pvalueFilter_singleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -239,7 +235,6 @@ test_pvalueFilter_singleSamples <- function() {
    # D treatment FPKM 9.9999
    
    # We set a negative m/M for C (and a NA roar). Other values are ok.
-   assay(rds,2) <- matrix(ncol=4, nrow=4)
    assay(rds,2)[, "treatment_pre"] <- c(1,1,-1,2)
    assay(rds,2)[, "treatment_post"] <- c(2,1,1,1)
    assay(rds,2)[, "control_pre"] <- c(10,1,NA,1)
@@ -274,7 +269,7 @@ test_pvalueFilter_mulSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -287,7 +282,6 @@ test_pvalueFilter_mulSamples <- function() {
    length(rds@controlBams)  <- 2
    assay(rds,1)[,"treatment_pre"] <- c(1,1e9)
    assay(rds,1)[,"control_pre"] <- c(20,1e9)
-   assay(rds,2) <- matrix(ncol=4, nrow=2)
    assay(rds,2)[, "treatment_pre"] <- c(1,1)
    assay(rds,2)[, "treatment_post"] <- c(2,1)
    assay(rds,2)[, "control_pre"] <- c(10,1)
@@ -336,7 +330,7 @@ test_pvalueFilter_mulSamples_paired <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=2, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -349,7 +343,6 @@ test_pvalueFilter_mulSamples_paired <- function() {
    length(rds@controlBams)  <- 2
    assay(rds,1)[,"treatment_pre"] <- c(1,1e9)
    assay(rds,1)[,"control_pre"] <- c(20,1e9)
-   assay(rds,2) <- matrix(ncol=4, nrow=2)
    assay(rds,2)[, "treatment_pre"] <- c(1,1)
    assay(rds,2)[, "treatment_post"] <- c(2,1)
    assay(rds,2)[, "control_pre"] <- c(10,1)
@@ -392,7 +385,7 @@ test_pvalueCorrectFilter_singleSamples <- function() {
    preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
-   se <- SummarizedExperiment(assays = matrix(nrow=4, ncol=4),
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
@@ -411,7 +404,6 @@ test_pvalueCorrectFilter_singleSamples <- function() {
    
    # m/M and roar values are all ok. Pvalues will bring D to be larger than the given cutoff
    # after bonferroni correction.
-   assay(rds,2) <- matrix(ncol=4, nrow=4)
    assay(rds,2)[, "treatment_pre"] <- c(1,1,1,1)
    assay(rds,2)[, "treatment_post"] <- c(1,1,1,1)
    assay(rds,2)[, "control_pre"] <- c(1,1,1,1)

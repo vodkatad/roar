@@ -11,13 +11,6 @@ comparing two biological conditions, starting from known alternative sites and
 alignments obtained from standard RNA-seq experiments.
 }
 \details{
-\tabular{ll}{
-Package: \tab roar\cr
-Type: \tab Package\cr
-Version: \tab 0.1.1 \cr
-Date: \tab 2013-05-04\cr
-License: \tab GPL-3\cr
-}
 The code{\linkS4class{RoarDataset}} class exposes methods to perform the whole analysis, in order to 
 identify genes with preferential expression of long/short isoforms in a condition with respect to 
 another one. The needed input data are alignments deriving from RNA-seq experiments of the

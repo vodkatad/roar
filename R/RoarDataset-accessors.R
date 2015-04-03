@@ -73,7 +73,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       }
       preCoords <- rds@prePostCoords[preElems,]
       rds@postCoords <- rds@prePostCoords[postElems,]
-      se <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=4),
+      se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                                  rowRanges=preCoords, 
                                  colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
                                  )
@@ -111,11 +111,13 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          # ma <- matrix(nrow=5, ncol=2)
          # test <- list(ma, ma)
          # testse <- SummarizedExperiment(assays=test, rowRanges=gtfGRanges[c(1,2,3,4,5)], colData=DataFrame(row.names=c("a","b")))
-         countsControl <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
+         countsControl <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=2)), 
+                                                            length(rds@controlBams)),
                                             rowRanges=preCoords, 
                                             colData=DataFrame(row.names=c("pre","post"))
                                             )
-         countsTreatment <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=2),
+         countsTreatment <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=2)), 
+                                                              length(rds@treatmentBams)),
                                              rowRanges=preCoords, 
                                              colData=DataFrame(row.names=c("pre","post"))
                                              )
@@ -123,14 +125,16 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          for (i in 1:length(rds@treatmentBams)) {
             treatmentSE <- summOv(rds@treatmentBams[[i]])
             treatmentSEpost <- summOvPost(rds@treatmentBams[[i]])
-            assay(countsTreatment,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
+            #assay(countsTreatment,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
+            #assay(countsTreatment,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2, 
+            #                                   dimnames=list(rep(NULL,length(rds@prePostCoords)/2), c("pre","post")))
             assay(countsTreatment,i)[,"pre"] <- assays(treatmentSE)$counts[preElems,]
             assay(countsTreatment,i)[,"post"] <- assays(treatmentSEpost)$counts 
          }
          for (i in 1:length(rds@controlBams)) {
             controlSE <- summOv(rds@controlBams[[i]])
             controlSEpost <- summOvPost(rds@controlBams[[i]])
-            assay(countsControl,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
+            #assay(countsControl,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
             assay(countsControl,i)[,"pre"] <- assays(controlSE)$counts[preElems,]
             assay(countsControl,i)[,"post"] <- assays(controlSEpost)$counts 
          }
@@ -198,7 +202,7 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       mMcontrol <- (assay(rds,1)[,"control_pre"]*postLenControl)/(assay(rds,1)[,"control_post"]*preLen)-1
       roar <- mMtreatment / mMcontrol
       pVal <- rep(NA, length(roar))
-      assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
+      assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal, row.names=NULL))
       names(assays(rds)) <- c("counts", "stats")
       rds@step <- 2
       return(rds)
