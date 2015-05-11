@@ -1,14 +1,14 @@
-# This class will old a GenomicAnnotation (pre-post GTF) and count results in a SummarizedExperiment
+# This class will hold a GenomicAnnotation (pre-post GTF) and count results in a RangedSummarizedExperiment
 setClass( "RoarDataset",
-          contains = "SummarizedExperiment", # Superclasses
+          contains = "RangedSummarizedExperiment", # Superclasses
           representation = representation( # Slots
              treatmentBams = "list",  #list of GAlignments 
              controlBams = "list",
              prePostCoords = "GRanges",
              postCoords = "GRanges",
-             countsTreatment = "SummarizedExperiment",
-             countsControl = "SummarizedExperiment",
-             pVals = "SummarizedExperiment",
+             countsTreatment = "RangedSummarizedExperiment",
+             countsControl = "RangedSummarizedExperiment",
+             pVals = "RangedSummarizedExperiment",
              step = "numeric",
              paired = "logical",
              cores = "numeric"
