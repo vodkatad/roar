@@ -32,20 +32,20 @@ one of the methods to format results.
     \item{\code{controlBams}:}{Object of class \code{"list"} - a list of GappedAlignment objects for the second condition (by convention it is considered the ``control'' condition) in analysis. }
     \item{\code{prePostCoords}:}{Object of class \code{"GRanges"} - represents the APA sites coords, defining "PRE" (last exon coords up until the alternative APA, defining the shorter isoform) and "POST" (from the alternative APA to the ``standard'' one) regions of the genes. }
     \item{\code{postCoords}:}{Object of class \code{"GRanges"} - private object. }
-    \item{\code{countsTreatment}:}{Object of class \code{"SummarizedExperiment"} - private object. }
-    \item{\code{countsControl}:}{Object of class \code{"SummarizedExperiment"} - private object. }
-    \item{\code{pVals}:}{Object of class \code{"SummarizedExperiment"} - private object. }
+    \item{\code{countsTreatment}:}{Object of class \code{"RangedSummarizedExperiment"} - private object. }
+    \item{\code{countsControl}:}{Object of class \code{"RangedSummarizedExperiment"} - private object. }
+    \item{\code{pVals}:}{Object of class \code{"RangedSummarizedExperiment"} - private object. }
     \item{\code{paired}:}{\code{"logical"} slot - private. }
     \item{\code{step}:}{\code{"numeric"} slot - private. }
     \item{\code{cores}:}{\code{"numeric"} slot - private. }
-    \item{\code{exptData}:}{Object of class \code{"SimpleList"} - private object. }
-    \item{\code{rowData}:}{Object of class \code{"GRangesORGRangesList"} - private object. }
+    \item{\code{metadata}:}{\code{"list"} slot - private. }
+    \item{\code{rowRanges}:}{Object of class \code{"GRangesORGRangesList"} - private object. }
     \item{\code{colData}:}{Object of class \code{"DataFrame"} - private object. }
     \item{\code{assays}:}{Object of class \code{"Assays"} - private object. }
   }
 }
 \section{Extends}{
-Class \code{"\linkS4class{SummarizedExperiment}"}, directly.
+Class \code{"\linkS4class{RangedSummarizedExperiment}"}, directly.
 }
 \section{Methods}{
   \describe{

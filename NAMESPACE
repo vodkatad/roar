@@ -1,6 +1,6 @@
 importFrom(rtracklayer, import)
 importFrom(S4Vectors, DataFrame)
-import(methods, GenomicRanges, GenomicAlignments)
+import(methods, GenomicRanges, SummarizedExperiment, GenomicAlignments)
 
 exportClasses("RoarDataset")
 
