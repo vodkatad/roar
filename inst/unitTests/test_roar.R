@@ -248,8 +248,8 @@ test_computePvals_single <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
        prePostCoords=features, step = 2, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -288,8 +288,8 @@ test_computePvals_singlevsMul <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 2, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -333,8 +333,8 @@ test_computePvals_multipleSamples <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 2, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -388,8 +388,8 @@ test_computePairedPvals <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 2, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=1, ncol=4)),2),
                               rowRanges=preCoords, 

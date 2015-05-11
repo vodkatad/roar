@@ -21,7 +21,7 @@
        \item{gtfGRanges}{
            A \code{\link{GRanges}} object with coordinates for the portions of transcripts
            that has to be considered pertaining to the short (or long) isoform.
-           This \code{\link{GRanges}} object must have a character elementMetadata called "gene_id" 
+           This \code{\link{GRanges}} object must have a character metadata column called "gene_id" 
            that ends with "_PRE" or "_POST" to address respectively the short and the long isoform.
            An element in the annotation
            is considered "PRE" (i.e. common to the short and long isoform of the transcript) if its gene_id
