@@ -15,8 +15,8 @@ test_totalResults_singleSamples <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -59,8 +59,8 @@ test_totalResults_mulSamples <- function() {
    )
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -117,8 +117,8 @@ test_fpkmResults_singleSamples <- function() {
    # prelen <- 1000, 100
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -161,8 +161,8 @@ test_standardFilter_singleSamples <- function() {
    # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired = FALSE)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -213,8 +213,8 @@ test_pvalueFilter_singleSamples <- function() {
    # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=FALSE)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -266,8 +266,8 @@ test_pvalueFilter_mulSamples <- function() {
    # prelen A-1, B-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=FALSE)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -327,8 +327,8 @@ test_pvalueFilter_mulSamples_paired <- function() {
    # prelen A-1, B-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=TRUE)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
                               rowRanges=preCoords, 
@@ -382,8 +382,8 @@ test_pvalueCorrectFilter_singleSamples <- function() {
    # prelen A-1, B-1, C-1, D-1
    rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired = FALSE)
-   preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-   postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=4, ncol=4)),2),
                               rowRanges=preCoords, 

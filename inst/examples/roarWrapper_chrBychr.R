@@ -89,10 +89,10 @@ workOnChr <- function(chr) {
 
 allRes <- lapply(chrs, workOnChr)
 meltedRes <- do.call("rbind", allRes)
-preElems <- grep("_PRE$", elementMetadata(gtfGRanges)$gene_id)
+preElems <- grep("_PRE$", mcols(gtfGRanges)$gene_id)
 pre <- gtfGRanges[preElems,]
 preLen <- end(pre) - start(pre) + 1
-names <- sub("^\\s+","",sub("_PRE", "",elementMetadata(pre)$gene_id))
+names <- sub("^\\s+","",sub("_PRE", "",mcols(pre)$gene_id))
 meltedRes <- meltedRes[match(names, rownames(meltedRes)),]
 sumPreTreatment <- sum(meltedRes[,"treatmentValue"])
 sumPreControl <- sum(meltedRes[,"controlValue"])
