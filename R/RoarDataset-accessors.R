@@ -5,7 +5,7 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
    gtfGRanges<- import(gtf, asRangedData=FALSE)
-   ordered <- order(elementMetadata(gtfGRanges)$gene_id)
+   ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
@@ -17,7 +17,7 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    if (length(treatmentGappedAlign) == 0 || length(controlGappedAlign) == 0) {
       stop("Lists of GAlignments could not be empty")
    }
-   ordered <- order(elementMetadata(gtfGRanges)$gene_id)
+   ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
        prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
@@ -48,9 +48,9 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.
       # In the simpler case with a single alignment for both conditions we just keep the counts.
-      preElems <- grep("_PRE$", elementMetadata(rds@prePostCoords)$gene_id)
-      postElems <- grep("_POST$", elementMetadata(rds@prePostCoords)$gene_id)
-      if (length(preElems)+length(postElems) != length(elementMetadata(rds@prePostCoords)$gene_id)) {
+      preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+      postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
+      if (length(preElems)+length(postElems) != length(mcols(rds@prePostCoords)$gene_id)) {
          stop("The prePostCoords given for this RoarDataset are wrong: some of the gene_id
               does not end in _PRE/_POST.")
       }
@@ -60,13 +60,13 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       }
       # The number of elements has to be checked because some horrible special case with recycling
       # of vector elements in the comparison are possible.
-      if (!all(sub("_PRE", "", elementMetadata(rds@prePostCoords)$gene_id[preElems]) ==
-                     sub("_POST", "", elementMetadata(rds@prePostCoords)$gene_id[postElems]))) {
+      if (!all(sub("_PRE", "", mcols(rds@prePostCoords)$gene_id[preElems]) ==
+                     sub("_POST", "", mcols(rds@prePostCoords)$gene_id[postElems]))) {
          stop("The prePostCoords given for this RoarDataset are wrong: not all prefixes of PRE-POST
               correspond.")
       }
       # Check uniqueness of gene_id.
-      geneIds <- sub("_PRE", "", elementMetadata(rds@prePostCoords)$gene_id[preElems])
+      geneIds <- sub("_PRE", "", mcols(rds@prePostCoords)$gene_id[preElems])
       if (!all(geneIds==make.unique(geneIds))) {
          stop("The prePostCoords given for this RoarDataset are wrong: gene_ids (prefixes of PRE-POST)
                are not unique.")
@@ -303,7 +303,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds) {
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
-      res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",elementMetadata(rds@postCoords)$gene_id)), 
+      res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",mcols(rds@postCoords)$gene_id)), 
                         mM_treatment=assay(rds,2)[,"treatment_pre"], 
                         mM_control=assay(rds,2)[,"treatment_post"],
                         roar=assay(rds,2)[,"control_pre"],

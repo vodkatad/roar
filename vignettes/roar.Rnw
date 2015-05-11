@@ -58,7 +58,7 @@ The other information needed to build a \Rclass{RoarDataset} object are
 for the genes that one wants to analyze - these could be given using a gtf 
 file or a GRanges object.
 
-The gtf file should have an attribute (\emph{ElementMetadata} for the \Rclass{GRanges} object) called 
+The gtf file should have an attribute (\emph{metadata column} for the \Rclass{GRanges} object) called 
 ``gene\_id'' that ends with ``\_PRE'' or ``\_POST'' to address respectively the short and the long isoforms.
 
 An element in the annotation is considered ``PRE'' 
