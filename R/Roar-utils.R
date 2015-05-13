@@ -44,66 +44,60 @@ meanAcrossAssays <- function(assays, wantedColumns) {
    return(rowMeans(as.data.frame(wantedCols)))
 }
 
-getApaGenesFractions <- function(geneGr, apaGr)
+# XXX we need to have the seqlengths to have a correct last intron. TODO
+# maybe we could avoid doing this...we need to have faith in the gtf tough
+getApaGenesFractionsPlusStrand <- function(geneGr, apaGr)
 {
    introns <- gaps(geneGr)
-   #mcols(geneGr) <- NULL
-   #all_int <- c(geneGr, introns)
-   #info <- c()
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
-   # no idea how. subsetByOverlaps(gr,grl) could be an idea.
-   #apa_n <- 1
-   #for i in 1:length(all_int) {
-   #   if
-   #}
-   hits_ex <- findOverlaps(geneGr, apaGr)
-   hits_int <- findOverlaps(intronsGr, apaGr)
-   last_int <- length(introns) # APAs falling here will be outsiders
-   if (!all(countSubjectHits(hits_ex)+countSubjectHits(hits_int) == 1)) {
-      stop "Error: a given apa does not overlap its gene"
+   # no idea how. 
+   # New idea: we combine exons and introns adding them mcols to their kind
+   # and with info about being overlappant or not.
+   # Then we run over this GRanges that should have all the needed info
+   # to generate a GRanges res with intervals and maybe also a list of 
+   # pre/post indexes for every APA?
+   mcols(geneGr) <- NULL
+   mcols(geneGr)$type <- 'e'
+   mcols(introns)$type <- 'i'   
+   whole <- sort(c(geneGr, introns))
+   hits <- findOverlaps(whole, apaGr)
+   if (!all(countSubjectHits(hits) == 1)) {
+      stop("Error: a given apa does not overlap its gene")
    }
-   # We start by doing it iteratively and non R/Bioc stylishly because I've got
-   # no idea how.
-   chr <- "chr" # get from them always it
-   strand <- "strand"
-   GRanges res <- GRanges()
-   begin <- start(head(geneGr, n=1))
-   # Type is the kind of beginning of this interval. For
-   # each APA we define two intervals (but not for outsiders).
-   # We are in the circle of growing objects. FIXME.
-   # Reason more about which intervals are needed. We need to
-   # have beginning of exons to define pre/post and not only APA defined
-   # portions as we are doing here.
-   for i in 1:length(apaGr) {
-      if (length(res) != 0) {
-         begin <- end(tail(res, n=-1))
-      }
-      if (i %in% subjectHits(hits_int)) {
-         hit <- hits_int[subjectHits(hits_int)==i]
-         if (queryHits(hit) == 1) {
-            res <- c(res, GRanges(seqnames=chr, strand=strand, 
-                                  ranges=IRanges(start=start(subjectHits(hit)),
-                                                 end=end(queryHits(hit))),
-                                  type='a')
-         } else if (queryHits(hit) == last_int) {
-            res <- c(res, GRanges(seqnames=chr, strand=strand, 
-                                  ranges=IRanges(start=start(queryHits(hit)),
-                                                 end=end(subjectHits(hit))),
-                                  type='a')
-         } else {
-            res <- c(res, GRanges(seqnames=chr, strand=strand, 
-                                  ranges=IRanges(start=begin),
-                                                 end=start(queryHits(hit))),
-                                  type='I')
-            res <- c(res, GRanges(seqnames=chr, strand=strand, 
-                                  ranges=IRanges(start=end(queryHits(hit)),
-                                                 end=end(subjectHits(hit))),
-                                  type='A')
+   foundov <- length(unique(whole[queryHits(hits)]))
+   mcols(whole)$overlap <- rep(FALSE, length(whole))   
+   mcols(whole[unique(queryHits(hits))])$overlap <- rep(TRUE, foundov)
+   if (whole[1]$type != 'i' || whole[1]$overlap) {
+      stop("Error in the given gene structure or overlapping apas")
+   }
+   # Growing objects sin.
+   begins <- ()
+   ends <- ()
+   begin <- -1
+   # Write logic and invariant here TODO.
+   for i in 2:length(whole) {
+      if (whole[i]$type=='e') {
+         if (whole[i]$overlap || (i+1<=length(whole) && whole[i+1]$overlap)) {
+            if (begin != -1) {
+               begins <- c(begins, begin)
+               ends <- c(ends, end(whole[i-1]))
+            }
+            begin <- start(whole[i])
          }
-      } else if (i %in% subjectHits(hits_ex)) {
-         hit <- hits_ex[subjectHits(hits_ex)==i]
-         type <- 'e'
+      }
+      if (whole[i]$overlap) {
+         overlapping_apas <- apasGr[subjectHits(hits[queryHits(hits)==i])]
+         for (j in 1:overlapping_apas) {
+            begins <- c(begins, begin)
+            ends <- c(ends, start(overlapping_apas[j]))
+            begin <- end(overlapping_apas[j])
+         }
       }
    }
-   
+   # We could be ok like this (last APA inside an exon, we stop there)
+   # or we could have a last APA after the last exon that we want to consider.
+   if (an APA outside hits) {
+      begins <- c(begins, begin)
+      ends <- c(ends, start(the last apa))
+   }
 }
