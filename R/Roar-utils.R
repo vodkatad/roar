@@ -43,3 +43,67 @@ meanAcrossAssays <- function(assays, wantedColumns) {
    wantedCols <- lapply(assays, function(x) { x[,wantedColumns] } )
    return(rowMeans(as.data.frame(wantedCols)))
 }
+
+getApaGenesFractions <- function(geneGr, apaGr)
+{
+   introns <- gaps(geneGr)
+   #mcols(geneGr) <- NULL
+   #all_int <- c(geneGr, introns)
+   #info <- c()
+   # We start by doing it iteratively and non R/Bioc stylishly because I've got
+   # no idea how. subsetByOverlaps(gr,grl) could be an idea.
+   #apa_n <- 1
+   #for i in 1:length(all_int) {
+   #   if
+   #}
+   hits_ex <- findOverlaps(geneGr, apaGr)
+   hits_int <- findOverlaps(intronsGr, apaGr)
+   last_int <- length(introns) # APAs falling here will be outsiders
+   if (!all(countSubjectHits(hits_ex)+countSubjectHits(hits_int) == 1)) {
+      stop "Error: a given apa does not overlap its gene"
+   }
+   # We start by doing it iteratively and non R/Bioc stylishly because I've got
+   # no idea how.
+   chr <- "chr" # get from them always it
+   strand <- "strand"
+   GRanges res <- GRanges()
+   begin <- start(head(geneGr, n=1))
+   # Type is the kind of beginning of this interval. For
+   # each APA we define two intervals (but not for outsiders).
+   # We are in the circle of growing objects. FIXME.
+   # Reason more about which intervals are needed. We need to
+   # have beginning of exons to define pre/post and not only APA defined
+   # portions as we are doing here.
+   for i in 1:length(apaGr) {
+      if (length(res) != 0) {
+         begin <- end(tail(res, n=-1))
+      }
+      if (i %in% subjectHits(hits_int)) {
+         hit <- hits_int[subjectHits(hits_int)==i]
+         if (queryHits(hit) == 1) {
+            res <- c(res, GRanges(seqnames=chr, strand=strand, 
+                                  ranges=IRanges(start=start(subjectHits(hit)),
+                                                 end=end(queryHits(hit))),
+                                  type='a')
+         } else if (queryHits(hit) == last_int) {
+            res <- c(res, GRanges(seqnames=chr, strand=strand, 
+                                  ranges=IRanges(start=start(queryHits(hit)),
+                                                 end=end(subjectHits(hit))),
+                                  type='a')
+         } else {
+            res <- c(res, GRanges(seqnames=chr, strand=strand, 
+                                  ranges=IRanges(start=begin),
+                                                 end=start(queryHits(hit))),
+                                  type='I')
+            res <- c(res, GRanges(seqnames=chr, strand=strand, 
+                                  ranges=IRanges(start=end(queryHits(hit)),
+                                                 end=end(subjectHits(hit))),
+                                  type='A')
+         }
+      } else if (i %in% subjectHits(hits_ex)) {
+         hit <- hits_ex[subjectHits(hits_ex)==i]
+         type <- 'e'
+      }
+   }
+   
+}
