@@ -7,18 +7,20 @@ roarAnalysis <- function(gtf, treatmentBams, controlBams)
 {
    ## This will need to be run foreach gene and foreach PRE/POST choice for them.
    # Get counts
-   rds <- RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
-   rds <- countPrePost(rds, FALSE)
+   #rds <- RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
+   #rds <- countPrePost(rds, FALSE)
    
    # Get m/M and Roar
-   rds <- computeRoars(rds)
+   #rds <- computeRoars(rds)
    
    # Fisher test
-   rds <- computePvals(rds)
+   #rds <- computePvals(rds)
    
-   results <- fpkmResults(rds)
+   #results <- fpkmResults(rds)
    
-   return(fpkmResults)
+   #return(fpkmResults)
+   apa_used <- unique(mcols(gtf)$apa_used)
+   return(data.frame(matrix(c(rnorm(2)), nrow=1, ncol=2), row.names=apa_used))
    # filteredResults <- standardFilter(rds, fpkmCutoff=1)
    # write.table(filteredResults, sep="\t", quote=FALSE)
    
@@ -28,9 +30,9 @@ roarAnalysis <- function(gtf, treatmentBams, controlBams)
 
 # A function that puts together all roar results (or choose among them)
 # calling them with every possible PRE/POST choice
-callRoar <- function(treatmentBams, controlBams, gtf)
+callRoar <- function(gtf, treatmentBams, controlBams)
 {
-   # TODO
+   return(lapply(gtf, roarAnalysis, treatmentBams, controlBams))
 }
 
 # A function that for a gene and its overlapping apas producesa
@@ -115,12 +117,15 @@ definePrePost <- function(firstApa, secondApa, geneGr, strand, chr, gene_id)
       startPre <- endPre
       endPre <- sw
    }
+   apa_names <- paste(mcols(firstApa)$apa, mcols(secondApa)$apa, sep="_")
    post <- GRanges(seqnames=chr, strand=strand, 
                    ranges=IRanges(start=startPost, end=endPost), 
-                   gene_id=paste(gene_id, "POST", sep="_"))
+                   gene_id=paste(gene_id, "POST", sep="_"),
+                   apa_used=apa_names)
    pre <- GRanges(seqnames=chr, strand=strand, 
                    ranges=IRanges(start=startPre, end=endPre), 
-                   gene_id=paste(gene_id, "PRE", sep="_"))
+                   gene_id=paste(gene_id, "PRE", sep="_"),
+                   apa_used=apa_names)
    return(c(pre, post))
 }
 
@@ -130,6 +135,11 @@ checkReadable <- function(filename) {
       warning(paste(filename, "is not readable", sep=" "))
    }
    res
+}
+
+printResults <- function(listRes)
+{
+   write.table(do.call(rbind, listRes), sep="\t", quote=FALSE)
 }
 
 arguments <- matrix(c(
@@ -168,9 +178,9 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
 gtfGRanges<- import(opt$gtf, asRangedData=FALSE)
 apas_melted <- gtfGRanges[mcols(gtfGRanges)$type=="apa"]
 genes_melted <- gtfGRanges[mcols(gtfGRanges)$type=="gene"]
-mcols(apas_melted)$gene <- sapply(strsplit(mcols(apas_melted)$apa, '_', 
+mcols(apas_melted)$gene <- as.numeric(sapply(strsplit(mcols(apas_melted)$apa, '_', 
                                            fixed=TRUE),
-                                  function(x) { x[length(x)]})
+                                  function(x) { x[length(x)]}))
 genes_ids <- sort(unique(mcols(genes_melted)$gene))
 genes_ids_apas <- sort(unique(mcols(apas_melted)$gene))
 if (!all(genes_ids==genes_ids_apas)) {
@@ -194,9 +204,10 @@ all_pre_post <- mapply(getAllPrePost, genes, apas)
 # Foreach list we have a function that puts together all roar results 
 # (or choose among them)
 # calling them with every possible PRE/POST choice.
-res <- lapply(callRoar, all_pre_post, treatmentBams, controlBams)
-
-
+res <- lapply(all_pre_post, callRoar, treatmentBams, controlBams)
+# A list with n. elements == n. genes, elements are list of results for every
+# PRE/POST choice for the gene.
+garbage <- lapply(res, printResults)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
