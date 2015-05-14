@@ -35,23 +35,81 @@ callRoar <- function(treatmentBams, controlBams, gtf)
 
 # A function that for a gene and its overlapping apas producesa
 # a GRangesList object with all the choices of PRE/POST as GRanges. 
-getAllPrePost <- function(geneGr, apaGr)
+getAllPrePost <- function(geneGr, apaGr, gene_id)
+{
+   apaGr <- sort(apaGr)
+   strand <- unique(as.character(strand(geneGr)))
+   chr <- unique(as.character(seqnames(geneGr)))
+   gene_id <- unique(as.character(mcols(geneGr)$gene))
+   if (length(chr) != 1) {
+      stop("A gene is on different chrs")
+   }
+   if (gene_id(chr) != 1) {
+      stop("A gene has different names")
+   }
+   if (strand == '+') {
+      apas <- head(apaGr, n=length(apaGr)-1)
+      last <- tail(apaGr, n=1)
+   } else if (strand == '-') {
+      apas <- tail(apaGr, n=length(apaGr)-1)
+      last <- head(apaGr, n=1)
+   } else {
+      stop("A gene has no strand info or both + and -")
+   }
+   lapply(apas, FUN=definePrePost(x), last, geneGr, strand, chr, gene_id)
+}
+
+definePrePost <- function(firstApa, secondApa, gene, strand, chr. gene_id)
 {
    introns <- gaps(geneGr)
+   # We remove the first intron (from the beginning of the chr)
+   introns <- tail(introns, n=length(introns)-1)
    mcols(geneGr) <- NULL
    mcols(geneGr)$type <- 'e'
    mcols(introns)$type <- 'i'   
    whole <- sort(c(geneGr, introns))
-   hits <- findOverlaps(whole, apaGr)
-   if (!all(countSubjectHits(hits) == 1)) {
+   hitsPre <- findOverlaps(whole, firstApa)
+   hitsPost <- findOverlaps(whole, secondApa)
+   # We map the secondApa for security reasons, we do not need the resulting 
+   # info.
+   if (!all(countSubjectHits(hitsPre) == 1)
+     | !all(countSubjectHits(hitsPost) == 1)) {
       stop("Error: a given apa does not overlap its gene")
    }
-   foundov <- length(unique(whole[queryHits(hits)]))
-   mcols(whole)$overlap <- rep(FALSE, length(whole))   
-   mcols(whole[unique(queryHits(hits))])$overlap <- rep(TRUE, foundov)
-   if (whole[1]$type != 'i' || whole[1]$overlap) {
-      stop("Error in the given gene structure or overlapping apas")
+   # XXX TODO MANAGE outside second APA
+   # strand == "+"
+   endPost <- start(secondApa)
+   startPost <- end(firstApa)
+   startPre <- NA
+   foundPre <- queryHits(hitsPre)
+   if (mcols(whole[foundPre])$type =="e") {
+      startPre <- start(whole[foundPre])
+      if (strand == "-") {
+         startPre <- end(whole[foundPre])
+      }
+   } else { # if (mcols(foundPre)$type =="i") # true by costruction
+      # We should not fall over boundaries if all preconditions are met.
+      previousExon <- foundPre-1
+      startPre <- start(whole[previousExon])
+      if (strand == "-") {
+         previousExon <- foundPre+1
+         startPre <- end(whole[previousExon])
+      }
    }
+   endPre <- start(firstApa)
+   if (strand == "-") {
+      endPost <- start(firstApa)
+      startPost <- end(secondApa)
+      sw <- startPre
+      startPre <- endPre
+      endPre <- sw
+   }
+   post <- GRanges(seqnames=chr, strand=strand, 
+                   ranges=IRanges(start=startPost, end=endPost), 
+                   gene_id=paste0(gene_id, "POST", "_"))
+   pre <- GRanges(seqnames=chr, strand=strand, 
+                   ranges=IRanges(start=startPre, end=endStart)), 
+                   gene_id=paste0(gene_id, "POST", "_"))
 }
 
 checkReadable <- function(filename) {
@@ -95,7 +153,7 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
 }
 
 
-gtfGRanges<- import(gtf, asRangedData=FALSE)
+gtfGRanges<- import(opt$gtf, asRangedData=FALSE)
 apas_melted <- gtfGRanges[mcols(gtfGRanges)$type=="apa"]
 genes_melted <- gtfGRanges[mcols(gtfGRanges)$type=="gene"]
 mcols(apas_melted)$gene <- sapply(strsplit(mcols(apas_melted)$apa, '_', 
@@ -103,8 +161,6 @@ mcols(apas_melted)$gene <- sapply(strsplit(mcols(apas_melted)$apa, '_',
                                   function(x) { x[length(x)]})
 genes_ids <- sort(unique(mcols(genes_melted)$gene))
 genes_ids_apas <- sort(unique(mcols(apas_melted)$gene))
-names(apas) <- genes_ids
-names(genes) <- genes_ids
 if (!all(genes_ids==genes_ids_apas)) {
    stop("Lists of GAlignments could not be empty")
 }
@@ -116,9 +172,12 @@ apas <- do.call(GRangesList, sapply(genes_ids,
                                     function(x) {
                                        apas_melted[mcols(apas_melted)$gene==x]
                                     }))
+names(apas) <- genes_ids
+names(genes) <- genes_ids
 
 # We want a list of GRangesList: foreach gene a GRangesList 
 # object with pre/post. 
+# XXX CHECK are they sorted by name? TODO
 all_pre_post <- mapply(getAllPrePost, genes, apas)
 # Foreach list we have a function that puts together all roar results 
 # (or choose among them)

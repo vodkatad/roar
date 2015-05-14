@@ -7,8 +7,6 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
                               function(x) { x[length(x)]})
    genes_ids <- sort(unique(mcols(genes_melted)$gene))
    genes_ids_apas <- sort(unique(mcols(apas_melted)$gene))
-   names(apas) <- genes_ids
-   names(genes) <- genes_ids
    if (!all(genes_ids==genes_ids_apas)) {
       stop("Lists of GAlignments could not be empty")
    }
@@ -16,6 +14,8 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
                      function(x) {genes_melted[mcols(genes_melted)$gene==x]}))
    apas <- do.call(GRangesList, sapply(genes_ids, 
                      function(x) {apas_melted[mcols(apas_melted)$gene==x]}))
+   names(apas) <- genes_ids
+   names(genes) <- genes_ids
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    new("RoarDatasetMultipleAPA", treatmentBams=treatmentBamsGenomicAlignments, 
