@@ -30,12 +30,12 @@ roarAnalysis <- function(gtf, treatmentBams, controlBams)
 # calling them with every possible PRE/POST choice
 callRoar <- function(treatmentBams, controlBams, gtf)
 {
-   
+   # TODO
 }
 
 # A function that for a gene and its overlapping apas producesa
 # a GRangesList object with all the choices of PRE/POST as GRanges. 
-getAllPrePost <- function(geneGr, apaGr, gene_id)
+getAllPrePost <- function(geneGr, apaGr)
 {
    apaGr <- sort(apaGr)
    strand <- unique(as.character(strand(geneGr)))
@@ -44,7 +44,7 @@ getAllPrePost <- function(geneGr, apaGr, gene_id)
    if (length(chr) != 1) {
       stop("A gene is on different chrs")
    }
-   if (gene_id(chr) != 1) {
+   if (length(gene_id) != 1) {
       stop("A gene has different names")
    }
    if (strand == '+') {
@@ -56,10 +56,11 @@ getAllPrePost <- function(geneGr, apaGr, gene_id)
    } else {
       stop("A gene has no strand info or both + and -")
    }
-   lapply(apas, FUN=definePrePost(x), last, geneGr, strand, chr, gene_id)
+   res <- lapply(apas, FUN=definePrePost, last, geneGr, strand, chr, gene_id)
+   return(GRangesList(res))
 }
 
-definePrePost <- function(firstApa, secondApa, gene, strand, chr. gene_id)
+definePrePost <- function(firstApa, secondApa, geneGr, strand, chr, gene_id)
 {
    introns <- gaps(geneGr)
    # We remove the first intron (from the beginning of the chr)
@@ -69,19 +70,29 @@ definePrePost <- function(firstApa, secondApa, gene, strand, chr. gene_id)
    mcols(introns)$type <- 'i'   
    whole <- sort(c(geneGr, introns))
    hitsPre <- findOverlaps(whole, firstApa)
-   hitsPost <- findOverlaps(whole, secondApa)
-   # We map the secondApa for security reasons, we do not need the resulting 
-   # info.
-   if (!all(countSubjectHits(hitsPre) == 1)
-     | !all(countSubjectHits(hitsPost) == 1)) {
-      stop("Error: a given apa does not overlap its gene")
+   #hitsPost <- findOverlaps(whole, secondApa)
+   # We do not map the secondAPA: we cannot be sure that it has to map (it could
+   # fall outside our gene in theory).
+   foundPre <- NA
+   if (!(countSubjectHits(hitsPre) == 1)) {
+      # Then also the PRE is outside our gene. We use the last exon.
+      #stop("Error: a given apa does not overlap its gene", 
+      #     print(geneGr), print(firstApa))
+      foundPre <- length(whole)
+      if (strand == "-") {
+         foundPre <- 1
+      }
+      if (whole[foundPre]$type != "e") {
+         stop("Two apas outside the gene and I am unable to find the last exon", print(geneGr))
+      }
+   } else {
+      foundPre <- queryHits(hitsPre)
    }
-   # XXX TODO MANAGE outside second APA
    # strand == "+"
+   # XXX TODO reason about +-1 at begins and ends XXX TODO
    endPost <- start(secondApa)
    startPost <- end(firstApa)
    startPre <- NA
-   foundPre <- queryHits(hitsPre)
    if (mcols(whole[foundPre])$type =="e") {
       startPre <- start(whole[foundPre])
       if (strand == "-") {
@@ -106,10 +117,11 @@ definePrePost <- function(firstApa, secondApa, gene, strand, chr. gene_id)
    }
    post <- GRanges(seqnames=chr, strand=strand, 
                    ranges=IRanges(start=startPost, end=endPost), 
-                   gene_id=paste0(gene_id, "POST", "_"))
+                   gene_id=paste(gene_id, "POST", sep="_"))
    pre <- GRanges(seqnames=chr, strand=strand, 
-                   ranges=IRanges(start=startPre, end=endStart)), 
-                   gene_id=paste0(gene_id, "POST", "_"))
+                   ranges=IRanges(start=startPre, end=endPre), 
+                   gene_id=paste(gene_id, "PRE", sep="_"))
+   return(c(pre, post))
 }
 
 checkReadable <- function(filename) {
@@ -182,7 +194,7 @@ all_pre_post <- mapply(getAllPrePost, genes, apas)
 # Foreach list we have a function that puts together all roar results 
 # (or choose among them)
 # calling them with every possible PRE/POST choice.
-res <- qualkapply(callRoar, all_pre_post)
+res <- lapply(callRoar, all_pre_post, treatmentBams, controlBams)
 
 
 
