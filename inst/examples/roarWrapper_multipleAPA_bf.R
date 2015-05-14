@@ -18,7 +18,7 @@ roarAnalysis <- function(gtf, treatmentBams, controlBams)
    
    results <- fpkmResults(rds)
    apa_used <- unique(mcols(gtf)$apa_used)
-   return(cbind(apa_used, fpkmResults))
+   return(cbind(apa_used, results))
    
    #return(data.frame(matrix(c(rnorm(2)), nrow=1, ncol=2), row.names=apa_used))
    
