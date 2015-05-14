@@ -117,7 +117,12 @@ definePrePost <- function(firstApa, secondApa, geneGr, strand, chr, gene_id)
       startPre <- endPre
       endPre <- sw
    }
-   apa_names <- paste(mcols(firstApa)$apa, mcols(secondApa)$apa, sep="_")
+   firstApa_name <- unlist(strsplit(mcols(firstApa)$apa, '_', fixed=TRUE))[1]
+   names <- unlist(strsplit(mcols(secondApa)$apa, '_', fixed=TRUE))
+   secondApa_name <- names[1]
+   apa_names <- paste(firstApa_name, secondApa_name, sep="-")
+   gene <- names[2]
+   apa_names <- paste(gene, apa_names, sep="_")
    post <- GRanges(seqnames=chr, strand=strand, 
                    ranges=IRanges(start=startPost, end=endPost), 
                    gene_id=paste(gene_id, "POST", sep="_"),
@@ -162,7 +167,8 @@ if (is.null(opt$gtf)) {
 }
 
 if (is.null(opt$treatment) | is.null(opt$control)) {
-   stop("Missing treatment or control [-t, -c followed by comma separated bam files] param")
+   stop("Missing treatment or control",
+         "[-t, -c followed by comma separated bam files] param")
 }
 
 library(roar)
@@ -178,9 +184,10 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
 gtfGRanges<- import(opt$gtf, asRangedData=FALSE)
 apas_melted <- gtfGRanges[mcols(gtfGRanges)$type=="apa"]
 genes_melted <- gtfGRanges[mcols(gtfGRanges)$type=="gene"]
-mcols(apas_melted)$gene <- as.numeric(sapply(strsplit(mcols(apas_melted)$apa, '_', 
-                                           fixed=TRUE),
-                                  function(x) { x[length(x)]}))
+mcols(apas_melted)$gene <- as.numeric(sapply(
+                                 strsplit(mcols(apas_melted)$apa, '_', 
+                                          fixed=TRUE),
+                                 function(x) { x[length(x)]}))
 genes_ids <- sort(unique(mcols(genes_melted)$gene))
 genes_ids_apas <- sort(unique(mcols(apas_melted)$gene))
 if (!all(genes_ids==genes_ids_apas)) {
@@ -199,7 +206,8 @@ names(genes) <- genes_ids
 
 # We want a list of GRangesList: foreach gene a GRangesList 
 # object with pre/post. 
-# XXX CHECK are they sorted by name? TODO
+# Are they sorted by name? They should be after the sapply. 
+# XXX Check if that's true.
 all_pre_post <- mapply(getAllPrePost, genes, apas)
 # Foreach list we have a function that puts together all roar results 
 # (or choose among them)
