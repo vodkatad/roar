@@ -41,6 +41,7 @@ callRoar <- function(gtf, treatmentBams, controlBams)
 getAllPrePost <- function(geneGr, apaGr)
 {
    apaGr <- sort(apaGr)
+   # XXX check che ordini senza badare agli strand! (e idem start/end)
    strand <- unique(as.character(strand(geneGr)))
    chr <- unique(as.character(seqnames(geneGr)))
    gene_id <- unique(as.character(mcols(geneGr)$gene))
@@ -114,7 +115,8 @@ definePrePost <- function(firstApa, secondApa, geneGr, strand, chr, gene_id)
    }
    endPre <- start(firstApa)
    if (strand == "-") {
-      # We subtract 1 to avoid overlapping PRE/POST - APA are considered before the cut.
+      # We subtract 1 to avoid overlapping PRE/POST 
+      # - APA are considered before the cut.
       # In the previous gtf we skipped the "cut" base altogether.
       endPost <- start(firstApa)-1
       startPost <- end(secondApa)
@@ -150,7 +152,7 @@ checkReadable <- function(filename)
 
 printResults <- function(listRes)
 {
-   write.table(do.call(rbind, listRes), sep="\t", quote=FALSE)
+   write.table(do.call(rbind, listRes), sep="\t", quote=FALSE, col.names=FALSE)
 }
 
 arguments <- matrix(c(
