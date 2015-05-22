@@ -58,7 +58,8 @@ getApaGenesFractions <- function(geneGr, apaGr)
    if (strand == '+') {
       getApaGenesFractionsPlusStrand(geneGr, apaGr, chr, strand, gene_id)
    } else if (strand == '-') {
-      # TODO
+      stop("Implementation for minus strand is still missing")
+      # TODO minus varsion
    } else {
       stop("A gene has no strand info or both + and -")
    } 
@@ -73,7 +74,11 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- gaps(geneGr)
    # Remove first intron: it is not useful in any way.
    introns <- tail(introns, n=length(introns)-1)
-   
+   lastApa <- tail(apaGr, n=1)
+   names <- unlist(strsplit(mcols(lastApa)$apa, '_', fixed=TRUE))
+   lastApa_name <- names[1]
+   apaFragmentsPrePost <- vector("list", length(apaGr)-1)
+   apaFrI <- 1
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
    # no idea how. 
    # New idea: we combine exons and introns adding them mcols to their kind
@@ -98,9 +103,12 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    begins <- c()
    ends <- c()
    begin <- -1
+   lastExonB <- -1
    # Write logic and invariant here: begin is always the beginning of the last
    # needed fragment (i.e. start of exon with an overlap or with an overlap in
-   # the next intron or just seen apa).
+   # the next intron or just seen apa). We add an end when 
+   # we get an exon/intron with overlapping apas, and a begin for exons
+   # with overlap or preceding an overlapping intron.
    for (i in 1:length(whole)) {
       if (whole[i]$type=='e') {
          if (whole[i]$overlap || (i+1<=length(whole) && whole[i+1]$overlap)) {
@@ -109,6 +117,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
                ends <- c(ends, end(whole[i-1]))
             }
             begin <- start(whole[i])
+            lastExonB <- length(begins)+1
          }
       }
       if (whole[i]$overlap) {
@@ -123,6 +132,14 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
             # In the previous gtf we skipped the "cut" base altogether.
             # XXX need to decide.
             begin <- end(overlapping_apas[j])+1
+            firstApa_name <- unlist(
+               strsplit(mcols(overlapping_apas[j])$apa, '_', fixed=TRUE))[1]
+            apa_name <- paste(firstApa_name, lastApa_name, sep="-")
+            apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
+                                                   name=apa_name,
+                                                   PREstart=lastExonB, 
+                                                   PREend=length(begins))
+            apaFrI <- apaFrI+1
          }
       }
    }
@@ -135,6 +152,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
       # starting at the beginning of the last exon.
       if (begin == -1) {
          begin <- begin(tail(geneGr, n=1))  
+         lastExonB <- length(begins)+1 # That's always 1 I know.
       } 
       for (j in 1:length(out_apas)) {
          begins <- c(begins, begin)
@@ -144,9 +162,18 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          # In the previous gtf we skipped the "cut" base altogether.
          # XXX need to decide.
          begin <- end(out_apas[j])+1
+         firstApa_name <- unlist(
+            strsplit(mcols(out_apas[j])$apa, '_', fixed=TRUE))[1]
+         apa_name <- paste(firstApa_name, lastApa_name, sep="-")
+         apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
+                                              name=apa_name,
+                                              PREstart=lastExonB, 
+                                              PREend=length(begins))
+         apaFrI <- apaFrI+1
       }
    }
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
+   return(list(fragments, apaFragmentsPrePost))
 }
 # Testing will be hideous.

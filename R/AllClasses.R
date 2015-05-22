@@ -22,10 +22,18 @@ setClass("RoarDataset",
 
 setClass("RoarDatasetMultipleAPA",
           #contains = "RangedSummarizedExperiment", # Superclasses
-          representation = representation( # Slots
-             treatmentBams = "list",  #list of GAlignments 
-             controlBams = "list",
-             geneCoords = "GRangesList",
-             apaCoords = "GRangesList"
-          )
+         representation = representation( # Slots
+            treatmentBams = "list",  #list of GAlignments 
+            controlBams = "list",
+            geneCoords = "GRangesList",
+            apaCoords = "GRangesList"
+         )
+)
+
+setClass("ApaFragmentPrePost",
+         representation = representation (
+            name = "character",
+            PREstart = "numeric",
+            PREend = "numeric"
+         )
 )
