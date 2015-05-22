@@ -41,7 +41,6 @@ callRoar <- function(gtf, treatmentBams, controlBams)
 getAllPrePost <- function(geneGr, apaGr)
 {
    apaGr <- sort(apaGr)
-   # XXX check che ordini senza badare agli strand! (e idem start/end)
    strand <- unique(as.character(strand(geneGr)))
    chr <- unique(as.character(seqnames(geneGr)))
    gene_id <- unique(as.character(mcols(geneGr)$gene))
@@ -71,7 +70,9 @@ definePrePost <- function(firstApa, secondApa, geneGr, strand, chr, gene_id)
    introns <- tail(introns, n=length(introns)-1)
    mcols(geneGr) <- NULL
    mcols(geneGr)$type <- 'e'
-   mcols(introns)$type <- 'i'   
+   if (length(introns) != 0) {
+      mcols(introns)$type <- 'i'  
+   }
    whole <- sort(c(geneGr, introns))
    hitsPre <- findOverlaps(whole, firstApa)
    #hitsPost <- findOverlaps(whole, secondApa)
@@ -216,7 +217,7 @@ names(genes) <- genes_ids
 # We want a list of GRangesList: foreach gene a GRangesList 
 # object with pre/post. 
 # Are they sorted by name? They should be after the sapply. 
-# XXX Check if that's true.
+# XXX Check if that's true: a shallow check said yes.
 all_pre_post <- mapply(getAllPrePost, genes, apas)
 # Foreach list we have a function that puts together all roar results 
 # (or choose among them)
