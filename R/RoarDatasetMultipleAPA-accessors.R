@@ -72,9 +72,43 @@ setMethod("generateRoarsSingleBAM", signature(rds="RoarDatasetMultipleAPA",
                                               "RangedSummarizedExperiment"),
    function(rds, treatmentSE, controlSE)
    {
+      # treatmentSE and controlSE are MoreArgs?
       rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
                        treatmentSE, controlSE)
       # set treatmentBams controlBams step paired (cores)
       return(rds)
    }
 )
+
+setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
+         function(rds) 
+         {
+            rds@roars <- lapply(rds@roars, computeRoars)
+         }
+)
+
+setMethod("computePvals", signature(rds="RoarDatasetMultipleAPA"),
+         function(rds)
+         {
+            rds@roars <- lapply(rds@roars, computePvals)
+         }
+)
+
+setMethod("computePairedPvals", 
+            signature(rds="RoarDatasetMultipleAPA",
+            treatmentSamples="numeric", controlSamples="numeric"),
+         function(rds, treatmentSamples, controlSamples) 
+         {
+            rds@roars <- lapply(rds@roars, computePairedPvals, 
+                                treatmentSamples, controlSamples)
+         }
+)
+
+setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
+         function(rds) 
+         {
+            fpkmRes <- sapply(rds@roars, fpkmResults)
+            # XXX TODO knit together results.
+         }
+)
+
