@@ -175,7 +175,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
    # The last fragment is build from a single apa only and we don't want it
-   fragments <- head(fragments, n=lenght(fragments-1))
+   fragments <- head(fragments, n=length(fragments-1))
    return(list(fragments, apaFragmentsPrePost))
 }
 # Testing will be hideous.

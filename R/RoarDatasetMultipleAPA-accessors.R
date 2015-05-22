@@ -28,7 +28,8 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
       allFragmentsAndPrePostDef <- mapply(getApaGenesFractions,
                               rds@geneCoords, 
                               rds@apaCoords)
-      rds@fragments <- allFragmentsAndPrePostDef[1,] #Right subsetting?
+      rds@fragments <- GRangesList(allFragmentsAndPrePostDef[1,]) 
+      #Right subsetting?
       rds@prePostDef <- allFragmentsAndPrePostDef[2,]
       # A GRangesList with GRanges for all fragments defining pre/post
       # in a gene and a list with info on APA choices and which
@@ -43,14 +44,17 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          #stopifnot(all(strand(reads) != "*"))
          resize(reads, width=width, fix=fix, ...)
       }
+      # Does not work as expected as long as for GRangesList counts
+      # are collapsed.
       summOv <- function(x) {
-         featPlus <- rds@fragments[strand(rds@fragments)=="+"]
-         featMinus <- rds@fragments[strand(rds@fragments)=="-"]
+         frag <-  unlist(rds@fragments)
+         featPlus <- frag[strand(frag)=="+"]
+         featMinus <- frag[strand(frag)=="-"]
          plus <- summarizeOverlaps(features=featPlus, reads=x, 
-                                    ignore.strand=!stranded, mc.cores=rds@cores
+                                    ignore.strand=!stranded,
                                     preprocess.reads=ResizeReadsPlus)
          minus <- summarizeOverlaps(features=featMinus, reads=x, 
-                                    ignore.strand=!stranded, mc.cores=rds@cores
+                                    ignore.strand=!stranded, 
                                     preprocess.reads=ResizeReadsMinus)
          return(rbind(plus, minus)) # Does this work as expected? XXX
       }

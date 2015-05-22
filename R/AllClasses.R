@@ -17,7 +17,6 @@ setClass("RoarDataset",
 #validity=function(roc) length(roc@sens)==length(roc@mspec)
 #          && length(roc@sens)==length(roc@test)
 # check validity of kind of alignments, existence of PRE/POST ids -> moved in other methods.
-)
 # prototype -> default values
 
 setClass("RoarDatasetMultipleAPA",
@@ -28,8 +27,11 @@ setClass("RoarDatasetMultipleAPA",
             geneCoords = "GRangesList",
             apaCoords = "GRangesList",
             fragments = "GRangesList",
-            prePostdef = "list",
-            roars = "list"
+            prePostDef = "list",
+            roars = "list",
+            step = "numeric",
+            paired = "logical",
+            cores = "numeric"
          )
 )
 
