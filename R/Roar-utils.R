@@ -44,11 +44,36 @@ meanAcrossAssays <- function(assays, wantedColumns) {
    return(rowMeans(as.data.frame(wantedCols)))
 }
 
+getApaGenesFractions <- function(geneGr, apaGr)
+{
+   strand <- unique(as.character(strand(geneGr)))
+   chr <- unique(as.character(seqnames(geneGr)))
+   gene_id <- unique(as.character(mcols(geneGr)$gene))
+   if (length(chr) != 1) {
+      stop("A gene is on different chrs")
+   }
+   if (length(gene_id) != 1) {
+      stop("A gene has different names")
+   }
+   if (strand == '+') {
+      getApaGenesFractionsPlusStrand(geneGr, apaGr, chr, strand, gene_id)
+   } else if (strand == '-') {
+      # TODO
+   } else {
+      stop("A gene has no strand info or both + and -")
+   } 
+}
+
 # XXX we need to have the seqlengths to have a correct last intron. TODO
 # maybe we could avoid doing this...we need to have faith in the gtf tough
-getApaGenesFractionsPlusStrand <- function(geneGr, apaGr)
-{
+getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
+{   
+   geneGr <- sort(geneGr)
+   apaGr <- sort(apaGr)
    introns <- gaps(geneGr)
+   # Remove first intron: it is not useful in any way.
+   introns <- tail(introns, n=length(introns)-1)
+   
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
    # no idea how. 
    # New idea: we combine exons and introns adding them mcols to their kind
@@ -61,21 +86,22 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr)
    mcols(introns)$type <- 'i'   
    whole <- sort(c(geneGr, introns))
    hits <- findOverlaps(whole, apaGr)
-   if (!all(countSubjectHits(hits) == 1)) {
-      stop("Error: a given apa does not overlap its gene")
-   }
+   # We have downstream apas so we can't do this.
+   #if (!all(countSubjectHits(hits) == 1)) {
+   #   stop("Error: a given apa does not overlap its gene")
+   #}
+   
    foundov <- length(unique(whole[queryHits(hits)]))
    mcols(whole)$overlap <- rep(FALSE, length(whole))   
    mcols(whole[unique(queryHits(hits))])$overlap <- rep(TRUE, foundov)
-   if (whole[1]$type != 'i' || whole[1]$overlap) {
-      stop("Error in the given gene structure or overlapping apas")
-   }
    # Growing objects sin.
-   begins <- ()
-   ends <- ()
+   begins <- c()
+   ends <- c()
    begin <- -1
-   # Write logic and invariant here TODO.
-   for i in 2:length(whole) {
+   # Write logic and invariant here: begin is always the beginning of the last
+   # needed fragment (i.e. start of exon with an overlap or with an overlap in
+   # the next intron or just seen apa).
+   for (i in 1:length(whole)) {
       if (whole[i]$type=='e') {
          if (whole[i]$overlap || (i+1<=length(whole) && whole[i+1]$overlap)) {
             if (begin != -1) {
@@ -86,18 +112,41 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr)
          }
       }
       if (whole[i]$overlap) {
-         overlapping_apas <- apasGr[subjectHits(hits[queryHits(hits)==i])]
-         for (j in 1:overlapping_apas) {
+         overlapping_apas <- apaGr[subjectHits(hits[queryHits(hits)==i])]
+         # Here we have a shot of writing the pre portions of counts
+         # for each APA.
+         for (j in 1:length(overlapping_apas)) {
             begins <- c(begins, begin)
             ends <- c(ends, start(overlapping_apas[j]))
-            begin <- end(overlapping_apas[j])
+            # We add 1 to avoid overlapping PRE/POST fragments 
+            # - APA are considered before the cut.
+            # In the previous gtf we skipped the "cut" base altogether.
+            # XXX need to decide.
+            begin <- end(overlapping_apas[j])+1
          }
       }
    }
    # We could be ok like this (last APA inside an exon, we stop there)
    # or we could have a last APA after the last exon that we want to consider.
-   if (an APA outside hits) {
-      begins <- c(begins, begin)
-      ends <- c(ends, start(the last apa))
+   #if (an APA outside hits) {
+   if (!all(countSubjectHits(hits) == 1)) {
+      out_apas <- apaGr[countSubjectHits(hits) == 0]
+      # If we did not see an overlap (should be rare) we have a single fragment 
+      # starting at the beginning of the last exon.
+      if (begin == -1) {
+         begin <- begin(tail(geneGr, n=1))  
+      } 
+      for (j in 1:length(out_apas)) {
+         begins <- c(begins, begin)
+         ends <- c(ends, start(out_apas[j]))
+         # We add 1 to avoid overlapping PRE/POST fragments 
+         # - APA are considered before the cut.
+         # In the previous gtf we skipped the "cut" base altogether.
+         # XXX need to decide.
+         begin <- end(out_apas[j])+1
+      }
    }
+   fragments <- GRanges(seqnames=chr, strand=strand, 
+                        ranges=IRanges(start=begins, end=ends))
 }
+# Testing will be hideous.

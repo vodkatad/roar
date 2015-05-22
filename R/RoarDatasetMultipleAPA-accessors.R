@@ -22,3 +22,15 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
        controlBams=controlBamsGenomicAlignments, 
        geneCoords=genes, apaCoords=apas, step=0, paired=FALSE, cores=1)
 }
+
+setMethod("countPrePost", signature(rds="RoarDataset"),
+         function(rds, stranded=FALSE) {
+            allFragments <- mapply(getApaGenesFractions,
+                                    rds@geneCoords, 
+                                    rds@apaCoords)
+            # A GRangesList with GRanges for all fragments defining pre/post
+            # in a gene. 
+         }
+          
+)
+
