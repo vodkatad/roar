@@ -26,7 +26,10 @@ setClass("RoarDatasetMultipleAPA",
             treatmentBams = "list",  #list of GAlignments 
             controlBams = "list",
             geneCoords = "GRangesList",
-            apaCoords = "GRangesList"
+            apaCoords = "GRangesList",
+            fragments = "GRangesList",
+            prePostdef = "list",
+            roars = "list"
          )
 )
 

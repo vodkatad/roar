@@ -23,14 +23,58 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
        geneCoords=genes, apaCoords=apas, step=0, paired=FALSE, cores=1)
 }
 
-setMethod("countPrePost", signature(rds="RoarDataset"),
-         function(rds, stranded=FALSE) {
-            allFragments <- mapply(getApaGenesFractions,
-                                    rds@geneCoords, 
-                                    rds@apaCoords)
-            # A GRangesList with GRanges for all fragments defining pre/post
-            # in a gene. 
-         }
-          
+setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
+   function(rds, stranded=FALSE) {
+      allFragmentsAndPrePostDef <- mapply(getApaGenesFractions,
+                              rds@geneCoords, 
+                              rds@apaCoords)
+      rds@fragments <- allFragmentsAndPrePostDef[1,] #Right subsetting?
+      rds@prePostDef <- allFragmentsAndPrePostDef[2,]
+      # A GRangesList with GRanges for all fragments defining pre/post
+      # in a gene and a list with info on APA choices and which
+      # fragments are to be summed.
+      ResizeReadsPlus <- function(reads, width=1, fix="end", ...) {
+         reads <- as(reads, "GRanges")
+         #stopifnot(all(strand(reads) != "*"))
+         resize(reads, width=width, fix=fix, ...)
+      }
+      ResizeReadsMinus <- function(reads, width=1, fix="start", ...) {
+         reads <- as(reads, "GRanges")
+         #stopifnot(all(strand(reads) != "*"))
+         resize(reads, width=width, fix=fix, ...)
+      }
+      summOv <- function(x) {
+         featPlus <- rds@fragments[strand(rds@fragments)=="+"]
+         featMinus <- rds@fragments[strand(rds@fragments)=="-"]
+         plus <- summarizeOverlaps(features=featPlus, reads=x, 
+                                    ignore.strand=!stranded, mc.cores=rds@cores
+                                    preprocess.reads=ResizeReadsPlus)
+         minus <- summarizeOverlaps(features=featMinus, reads=x, 
+                                    ignore.strand=!stranded, mc.cores=rds@cores
+                                    preprocess.reads=ResizeReadsMinus)
+         return(rbind(plus, minus)) # Does this work as expected? XXX
+      }
+      if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
+         # We obtain counts for both conditions on gene fragments and them sum 
+         # them to obtain PRE/POST counts.
+         treatmentSE <- summOv(rds@treatmentBams[[1]])
+         controlSE <- summOv(rds@controlBams[[1]])    
+         rds <- generateRoarsSingleBAM(rds, treatmentSE, controlSE)
+      } else {
+         # Still to be implemented.
+      }
+   }       
 )
 
+# BOf, why?
+setMethod("generateRoarsSingleBAM", signature(rds="RoarDatasetMultipleAPA", 
+                                              "RangedSummarizedExperiment",
+                                              "RangedSummarizedExperiment"),
+   function(rds, treatmentSE, controlSE)
+   {
+      rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
+                       treatmentSE, controlSE)
+      # set treatmentBams controlBams step paired (cores)
+      return(rds)
+   }
+)

@@ -177,3 +177,47 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    return(list(fragments, apaFragmentsPrePost))
 }
 # Testing will be hideous.
+
+obtainPrePost <- function(prepost, fragments)
+{
+   sn <- unique(seqnames(fragments))
+   gene_id=c(paste0(prepost@name, "_PRE"),
+             paste0(prepost@name, "_POST"))
+   # We do not really need the right coords, but still.
+   res <- GRanges(seqnames=rep(sn,2),
+         ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
+                                start(fragments[prepost@PREstart+1])),
+                        end=c(end(fragments[prepost@PREstart]),
+                              end(tail(fragments, n=1)))))
+   mcols(res) <- DataFrame(gene_id)
+   return(res)
+   # XXX TODO strand minus.
+}
+
+createRoarsSingleBAM <- function(fragments, prePostDef, treatmentSE, controlSE)
+{
+   rds <- new("RoarDataset")
+   #prePostCoords = "GRanges",
+   #postCoords = "GRanges",
+   #countsTreatment = "RangedSummarizedExperiment",
+   #countsControl = "RangedSummarizedExperiment",
+   rds@prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
+   # TODO XXX add entrez_id here! We have a roar object foreach gene
+   # so maybe we do not need them.
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
+                              rowRanges=preCoords, 
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
+   )
+   #assay(se,1)[,"treatment_pre"] <- assays(treatmentSE)$counts[preElems,]
+   #assay(se,1)[,"treatment_post"] <- assays(treatmentSEpost)$counts 
+   #assay(se,1)[,"control_pre"] <- assays(controlSE)$counts[preElems,]
+   #assay(se,1)[,"control_post"] <- assays(controlSEpost)$counts
+   rowRanges(rds) <- rowRanges(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+}
