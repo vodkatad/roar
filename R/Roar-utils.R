@@ -174,7 +174,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    }
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
-   # The last fragment is build from a single apa only and we don't want it.
+   # The last fragment is build from a single apa only and we don't want it
    fragments <- head(fragments, n=lenght(fragments-1))
    return(list(fragments, apaFragmentsPrePost))
 }
@@ -188,8 +188,8 @@ obtainPrePost <- function(prepost, fragments)
    # We do not really need the right coords, but still.
    res <- GRanges(seqnames=rep(sn,2),
          ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
-                                start(fragments[prepost@PREstart+1])),
-                        end=c(end(fragments[prepost@PREstart]),
+                                start(fragments[prepost@PREend+1])),
+                        end=c(end(fragments[prepost@PREend]),
                               end(tail(fragments, n=1)))))
    mcols(res) <- DataFrame(gene_id)
    return(res)
