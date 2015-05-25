@@ -87,8 +87,10 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # to generate a GRanges res with intervals and maybe also a list of 
    # pre/post indexes for every APA?
    mcols(geneGr) <- NULL
-   mcols(geneGr)$type <- 'e'
-   mcols(introns)$type <- 'i'   
+   mcols(geneGr)$type <- 'e'   
+   if (length(introns) != 0) {
+      mcols(introns)$type <- 'i'  
+   }   
    whole <- sort(c(geneGr, introns))
    hits <- findOverlaps(whole, apaGr)
    # We have downstream apas so we can't do this.
@@ -151,7 +153,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
       # If we did not see an overlap (should be rare) we have a single fragment 
       # starting at the beginning of the last exon.
       if (begin == -1) {
-         begin <- begin(tail(geneGr, n=1))  
+         begin <- start(tail(geneGr, n=1)) 
          lastExonB <- length(begins)+1 # That's always 1 I know.
       } 
       for (j in 1:length(out_apas)) {

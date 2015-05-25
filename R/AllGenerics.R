@@ -12,11 +12,11 @@ setGeneric("pvalueCorrectFilter", def=function(rds, fpkmCutoff, pvalCutoff, meth
 
 setGeneric("generateRoarsSingleBam", def=function(rds, treatmentSE, controlSE) {
    standardGeneric("generateRoarsSingleBam") }, valueClass="RoarDatasetMultipleAPA")
-setGeneric("countPrePost", def=function(rds, stranded=FALSE) { standardGeneric("countPrePost") }, valueClass="RoarDatasetMultipleAPA")  
-setGeneric("computeRoars", def=function(rds) { standardGeneric("computeRoars") }, valueClass="RoarDatasetMultipleAPA")
-setGeneric("computePvals", def=function(rds) { standardGeneric("computePvals") }, valueClass="RoarDatasetMultipleAPA")
-setGeneric("computePairedPvals", def=function(rds, treatmentSamples, controlSamples) { standardGeneric("computePairedPvals") }, valueClass="RoarDatasetMultipleAPA")
-setGeneric("fpkmResults", def=function(rds) { standardGeneric("fpkmResults") }, valueClass="data.frame")
+setGeneric("mcountPrePost", def=function(rds, stranded=FALSE) { standardGeneric("mcountPrePost") }, valueClass="RoarDatasetMultipleAPA")  
+setGeneric("mcomputeRoars", def=function(rds) { standardGeneric("mcomputeRoars") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("mcomputePvals", def=function(rds) { standardGeneric("mcomputePvals") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("mcomputePairedPvals", def=function(rds, treatmentSamples, controlSamples) { standardGeneric("mcomputePairedPvals") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("mfpkmResults", def=function(rds) { standardGeneric("mfpkmResults") }, valueClass="data.frame")
 
 
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")

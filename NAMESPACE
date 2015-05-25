@@ -20,7 +20,12 @@ exportMethods(
    countResults,
    standardFilter,
    pvalueFilter,
-   pvalueCorrectFilter
+   pvalueCorrectFilter,
+   mcountPrePost,
+   mcomputeRoars,
+   mcomputePvals,
+   mcomputePairedPvals,
+   mfpkmResults
 #   cores
 #  "cores<-"
 )
