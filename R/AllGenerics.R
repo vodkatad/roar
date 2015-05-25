@@ -12,7 +12,12 @@ setGeneric("pvalueCorrectFilter", def=function(rds, fpkmCutoff, pvalCutoff, meth
 
 setGeneric("generateRoarsSingleBam", def=function(rds, treatmentSE, controlSE) {
    standardGeneric("generateRoarsSingleBam") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("countPrePost", def=function(rds, stranded=FALSE) { standardGeneric("countPrePost") }, valueClass="RoarDatasetMultipleAPA")  
+setGeneric("computeRoars", def=function(rds) { standardGeneric("computeRoars") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("computePvals", def=function(rds) { standardGeneric("computePvals") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("computePairedPvals", def=function(rds, treatmentSamples, controlSamples) { standardGeneric("computePairedPvals") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("fpkmResults", def=function(rds) { standardGeneric("fpkmResults") }, valueClass="data.frame")
+
+
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
 #setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })
-
-# setGeneric for RoarDataset and RoarDatasetMultipleAPA?

@@ -119,7 +119,8 @@ setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          fpkmRes <- lapply(rds@roars, fpkmResults)
-         # XXX TODO knit together results.
+         return(do.call(rbind, fpkmRes))
+         # XXX TODO knit together results in various manners.
       }
 )
 

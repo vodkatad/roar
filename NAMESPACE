@@ -6,7 +6,8 @@ exportClasses("RoarDataset")
 
 export(
   RoarDataset,
-  RoarDatasetFromFiles
+  RoarDatasetFromFiles,
+  RoarDatasetMultipleAPAFromFiles
 )
 
 exportMethods(
