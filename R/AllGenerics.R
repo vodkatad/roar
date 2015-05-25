@@ -21,3 +21,15 @@ setGeneric("mfpkmResults", def=function(rds) { standardGeneric("mfpkmResults") }
 
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
 #setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })
+
+# Probably it should be sufficient to put valueClass=c(RoarDataset, RoarDatasetMultipleAPA) in a single call to setGeneric:
+#setGeneric("countPrePost", def=function(rds, stranded=FALSE) { standardGeneric("countPrePost") }, valueClass=c("RoarDataset", "RoarDatasetMultipleAPA))  
+#setGeneric("computeRoars", def=function(rds) { standardGeneric("computeRoars") }, valueClass="c("RoarDataset", "RoarDatasetMultipleAPA))
+#setGeneric("computePvals", def=function(rds) { standardGeneric("computePvals") }, valueClass="c("RoarDataset", "RoarDatasetMultipleAPA))
+#setGeneric("computePairedPvals", def=function(rds, treatmentSamples, controlSamples) { standardGeneric("computePairedPvals") }, valueClass="c("RoarDataset", "RoarDatasetMultipleAPA))
+#setGeneric("totalResults", def=function(rds) { standardGeneric("totalResults") }, valueClass="data.frame")
+#setGeneric("fpkmResults", def=function(rds) { standardGeneric("fpkmResults") }, valueClass="data.frame")
+#setGeneric("countResults", def=function(rds) { standardGeneric("countResults") }, valueClass="data.frame")
+#setGeneric("standardFilter", def=function(rds, fpkmCutoff) { standardGeneric("standardFilter") }, valueClass="data.frame")
+#setGeneric("pvalueFilter", def=function(rds, fpkmCutoff, pvalCutoff) { standardGeneric("pvalueFilter") }, valueClass="data.frame")
+#setGeneric("pvalueCorrectFilter", def=function(rds, fpkmCutoff, pvalCutoff, method) { standardGeneric("pvalueCorrectFilter") }, valueClass="data.frame")

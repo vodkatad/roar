@@ -192,7 +192,7 @@ obtainPrePost <- function(prepost, fragments)
              paste0(prepost@name, "_POST"))
    # We do not really need the right coords, but still: I was fool.
    # We need them to correct in the right way for lengths!
-   res <- GRanges(seqnames=rep(sn,2),
+   res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
          ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
                                 start(fragments[prepost@PREend+1])),
                         end=c(end(fragments[prepost@PREend]),
