@@ -6,7 +6,7 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
                                               fixed=TRUE),
                               function(x) { x[length(x)]})
    genes_ids <- sort(unique(mcols(genes_melted)$gene))
-   genes_ids_apas <- sort(unique(mcols(apas_melted)$gene))
+   genes_ids_apas <- sort(unique(as.numeric(mcols(apas_melted)$gene)))
    if (!all(genes_ids==genes_ids_apas)) {
       stop("Lists of GAlignments could not be empty")
    }
@@ -63,10 +63,11 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          # them to obtain PRE/POST counts.
          treatmentSE <- summOv(rds@treatmentBams[[1]])
          controlSE <- summOv(rds@controlBams[[1]])    
-         rds <- generateRoarsSingleBAM(rds, treatmentSE, controlSE)
+         rds <- generateRoarsSingleBam(rds, treatmentSE, controlSE)
       } else {
          # Still to be implemented.
       }
+      return(rds)
    }       
 )
 
@@ -80,8 +81,9 @@ setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA",
       #rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
       #                treatmentSE, controlSE)
       # Could be:
-      rds@roars <- lapply(names(rds@fragments), createRoarSingleBAM,
+      rds@roars <- lapply(names(rds@fragments), createRoarSingleBam,
                           rds, treatmentSE, controlSE)
+      names(rds@roars) <- names(rds@fragments)
       # to have the names...other ways? Store them in fragments or prePostDef
       # in an accessible way another time seems a waste of space.
       # Will have to compare times!
@@ -90,34 +92,34 @@ setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA",
 )
 
 setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
-         function(rds) 
-         {
-            rds@roars <- lapply(rds@roars, computeRoars)
-         }
+      function(rds) 
+      {
+         rds@roars <- lapply(rds@roars, computeRoars)
+      }
 )
 
 setMethod("computePvals", signature(rds="RoarDatasetMultipleAPA"),
-         function(rds)
-         {
-            rds@roars <- lapply(rds@roars, computePvals)
-         }
+      function(rds)
+      {
+         rds@roars <- lapply(rds@roars, computePvals)
+      }
 )
 
 setMethod("computePairedPvals", 
             signature(rds="RoarDatasetMultipleAPA",
             treatmentSamples="numeric", controlSamples="numeric"),
-         function(rds, treatmentSamples, controlSamples) 
-         {
-            rds@roars <- lapply(rds@roars, computePairedPvals, 
-                                treatmentSamples, controlSamples)
-         }
+      function(rds, treatmentSamples, controlSamples) 
+      {
+         rds@roars <- lapply(rds@roars, computePairedPvals, 
+                             treatmentSamples, controlSamples)
+      }
 )
 
 setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
-         function(rds) 
-         {
-            fpkmRes <- sapply(rds@roars, fpkmResults)
-            # XXX TODO knit together results.
-         }
+      function(rds) 
+      {
+         fpkmRes <- lapply(rds@roars, fpkmResults)
+         # XXX TODO knit together results.
+      }
 )
 

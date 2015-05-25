@@ -212,7 +212,7 @@ sumFragmentCounts<- function(prepost, counts, kind)
    }
 }
 
-createRoarsSingleBAM <- function(name, mulRds, treatmentSE, controlSE)
+createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
 {
    prePostDef <- mulRds@prePostDef[[name]]
    fragments <- mulRds@fragments[[name]]
@@ -226,9 +226,9 @@ createRoarsSingleBAM <- function(name, mulRds, treatmentSE, controlSE)
    # But we need to extract the right values from treatmentSE/controlSE, should
    # clearly be more efficient than looking for the coords in fragments.
    #  assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)=="10771"]
-   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
-   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
-   preCoords <- rds@prePostCoords[preElems,]
+   postElems <- grep("_POST$", mcols(prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(prePostCoords)$gene_id)
+   preCoords <- prePostCoords[preElems,]
    rds <- new("RoarDataset", prePostCoords=prePostCoords)
    rds@postCoords <- rds@prePostCoords[postElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
@@ -245,4 +245,9 @@ createRoarsSingleBAM <- function(name, mulRds, treatmentSE, controlSE)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
+   rds@step <- 1
+   rds@treatmentBams <- mulRds@treatmentBams
+   rds@controlBams <- mulRds@controlBams
+   rds@cores <- 1
+   return(rds)
 }
