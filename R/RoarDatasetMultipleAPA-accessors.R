@@ -71,15 +71,20 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
 )
 
 # BOf, why?
-setMethod("generateRoarsSingleBAM", signature(rds="RoarDatasetMultipleAPA", 
+setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA", 
                                               "RangedSummarizedExperiment",
                                               "RangedSummarizedExperiment"),
    function(rds, treatmentSE, controlSE)
    {
       # treatmentSE and controlSE are MoreArgs?
-      rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
-                       treatmentSE, controlSE)
-      # set treatmentBams controlBams step paired (cores)
+      #rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
+      #                treatmentSE, controlSE)
+      # Could be:
+      rds@roars <- lapply(names(rds@fragments), createRoarSingleBAM,
+                          rds, treatmentSE, controlSE)
+      # to have the names...other ways? Store them in fragments or prePostDef
+      # in an accessible way another time seems a waste of space.
+      # Will have to compare times!
       return(rds)
    }
 )

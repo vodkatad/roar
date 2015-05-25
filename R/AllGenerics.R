@@ -10,7 +10,7 @@ setGeneric("standardFilter", def=function(rds, fpkmCutoff) { standardGeneric("st
 setGeneric("pvalueFilter", def=function(rds, fpkmCutoff, pvalCutoff) { standardGeneric("pvalueFilter") }, valueClass="data.frame")
 setGeneric("pvalueCorrectFilter", def=function(rds, fpkmCutoff, pvalCutoff, method) { standardGeneric("pvalueCorrectFilter") }, valueClass="data.frame")
 
-setGeneric("generateRoarsSingleBAM", def=function(rds, treatmentSE, controlSE) {
+setGeneric("generateRoarsSingleBam", def=function(rds, treatmentSE, controlSE) {
    standardGeneric("generateRoarsSingleBam") }, valueClass="RoarDatasetMultipleAPA")
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
 #setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })

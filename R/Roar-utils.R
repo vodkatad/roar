@@ -174,8 +174,11 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    }
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
-   # The last fragment is build from a single apa only and we don't want it
-   fragments <- head(fragments, n=length(fragments-1))
+   # The last apaFragment is build from a single apa only and we don't want it
+   #fragments <- head(fragments, n=length(fragments)-1)
+   # But the fragment is ok!
+   apaFragmentsPrePost <- head(apaFragmentsPrePost,
+                              n=apaFrI-2)
    return(list(fragments, apaFragmentsPrePost))
 }
 # Testing will be hideous.
@@ -196,9 +199,11 @@ obtainPrePost <- function(prepost, fragments)
    # XXX TODO strand minus.
 }
 
-createRoarsSingleBAM <- function(fragments, prePostDef, treatmentSE, controlSE)
+createRoarsSingleBAM <- function(name, mulRds, treatmentSE, controlSE)
 {
    rds <- new("RoarDataset")
+   prePostDef <- mulRds@prePostDef[[name]]
+   fragments <- mulRds@fragments[[name]]
    #prePostCoords = "GRanges",
    #postCoords = "GRanges",
    #countsTreatment = "RangedSummarizedExperiment",
@@ -206,6 +211,8 @@ createRoarsSingleBAM <- function(fragments, prePostDef, treatmentSE, controlSE)
    rds@prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
    # TODO XXX add entrez_id here! We have a roar object foreach gene
    # so maybe we do not need them.
+   # But we need to extract the right values from treatmentSE/controlSE, should
+   # clearly be more efficient than looking for the coords in fragments.
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
