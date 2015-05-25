@@ -188,7 +188,8 @@ obtainPrePost <- function(prepost, fragments)
    sn <- unique(seqnames(fragments))
    gene_id=c(paste0(prepost@name, "_PRE"),
              paste0(prepost@name, "_POST"))
-   # We do not really need the right coords, but still.
+   # We do not really need the right coords, but still: I was fool.
+   # We need them to correct in the right way for lengths!
    res <- GRanges(seqnames=rep(sn,2),
          ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
                                 start(fragments[prepost@PREend+1])),
@@ -199,32 +200,47 @@ obtainPrePost <- function(prepost, fragments)
    # XXX TODO strand minus.
 }
 
+sumFragmentCounts<- function(prepost, counts, kind)
+{
+   if (kind == "pre") 
+   {
+      return(sum(counts[c(prepost@PREstart, prepost@PREend)]))
+   } else if (kind == "post") {
+      return(sum(counts[c(prepost@PREend+1, length(counts))]))
+   } else {
+      stop ("Inner error in helper functions to sum counts")
+   }
+}
+
 createRoarsSingleBAM <- function(name, mulRds, treatmentSE, controlSE)
 {
-   rds <- new("RoarDataset")
    prePostDef <- mulRds@prePostDef[[name]]
    fragments <- mulRds@fragments[[name]]
    #prePostCoords = "GRanges",
    #postCoords = "GRanges",
    #countsTreatment = "RangedSummarizedExperiment",
    #countsControl = "RangedSummarizedExperiment",
-   rds@prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
+   prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
    # TODO XXX add entrez_id here! We have a roar object foreach gene
    # so maybe we do not need them.
    # But we need to extract the right values from treatmentSE/controlSE, should
    # clearly be more efficient than looking for the coords in fragments.
+   #  assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)=="10771"]
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    preCoords <- rds@prePostCoords[preElems,]
+   rds <- new("RoarDataset", prePostCoords=prePostCoords)
    rds@postCoords <- rds@prePostCoords[postElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   #assay(se,1)[,"treatment_pre"] <- assays(treatmentSE)$counts[preElems,]
-   #assay(se,1)[,"treatment_post"] <- assays(treatmentSEpost)$counts 
-   #assay(se,1)[,"control_pre"] <- assays(controlSE)$counts[preElems,]
-   #assay(se,1)[,"control_post"] <- assays(controlSEpost)$counts
+   treatment <- assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)==name]
+   control <- assays(controlSE,1)$counts[rownames(assays(controlSE,1)$counts)==name]
+   assay(se,1)[,"treatment_pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
+   assay(se,1)[,"treatment_post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
+   assay(se,1)[,"control_pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
+   assay(se,1)[,"control_post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
    rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
    assays(rds) <- assays(se)
