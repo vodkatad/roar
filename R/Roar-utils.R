@@ -205,9 +205,9 @@ obtainPrePost <- function(prepost, fragments)
 sumFragmentCounts<- function(prepost, counts, kind)
 {
    if (kind == "pre") {
-      return(sum(counts[c(prepost@PREstart : prepost@PREend)]))
+      return(sum(counts[c(seq(prepost@PREstart,prepost@PREend, by=1))]))
    } else if (kind == "post") {
-      return(sum(counts[c(prepost@PREend+1 : length(counts))]))
+      return(sum(counts[c(seq(prepost@PREend+1,length(counts)), by=1)]))
    } else {
       stop ("Inner error in helper functions to sum counts")
    }
