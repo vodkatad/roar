@@ -217,13 +217,13 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          if (is.na(qwidthTreatment)) {
             corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
          } else {
-            corrTreatment <- rds@corrTreatment
+            corrTreatment <- qwidthTreatment
          }
          
          if (is.na(qwidthControl)) {
             corrControl <- mean(qwidth(rds@controlBams[[1]])) 
          } else {
-            corrControl <- rds@corrControl
+            corrControl <- qwidthControl
          }
       }
       # Ok, now if we had a single sample for both conditions we had the data charged in

@@ -64,6 +64,9 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          treatmentSE <- summOv(rds@treatmentBams[[1]])
          controlSE <- summOv(rds@controlBams[[1]])    
          rds <- generateRoarsSingleBam(rds, treatmentSE, controlSE)
+         rds@corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
+         rds@corrControl <- mean(qwidth(rds@controlBams[[1]]))
+         # XXX fixme for multiple samples
       } else {
          # Still to be implemented.
       }
@@ -95,7 +98,7 @@ setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          rds@roars <- lapply(rds@roars, computeRoars, 
-                             1, 1)
+                             rds@corrTreatment, rds@corrControl)
          return(rds)
       }
 )

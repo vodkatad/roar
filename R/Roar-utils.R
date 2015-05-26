@@ -248,16 +248,9 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
    rds@step <- 1
-   # length should be preserved XXX
+   # length should be preserved: XXX multipleSamples!
    rds@treatmentBams <- list(NA)
    rds@controlBams <- list(NA)
-   #mulRds@corrTreatment <- mean(qwidth(mulRds@treatmentBams[[1]]))
-   #mulRds@corrControl <- mean(qwidth(mulRds@controlBams[[1]]))
-   # cannot do like this as long as we should return rds...putting them in single rds, a waste but still...
-   # XXX fixme for multiple samples
-   rds@corrTreatment <- mean(qwidth(mulRds@treatmentBams[[1]]))
-   rds@corrControl <- mean(qwidth(mulRds@controlBams[[1]]))
-   
    rds@cores <- 1
    return(rds)
 }
