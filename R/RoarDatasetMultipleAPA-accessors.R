@@ -37,15 +37,19 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
       ResizeReadsPlus <- function(reads, width=1, fix="end", ...) {
          reads <- as(reads, "GRanges")
          #stopifnot(all(strand(reads) != "*"))
+         # Bad and ugly and will do horrible things for stranded data but still...
+         # XXX FIXME
+         strand(reads) <- rep("+", length(reads))
          resize(reads, width=width, fix=fix, ...)
       }
       ResizeReadsMinus <- function(reads, width=1, fix="start", ...) {
          reads <- as(reads, "GRanges")
          #stopifnot(all(strand(reads) != "*"))
+         strand(reads) <- rep("+", length(reads))
          resize(reads, width=width, fix=fix, ...)
       }
       # Does not work as expected as long as for GRangesList counts
-      # are collapsed.
+      # are collapsed: need to unlist.
       summOv <- function(x) {
          frag <-  unlist(rds@fragments)
          featPlus <- frag[strand(frag)=="+"]
@@ -56,7 +60,8 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          minus <- summarizeOverlaps(features=featMinus, reads=x, 
                                     ignore.strand=!stranded, 
                                     preprocess.reads=ResizeReadsMinus)
-         return(rbind(plus, minus)) # Does this work as expected? XXX
+         return(rbind(plus, minus)) # Does this work as expected? XXX YEs.
+         #return(plus)
       }
       if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
          # We obtain counts for both conditions on gene fragments and them sum 

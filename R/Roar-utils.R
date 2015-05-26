@@ -204,11 +204,10 @@ obtainPrePost <- function(prepost, fragments)
 
 sumFragmentCounts<- function(prepost, counts, kind)
 {
-   if (kind == "pre") 
-   {
-      return(sum(counts[c(prepost@PREstart, prepost@PREend)]))
+   if (kind == "pre") {
+      return(sum(counts[c(prepost@PREstart : prepost@PREend)]))
    } else if (kind == "post") {
-      return(sum(counts[c(prepost@PREend+1, length(counts))]))
+      return(sum(counts[c(prepost@PREend+1 : length(counts))]))
    } else {
       stop ("Inner error in helper functions to sum counts")
    }
@@ -232,6 +231,7 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    preElems <- grep("_PRE$", mcols(prePostCoords)$gene_id)
    preCoords <- prePostCoords[preElems,]
    rds <- new("RoarDataset", prePostCoords=prePostCoords)
+   export(prePostCoords, con = "prova.gtf", append=TRUE) ## XXX REMOVE ME
    rds@postCoords <- rds@prePostCoords[postElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                               rowRanges=preCoords, 
