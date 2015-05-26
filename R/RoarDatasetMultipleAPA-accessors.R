@@ -94,7 +94,8 @@ setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA",
 setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
-         rds@roars <- lapply(rds@roars, computeRoars)
+         rds@roars <- lapply(rds@roars, computeRoars, 
+                             1, 1)
          return(rds)
       }
 )
@@ -118,12 +119,12 @@ setMethod("computePairedPvals",
       }
 )
 
-setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
+setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
-         fpkmRes <- lapply(rds@roars, fpkmResults)
-         return(do.call(rbind, fpkmRes))
-         # XXX TODO knit together results in various manners.
+         totRes <- lapply(rds@roars, totalResults)
+         return(do.call(rbind, totRes))
+         # XXX TODO knit together results in various manners and get FPKM.
       }
 )
 

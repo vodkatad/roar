@@ -21,11 +21,6 @@ exportMethods(
    standardFilter,
    pvalueFilter,
    pvalueCorrectFilter
-#   mcountPrePost,
-#   mcomputeRoars,
-#   mcomputePvals,
-#   mcomputePairedPvals,
-#   mfpkmResults
 #   cores
 #  "cores<-"
 )

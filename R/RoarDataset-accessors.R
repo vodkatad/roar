@@ -4,7 +4,7 @@
 RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
-   gtfGRanges<- import(gtf, asRangedData=FALSE)
+   gtfGRanges<- import(gtf, asRangedData = FALSE)
    ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
@@ -41,7 +41,7 @@ getPreCoordsSE <- function(gtfGRanges) {
 # I removed stranded="logical" from the signature because it has a default value, which
 # is also set in setGeneric.
 setMethod("countPrePost", signature(rds="RoarDataset"),
-   function(rds, stranded=FALSE) {
+   function(rds, stranded = FALSE) {
       #if (!is(rds, "RoarDataset")) {
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
@@ -166,7 +166,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
 )
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
-   function(rds) {
+   function(rds, qwidthTreatment = NA, qwidthControl = NA) {
       goOn <- checkStep(rds, 1)
       if (!goOn[[1]]) {
          return(rds)
@@ -197,16 +197,34 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          assay(rds,1)[,"control_pre"] <- meanAcrossAssays(assays(rds@countsControl), "pre")
          assay(rds,1)[,"control_post"] <- meanAcrossAssays(assays(rds@countsControl), "post")
          # Also the length correction should consider all the samples!
-         lenTreatment <- unlist(lapply(rds@treatmentBams, qwidth))
-         lenControl <- unlist(lapply(rds@controlBams, qwidth))
-         corrTreatment <- mean(lenTreatment)
-         corrControl <- mean(lenControl)
+         if (is.na(qwidthTreatment)) {
+            lenTreatment <- unlist(lapply(rds@treatmentBams, qwidth))
+            corrTreatment <- mean(lenTreatment)
+         } else {
+            corrTreatment <- qwidthTreatment
+         }
+            
+         if (is.na(qwidthControl)) {
+            lenControl <- unlist(lapply(rds@controlBams, qwidth))
+            corrControl <- mean(lenControl)
+         } else {
+            corrControl <- qwidthControl
+         }
       } else {
-         corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
          # qwidth(x): Returns an integer vector of length length(x) containing the length 
          # of the query *after* hard clipping (i.e. the length of the query sequence 
          # that is stored in the corresponding SAM/BAM record).
-         corrControl <- mean(qwidth(rds@controlBams[[1]])) 
+         if (is.na(qwidthTreatment)) {
+            corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
+         } else {
+            corrTreatment <- rds@corrTreatment
+         }
+         
+         if (is.na(qwidthControl)) {
+            corrControl <- mean(qwidth(rds@controlBams[[1]])) 
+         } else {
+            corrControl <- rds@corrControl
+         }
       }
       # Ok, now if we had a single sample for both conditions we had the data charged in
       # countPrePost, otherwise we have the means (in the same SE/RDS object).

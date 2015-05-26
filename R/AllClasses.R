@@ -9,6 +9,8 @@ setClass("RoarDataset",
              countsTreatment = "RangedSummarizedExperiment",
              countsControl = "RangedSummarizedExperiment",
              pVals = "RangedSummarizedExperiment",
+             corrTreatment = "numeric",
+             corrControl = "numeric",
              step = "numeric",
              paired = "logical",
              cores = "numeric"
@@ -31,6 +33,8 @@ setClass("RoarDatasetMultipleAPA",
             roars = "list",
             step = "numeric",
             paired = "logical",
+            #corrTreatment = "numeric",
+            #corrControl = "numeric",
             cores = "numeric"
          )
 )
