@@ -23,7 +23,7 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
        geneCoords=genes, apaCoords=apas, step=0, paired=FALSE, cores=1)
 }
 
-setMethod("mcountPrePost", signature(rds="RoarDatasetMultipleAPA"),
+setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
    function(rds, stranded=FALSE) {
       allFragmentsAndPrePostDef <- mapply(getApaGenesFractions,
                               rds@geneCoords, 
@@ -91,7 +91,7 @@ setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA",
    }
 )
 
-setMethod("mcomputeRoars", signature(rds="RoarDatasetMultipleAPA"),
+setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          rds@roars <- lapply(rds@roars, computeRoars)
@@ -99,7 +99,7 @@ setMethod("mcomputeRoars", signature(rds="RoarDatasetMultipleAPA"),
       }
 )
 
-setMethod("mcomputePvals", signature(rds="RoarDatasetMultipleAPA"),
+setMethod("computePvals", signature(rds="RoarDatasetMultipleAPA"),
       function(rds)
       {
          rds@roars <- lapply(rds@roars, computePvals)
@@ -107,7 +107,7 @@ setMethod("mcomputePvals", signature(rds="RoarDatasetMultipleAPA"),
       }
 )
 
-setMethod("mcomputePairedPvals", 
+setMethod("computePairedPvals", 
             signature(rds="RoarDatasetMultipleAPA",
             treatmentSamples="numeric", controlSamples="numeric"),
       function(rds, treatmentSamples, controlSamples) 
@@ -118,7 +118,7 @@ setMethod("mcomputePairedPvals",
       }
 )
 
-setMethod("mfpkmResults", signature(rds="RoarDatasetMultipleAPA"),
+setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          fpkmRes <- lapply(rds@roars, fpkmResults)
