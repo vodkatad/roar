@@ -8,7 +8,7 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
    genes_ids <- sort(unique(mcols(genes_melted)$gene))
    genes_ids_apas <- sort(unique(as.numeric(mcols(apas_melted)$gene)))
    if (!all(genes_ids==genes_ids_apas)) {
-      stop("Lists of GAlignments could not be empty")
+      stop("All the genes in the gtf should have at least one apa")
    }
    genes <- do.call(GRangesList, sapply(genes_ids, 
                      function(x) {genes_melted[mcols(genes_melted)$gene==x]}))
@@ -38,7 +38,9 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          reads <- as(reads, "GRanges")
          #stopifnot(all(strand(reads) != "*"))
          # Bad and ugly and will do horrible things for stranded data but still...
-         # XXX FIXME
+         # FIXME: if stranded=T different resize functions that do not change read strand but
+         # move them always at their ends (should be the right call because if they are on a given
+         # strand they align on a feature on that strand).
          strand(reads) <- rep("+", length(reads))
          resize(reads, width=width, fix=fix, ...)
       }
@@ -52,6 +54,13 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
       # are collapsed: need to unlist.
       summOv <- function(x) {
          frag <-  unlist(rds@fragments)
+         # We unlist because 
+         # When a GRanges is supplied, each row is considered a feature.
+         # When a GRangesList is supplied, each higher list-level 
+         # is considered a feature. 
+         # This distinction is important when defining overlaps.
+         # Having genes as feature would help? 
+         # No, multiple counts would happen I believe.
          featPlus <- frag[strand(frag)=="+"]
          featMinus <- frag[strand(frag)=="-"]
          plus <- summarizeOverlaps(features=featPlus, reads=x, 
@@ -60,7 +69,11 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          minus <- summarizeOverlaps(features=featMinus, reads=x, 
                                     ignore.strand=!stranded, 
                                     preprocess.reads=ResizeReadsMinus)
-         return(rbind(plus, minus)) # Does this work as expected? XXX YEs.
+         return(rbind(plus, minus)) # Does this work as expected? Yes. 
+         # A more insightful comment would be what I expected...fuck you past Elena.
+         # It's like an rbind for counts as long as we have only counts as assays columns 
+         # and rowRanges are our genes. The order of fragments inside genes is kept while
+         # not their relative order but we will get them from names later on so it's ok.
          #return(plus)
       }
       if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
@@ -71,7 +84,6 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          rds <- generateRoarsSingleBam(rds, treatmentSE, controlSE)
          rds@corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
          rds@corrControl <- mean(qwidth(rds@controlBams[[1]]))
-         # XXX fixme for multiple samples
       } else {
          # Still to be implemented.
       }
@@ -132,6 +144,7 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
       {
          totRes <- lapply(rds@roars, totalResults)
          return(do.call(rbind, totRes))
+         # We need more than gene names: APA ids are in prePostDef.
          # XXX TODO knit together results in various manners and get FPKM.
       }
 )

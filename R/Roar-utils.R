@@ -65,7 +65,7 @@ getApaGenesFractions <- function(geneGr, apaGr)
    } 
 }
 
-# XXX we need to have the seqlengths to have a correct last intron. TODO
+# We need to have the seqlengths to have a correct last intron. TODO
 # maybe we could avoid doing this...we need to have faith in the gtf tough
 getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
 {   
@@ -222,22 +222,29 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    #countsTreatment = "RangedSummarizedExperiment",
    #countsControl = "RangedSummarizedExperiment",
    prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
-   # TODO XXX add entrez_id here! We have a roar object foreach gene
-   # so maybe we do not need them.
-   # But we need to extract the right values from treatmentSE/controlSE, should
+   # We need to extract the right values from treatmentSE/controlSE, should
    # clearly be more efficient than looking for the coords in fragments.
    #  assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)=="10771"]
    postElems <- grep("_POST$", mcols(prePostCoords)$gene_id)
    preElems <- grep("_PRE$", mcols(prePostCoords)$gene_id)
    preCoords <- prePostCoords[preElems,]
    rds <- new("RoarDataset", prePostCoords=prePostCoords)
-   export(prePostCoords, con = "prova.gtf", append=TRUE) ## XXX REMOVE ME
    rds@postCoords <- rds@prePostCoords[postElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                               rowRanges=preCoords, 
                               colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
    )
-   treatment <- assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)==name]
+   # Other than assay rownames we could have used:
+   #> rownames(assays(pada,1)$counts)
+   #[1] "100996928" "100996928" "101927572" "101927572" "104909134" "104909134"
+   #[7] "9"         "9"         "10"        "10"        "12"        "12"       
+   #> names(rowRanges(pada))
+   #[1] "100996928" "100996928" "101927572" "101927572" "104909134" "104909134"
+   #[7] "9"         "9"         "10"        "10"        "12"        "12"      
+   #treatment <- assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)==name]
+   # > assays(pada,1)$counts[names(rowRanges(pada))=="12"]
+   # [1] 0 0
+   # But which is faster?
    control <- assays(controlSE,1)$counts[rownames(assays(controlSE,1)$counts)==name]
    assay(se,1)[,"treatment_pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
    assay(se,1)[,"treatment_post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
