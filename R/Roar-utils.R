@@ -212,7 +212,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    if (length(introns) != 0) {
       mcols(introns)$type <- 'i'  
    }   
-   whole <- sort(c(geneGr, introns))
+   whole <- sort(c(geneGr, introns), decreasing=TRUE)
    hits <- findOverlaps(whole, apaGr)
    # We have downstream apas so we can't do this.
    #if (!all(countSubjectHits(hits) == 1)) {
@@ -237,9 +237,9 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          if (whole[i]$overlap || (i+1<=length(whole) && whole[i+1]$overlap)) {
             if (begin != -1) {
                begins <- c(begins, begin)
-               ends <- c(ends, end(whole[i-1]))
+               ends <- c(ends, start(whole[i-1]))
             }
-            begin <- start(whole[i])
+            begin <- end(whole[i])
             lastExonB <- length(begins)+1
          }
       }
@@ -295,8 +295,11 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          apaFrI <- apaFrI+1
       }
    }
+   print(begins)
+   print(ends)
+   # here begins and ends are to be switched.
    fragments <- GRanges(seqnames=chr, strand=strand, 
-                        ranges=IRanges(start=begins, end=ends))
+                        ranges=IRanges(start=ends, end=begins))
    # The last apaFragment is build from a single apa only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
@@ -367,6 +370,7 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    # [1] 0 0
    # But which is faster?
    control <- assays(controlSE,1)$counts[rownames(assays(controlSE,1)$counts)==name]
+   treatment <- assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)==name]
    assay(se,1)[,"treatment_pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
    assay(se,1)[,"treatment_post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
    assay(se,1)[,"control_pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
