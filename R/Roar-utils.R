@@ -245,6 +245,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
       }
       if (whole[i]$overlap) {
          overlapping_apas <- apaGr[subjectHits(hits[queryHits(hits)==i])]
+         overlapping_apas <- sort(overlapping_apas, decreasing=TRUE)
          # Here we have a shot of writing the pre portions of counts
          # for each APA.
          for (j in 1:length(overlapping_apas)) {
@@ -312,15 +313,28 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
 obtainPrePost <- function(prepost, fragments)
 {
    sn <- unique(seqnames(fragments))
+   strand <- unique(strand(fragments)) 
+   # We have already checked about strand uniqueness.
    gene_id=c(paste0(prepost@name, "_PRE"),
              paste0(prepost@name, "_POST"))
    # We do not really need the right coords, but still: I was fool.
    # We need them to correct in the right way for lengths!
-   res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
-         ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
-                                start(fragments[prepost@PREend+1])),
-                        end=c(end(fragments[prepost@PREend]),
-                              end(tail(fragments, n=1)))))
+   if (strand == "+") {
+      # This logic does not work for minus strand.
+      res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
+                     strand=rep(strand,2),
+            ranges=IRanges(start=c(start(fragments[prepost@PREstart]),
+                                   start(fragments[prepost@PREend+1])),
+                           end=c(end(fragments[prepost@PREend]),
+                                 end(tail(fragments, n=1)))))
+   } else { # if (strand == "=") { # and also only + and -
+      res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
+                     strand=rep(strand,2),
+                     ranges=IRanges(start=c(start(fragments[prepost@PREend]),
+                                            start(tail(fragments, n=1))),
+                                    end=c(end(fragments[prepost@PREstart]),
+                                          end(fragments[prepost@PREend+1]))))
+   }
    mcols(res) <- DataFrame(gene_id)
    return(res)
    # XXX TODO strand minus.
