@@ -81,7 +81,7 @@ ptm <- proc.time()
 
 write.table(results, sep="\t", quote=FALSE)
 
-lapply(rds@roars, function(x) { export(x@prePostCoords, con = "prova2.gtf", append=TRUE)})
+garbage <- lapply(rds@roars, function(x) { export(x@prePostCoords, con = "prova2.gtf", append=TRUE)})
 
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)
 # write.table(filteredResults, sep="\t", quote=FALSE)

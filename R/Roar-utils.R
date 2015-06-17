@@ -275,7 +275,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
       # If we did not see an overlap (should be rare) we have a single fragment 
       # starting at the beginning of the last exon.
       if (begin == -1) {
-         begin <- start(tail(geneGr, n=1)) 
+         begin <- end(tail(geneGr, n=1)) 
          lastExonB <- length(begins)+1 # That's always 1 I know.
       } 
       for (j in 1:length(out_apas)) {
@@ -296,8 +296,6 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          apaFrI <- apaFrI+1
       }
    }
-   print(begins)
-   print(ends)
    # here begins and ends are to be switched.
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=ends, end=begins))
