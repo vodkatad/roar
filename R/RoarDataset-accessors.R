@@ -9,7 +9,8 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    gtfGRanges <- gtfGRanges[ordered]
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
-   new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
+   se <- getPreCoordsSE(gtfGRanges)
+   new("RoarDataset", se, treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
        prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
@@ -19,12 +20,23 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    }
    ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
-   new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
+   se <- getPreCoordsSE(gtfGRanges)
+   new("RoarDataset", se, treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
        prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
 # setValidity instead of checks inside countPrePost? But this would be inefficient/add slots.
+
+getPreCoordsSE <- function(gtfGRanges) {
+   # Now we need to keep means and totals of counts over PRE/POST for the two lists.
+   # In the simpler case with a single alignment for both conditions we just keep the counts.
+   preElems <- grep("_PRE$", mcols(gtfGRanges)$gene_id)
+   preCoords <- gtfGRanges[preElems,]
+   se <- SummarizedExperiment(rowRanges=preCoords, colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post")))
+   return(se)
+}
+
 
 # I removed stranded="logical" from the signature because it has a default value, which
 # is also set in setGeneric.
@@ -71,7 +83,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          stop("The prePostCoords given for this RoarDataset are wrong: gene_ids (prefixes of PRE-POST)
                are not unique.")
       }
-      preCoords <- rds@prePostCoords[preElems,]
+      preCoords <- rowRanges(rds)
       rds@postCoords <- rds@prePostCoords[postElems,]
       se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                                  rowRanges=preCoords, 

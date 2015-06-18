@@ -3,6 +3,16 @@
 # library("GenomicAlignments")
 # BiocGenerics:::testPackage("roar")
 
+# Bad! What should I do? Export this function is not an option.
+getPreCoordsSE <- function(gtfGRanges) {
+   # Now we need to keep means and totals of counts over PRE/POST for the two lists.
+   # In the simpler case with a single alignment for both conditions we just keep the counts.
+   preElems <- grep("_PRE$", mcols(gtfGRanges)$gene_id)
+   preCoords <- gtfGRanges[preElems,]
+   se <- SummarizedExperiment(rowRanges=preCoords, colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post")))
+   return(se)
+}
+
 test_totalResults_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
    features <- GRanges(
@@ -13,7 +23,8 @@ test_totalResults_singleSamples <- function() {
          width=c(1000, 900, 1, 2)),
       DataFrame(gene_id)
    )
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -57,7 +68,8 @@ test_totalResults_mulSamples <- function() {
          width=c(1000, 900, 1, 2)),
       DataFrame(gene_id)
    )
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se,  treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -115,7 +127,8 @@ test_fpkmResults_singleSamples <- function() {
       DataFrame(gene_id)
    )
    # prelen <- 1000, 100
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -159,7 +172,8 @@ test_standardFilter_singleSamples <- function() {
       DataFrame(gene_id)
    )
    # prelen A-1, B-1, C-1, D-1
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired = FALSE)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -211,7 +225,8 @@ test_pvalueFilter_singleSamples <- function() {
       DataFrame(gene_id)
    )
    # prelen A-1, B-1, C-1, D-1
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=FALSE)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -264,7 +279,8 @@ test_pvalueFilter_mulSamples <- function() {
       DataFrame(gene_id)
    )
    # prelen A-1, B-1
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=FALSE)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -325,7 +341,8 @@ test_pvalueFilter_mulSamples_paired <- function() {
       DataFrame(gene_id)
    )
    # prelen A-1, B-1
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se,  treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired=TRUE)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
@@ -380,7 +397,8 @@ test_pvalueCorrectFilter_singleSamples <- function() {
       DataFrame(gene_id)
    )
    # prelen A-1, B-1, C-1, D-1
-   rds <- new("RoarDataset", treatmentBams=list(), controlBams=list(), 
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
               prePostCoords=features, step = 3, cores=1, paired = FALSE)
    preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
    postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
