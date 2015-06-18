@@ -325,7 +325,7 @@ obtainPrePost <- function(prepost, fragments)
                                    start(fragments[prepost@PREend+1])),
                            end=c(end(fragments[prepost@PREend]),
                                  end(tail(fragments, n=1)))))
-   } else { # if (strand == "=") { # and also only + and -
+   } else { # if (strand == "-") { # and also only + and -
       res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
                      strand=rep(strand,2),
                      ranges=IRanges(start=c(start(fragments[prepost@PREend]),
@@ -335,7 +335,6 @@ obtainPrePost <- function(prepost, fragments)
    }
    mcols(res) <- DataFrame(gene_id)
    return(res)
-   # XXX TODO strand minus.
 }
 
 sumFragmentCounts<- function(prepost, counts, kind)
@@ -364,7 +363,10 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    postElems <- grep("_POST$", mcols(prePostCoords)$gene_id)
    preElems <- grep("_PRE$", mcols(prePostCoords)$gene_id)
    preCoords <- prePostCoords[preElems,]
-   rds <- new("RoarDataset", prePostCoords=prePostCoords)
+   rds <- new("RoarDataset", 
+              SummarizedExperiment(rowRanges=preCoords,
+                                   colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))),
+              prePostCoords=prePostCoords)
    rds@postCoords <- rds@prePostCoords[postElems,]
    se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
                               rowRanges=preCoords, 
