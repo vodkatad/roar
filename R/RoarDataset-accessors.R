@@ -9,7 +9,10 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    gtfGRanges <- gtfGRanges[ordered]
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
-   new("RoarDataset", treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
+   preElems <- grep("_PRE$", mcols(gtfGRanges)$gene_id)
+   preCoords <- gtfGRanges[preElems,]
+   se <- SummarizedExperiment(rowRanges=preCoords, colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post")))
+   new("RoarDataset", se, treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
        prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
@@ -19,7 +22,10 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    }
    ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
-   new("RoarDataset", treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
+   preElems <- grep("_PRE$", mcols(gtfGRanges)$gene_id)
+   preCoords <- gtfGRanges[preElems,]
+   se <- SummarizedExperiment(rowRanges=preCoords, colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post")))
+   new("RoarDataset", se, treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
        prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
 }
 
