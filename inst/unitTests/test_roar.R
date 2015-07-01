@@ -179,6 +179,48 @@ test_computeRoars_singleSamples <- function() {
    checkEqualsNumeric(assay(rds2,1)[3,4],1)
 }
 
+test_computeRoars_singleSamples_length <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_POST", "B_PRE", "C_PRE", "C_POST")
+   length <- c(1,15,20, 5,30,40)
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(c("+","+","-","-","+","+")),
+      ranges = IRanges(
+         start=c(1, 10, 20, 40, 42, 52),
+         width=c(10, 5, 20, 5, 10, 10)),
+      DataFrame(gene_id, length)
+   )
+   a_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), cigar = "5M", strand = strand("+"))
+   a_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(11), cigar = "3M", strand = strand("+"))
+   a_pre_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(9), cigar = "3M", strand = strand("+"))
+   b_pre <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "1M", strand = strand("-"))
+   b_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(21), cigar = "3M", strand = strand("-"))
+   # The next one is an overlapping read only if strandness is not considered. 
+   # Otherwise it will be counted for pre_C. I will add a check on this in this test, even if it's not correct.
+   overlapbc <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(40), cigar = "5M", strand = strand("+"))
+   c_post <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(53), cigar = "50M", strand = strand("+"))
+   
+   treatmentAlign <- list(c(rep(a_pre, 2),rep(a_post, 3), a_pre_post, rep(b_pre,5), b_post, overlapbc))
+   controlAlign <- list(c(a_post, rep(a_pre, 4), a_pre_post, rep(b_post,5), b_pre, c_post))
+   
+   rds <- RoarDataset(treatmentAlign, controlAlign, features)
+   rds <- countPrePost(rds, FALSE)
+   rds <- computeRoars(rds)
+   #assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal))
+   checkEqualsNumeric(assay(rds,2)[1,1], 7.346153846153847, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,2], 41.15384615384615, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[1,3], 0.17850467289719626, tolerance=1e-5)
+   checkTrue(is.na(assay(rds,2)[1,4]))
+   checkEqualsNumeric(assay(rds,2)[2,1], 20.6923076923077, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[2,2], 0.04307692307692, tolerance=1e-5)
+   checkEqualsNumeric(assay(rds,2)[2,3], 480.357142857144, tolerance=1e-5)
+   checkTrue(is.na(assay(rds,2)[3,1]))
+   checkEqualsNumeric(assay(rds,2)[3,2], -1)
+   checkTrue(is.na(assay(rds,2)[3,3]))      
+}
+
+
+
 test_computeRoars_singlevsMulSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_POST", "B_PRE", "C_PRE", "C_POST")
    features <- GRanges(

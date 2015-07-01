@@ -177,8 +177,13 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       # Negative m/M are discarded.
       #roar = (m/M_treatment)/(m/M_control)
       # We must obtain the list of lengths from rds@postCoords and rowRanges(rds) (which is pre).
-      preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
-      postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
+      if ("length" %in% names(mcols(rds))) {
+         preLen <- mcols(rds)$length
+         postLen <- mcols(rds@postCoords)$length
+      } else {
+         preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
+         postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
+      }
       # I had to add "+1" as long as the end coords are not inclusive.
       # Then the bam lengths to correct our lengths, ie: postLen+ReadLength-1
       if (length(rds@treatmentBams) > 1 || length(rds@controlBams) > 1) {
@@ -336,7 +341,11 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
       dat <- totalResults(rds)
-      preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
+      if ("length" %in% names(mcols(rds))) {
+         preLen <- mcols(rds)$length
+         } else {
+         preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
+      }
       sumPreTreatment <- sum(assay(rds, 1)[,"treatment_pre"])
       sumPreControl <- sum(assay(rds, 1)[,"control_pre"])
       dat$treatmentValue <- (assay(rds, 1)[,"treatment_pre"]*1000000000)/(preLen*sumPreTreatment)

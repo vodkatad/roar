@@ -161,6 +161,52 @@ test_fpkmResults_singleSamples <- function() {
    checkEqualsNumeric(dat[2,"controlValue"], 3.2258e5, tolerance=1e-5)
 }
 
+test_fpkmResults_singleSamples_length <- function() {
+   gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+   length <- c(1,1,50,20)
+   features <- GRanges(
+      seqnames = Rle(rep("chr1", length(gene_id))),
+      strand = strand(rep("+", length(gene_id))),
+      ranges = IRanges(
+         start=c(1000, 2000, 1, 2),
+         width=c(1000, 900, 100, 2)),
+      DataFrame(gene_id, length)
+   )
+   # prelen <- 1000, 100
+   se <- getPreCoordsSE(features)
+   rds <- new("RoarDataset", se, treatmentBams=list(), controlBams=list(), 
+              prePostCoords=features, step = 3, cores=1)
+   preElems <- grep("_PRE$", mcols(rds@prePostCoords)$gene_id)
+   postElems <- grep("_POST$", mcols(rds@prePostCoords)$gene_id)
+   preCoords <- rds@prePostCoords[preElems,]
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=2, ncol=4)),2),
+                              rowRanges=preCoords, 
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
+   )
+   rowRanges(rds) <- rowRanges(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   length(rds@treatmentBams)  <- 1
+   length(rds@controlBams)  <- 1
+   assay(rds,1)[1,1] <- 5000 # treatment_pre A
+   assay(rds,1)[1,2] <- NA
+   assay(rds,1)[1,3] <- 300 # control_pre A
+   assay(rds,1)[1,4] <- NA
+   assay(rds,1)[2,1] <- 1000 # treatment_pre B
+   assay(rds,1)[2,2] <- NA
+   assay(rds,1)[2,3] <- 10 # control_pre B
+   assay(rds,1)[2,4] <- NA
+   
+   dat <- fpkmResults(rds)
+   
+   checkEqualsNumeric(dat[1,"treatmentValue"], 8.33333e8, tolerance=1e-5)
+   checkEqualsNumeric(dat[1,"controlValue"], 9.67741e8, tolerance=1e-5)
+   checkEqualsNumeric(dat[2,"treatmentValue"], 3.33333e6, tolerance=1e-5)
+   checkEqualsNumeric(dat[2,"controlValue"], 6.45161e5, tolerance=1e-5)
+}
+
 test_standardFilter_singleSamples <- function() {
    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST", "C_PRE", "C_POST", "D_PRE", "D_POST")
    features <- GRanges(
