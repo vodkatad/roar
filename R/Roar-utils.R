@@ -336,6 +336,8 @@ obtainPrePost <- function(prepost, fragments)
                                    start(fragments[prepost@PREend+1])),
                            end=c(end(fragments[prepost@PREend]),
                                  end(tail(fragments, n=1)))))
+      length <- c(sum(mcols(fragments[seq(prepost@PREstart, prepost@PREend)])$length),
+                             sum(mcols(fragments[seq(prepost@PREend+1, length(fragments))])$length))
    } else { # if (strand == "-") { # and also only + and -
       res <- GRanges(seqnames=rep(sn,2), # 22% of the time here?
                      strand=rep(strand,2),
@@ -343,8 +345,9 @@ obtainPrePost <- function(prepost, fragments)
                                             start(tail(fragments, n=1))),
                                     end=c(end(fragments[prepost@PREstart]),
                                           end(fragments[prepost@PREend+1]))))
+      length <- c(0, 0) # XXX TODO
    }
-   mcols(res) <- DataFrame(gene_id)
+   mcols(res) <- DataFrame(gene_id, length)
    return(res)
 }
 
