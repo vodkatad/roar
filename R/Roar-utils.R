@@ -281,7 +281,9 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # We could be ok like this (last APA inside an exon, we stop there)
    # or we could have a last APA after the last exon that we want to consider.
    #if (an APA outside hits) {
+   foundOutside <- FALSE
    if (!all(countSubjectHits(hits) == 1)) {
+      foundOutside <- TRUE
       out_apas <- apaGr[countSubjectHits(hits) == 0]
       # If we did not see an overlap (should be rare) we have a single fragment 
       # starting at the beginning of the last exon.
@@ -310,6 +312,15 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # here begins and ends are to be switched.
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=ends, end=begins))
+   ovHits <- findOverlaps(fragments, geneGr)
+   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
+   mcols(fragments)$length <- rep(0, length(fragments))
+   mcols(fragments[queryHits(ovHits)])$length  <- ovLen
+   if (foundOutside) {
+      # If there is an APA outside the gene we should correct its length.
+      outsideGeneLength <- end(tail(fragments, n=1)) - end(tail(geneGr, n=1)) +1
+      mcols(fragments[length(fragments)])$length = mcols(fragments[length(fragments)])$length + outsideGeneLength
+   }
    # The last apaFragment is build from a single apa only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
@@ -345,7 +356,8 @@ obtainPrePost <- function(prepost, fragments)
                                             start(tail(fragments, n=1))),
                                     end=c(end(fragments[prepost@PREstart]),
                                           end(fragments[prepost@PREend+1]))))
-      length <- c(0, 0) # XXX TODO
+      length <- c(sum(mcols(fragments[seq(prepost@PREstart, prepost@PREend)])$length),
+                  sum(mcols(fragments[seq(prepost@PREend+1, length(fragments))])$length))
    }
    mcols(res) <- DataFrame(gene_id, length)
    return(res)
