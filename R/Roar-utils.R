@@ -147,7 +147,9 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # We could be ok like this (last APA inside an exon, we stop there)
    # or we could have a last APA after the last exon that we want to consider.
    #if (an APA outside hits) {
+   foundOutside <- FALSE
    if (!all(countSubjectHits(hits) == 1)) {
+      foundOutside <- TRUE
       out_apas <- apaGr[countSubjectHits(hits) == 0]
       # If we did not see an overlap (should be rare) we have a single fragment 
       # starting at the beginning of the last exon.
@@ -175,6 +177,15 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    }
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
+   ovHits <- findOverlaps(fragments, geneGr)
+   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
+   mcols(fragments)$length <- rep(0, length(fragments))
+   mcols(fragments[queryHits(ovHits)])$length  <- ovLen
+   if (foundOutside) {
+      # If there is an APA outside the gene we should correct its length.
+      outsideGeneLength <- end(tail(fragments, n=1)) - end(tail(geneGr, n=1)) +1
+      mcols(fragments[length(fragments)])$length = mcols(fragments[length(fragments)])$length + outsideGeneLength
+   }
    # The last apaFragment is build from a single apa only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
