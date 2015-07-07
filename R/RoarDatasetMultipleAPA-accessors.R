@@ -1,21 +1,5 @@
 RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
    gtfGRanges <- import(gtf, asRangedData=FALSE)
-   #apas_melted <- gtfGRanges[mcols(gtfGRanges)$type=="apa"]
-   #genes_melted <- gtfGRanges[mcols(gtfGRanges)$type=="gene"]
-   #mcols(apas_melted)$gene <- sapply(strsplit(mcols(apas_melted)$apa, '_', 
-   #                                           fixed=TRUE),
-   #                           function(x) { x[length(x)]})
-   #genes_ids <- sort(unique(mcols(genes_melted)$gene))
-   #genes_ids_apas <- sort(unique(as.numeric(mcols(apas_melted)$gene)))
-   #if (!all(genes_ids==genes_ids_apas)) {
-   #   stop("All the genes in the gtf should have at least one apa")
-   #}
-   #genes <- do.call(GRangesList, sapply(genes_ids, 
-   #                  function(x) {genes_melted[mcols(genes_melted)$gene==x]}))
-   #apas <- do.call(GRangesList, sapply(genes_ids, 
-   #                  function(x) {apas_melted[mcols(apas_melted)$gene==x]}))
-   #names(apas) <- genes_ids
-   #names(genes) <- genes_ids
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    RoarDatasetMultipleAPA(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, gtfGRanges)
@@ -106,7 +90,17 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          rds@corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
          rds@corrControl <- mean(qwidth(rds@controlBams[[1]]))
       } else {
-         # Still to be implemented.
+         countsControl <- vector(mode = "list", length = length(rds@controlBams))
+         countsTreatment <- vector(mode = "list", length = length(rds@treatmentBams))
+         for (i in 1:length(rds@treatmentBams)) {
+            countsTreatment[[i]] <- summOv(rds@treatmentBams[[i]])
+         }
+         for (i in 1:length(rds@controlBams)) {
+            countsControl[[i]] <- summOv(rds@controlBams[[i]])
+         }
+         rds <- generateRoarsMultipleBam(rds, countsTreatment, countsControl)
+         rds@corrTreatment <- mean(unlist(lapply(rds@treatmentBams, qwidth)))
+         rds@corrControl <- mean(unlist(lapply(rds@controlBams, qwidth)))
       }
       return(rds)
    }       
@@ -130,6 +124,25 @@ setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA",
       # Will have to compare times!
       return(rds)
    }
+)
+
+setMethod("generateRoarsMultipleBam", signature(rds="RoarDatasetMultipleAPA", 
+                                              "list",
+                                              "list"),
+          function(rds, treatmentSE, controlSE)
+          {
+             # treatmentSE and controlSE are MoreArgs?
+             #rds@roars <- mapply(createRoarSingleBAM, rds@fragments, rds@prePostDef,
+             #                treatmentSE, controlSE)
+             # Could be:
+             rds@roars <- lapply(names(rds@fragments), createRoarMultipleBam,
+                                 rds, treatmentSE, controlSE)
+             names(rds@roars) <- names(rds@fragments)
+             # to have the names...other ways? Store them in fragments or prePostDef
+             # in an accessible way another time seems a waste of space.
+             # Will have to compare times!
+             return(rds)
+          }
 )
 
 setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),

@@ -11,6 +11,8 @@ setGeneric("pvalueCorrectFilter", def=function(rds, fpkmCutoff, pvalCutoff, meth
 
 setGeneric("generateRoarsSingleBam", def=function(rds, treatmentSE, controlSE) {
    standardGeneric("generateRoarsSingleBam") }, valueClass="RoarDatasetMultipleAPA")
+setGeneric("generateRoarsMultipleBam", def=function(rds, treatmentSE, controlSE) {
+   standardGeneric("generateRoarsMultipleBam") }, valueClass="RoarDatasetMultipleAPA")
 
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
 #setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })

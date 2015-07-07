@@ -426,3 +426,57 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    rds@cores <- 1
    return(rds)
 }
+
+createRoarMultipleBam <- function(name, mulRds, treatmentSE, controlSE)
+{
+   prePostDef <- mulRds@prePostDef[[name]]
+   fragments <- mulRds@fragments[[name]]
+   #prePostCoords = "GRanges",
+   #postCoords = "GRanges",
+   #countsTreatment = "RangedSummarizedExperiment",
+   #countsControl = "RangedSummarizedExperiment",
+   prePostCoords <- do.call(c, sapply(prePostDef, obtainPrePost, fragments))
+   # We need to extract the right values from treatmentSE/controlSE, should
+   # clearly be more efficient than looking for the coords in fragments.
+   #  assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)=="10771"]
+   postElems <- grep("_POST$", mcols(prePostCoords)$gene_id)
+   preElems <- grep("_PRE$", mcols(prePostCoords)$gene_id)
+   preCoords <- prePostCoords[preElems,]
+   rds <- new("RoarDataset", 
+              SummarizedExperiment(rowRanges=preCoords,
+                                   colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))),
+              prePostCoords=prePostCoords)
+   rds@postCoords <- rds@prePostCoords[postElems,]
+   se <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=4)),2),
+                              rowRanges=preCoords, 
+                              colData=DataFrame(row.names=c("treatment_pre","treatment_post","control_pre", "control_post"))
+   )
+   rds@countsTreatment <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=2)), length(mulRds@treatmentBams)),
+                              rowRanges=preCoords, 
+                              colData=DataFrame(row.names=c("pre","post"))
+   )
+   rds@countsControl <- SummarizedExperiment(assays = rep(list(matrix(nrow=length(rds@prePostCoords)/2, ncol=2)), length(mulRds@controlBams)),
+                                           rowRanges=preCoords, 
+                                           colData=DataFrame(row.names=c("pre", "post"))
+   )
+   
+   for (i in 1:length(controlSE)) {
+      control <- assays(controlSE[[i]],1)$counts[rownames(assays(controlSE[[i]],1)$counts)==name]
+      assay(rds@countsControl,i)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
+      assay(rds@countsControl,i)[,"post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
+   }
+   for (i in 1:length(treatmentSE)) {
+      treatment <- assays(treatmentSE[[i]],1)$counts[rownames(assays(treatmentSE[[i]],1)$counts)==name]
+      assay(rds@countsTreatment,i)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
+      assay(rds@countsTreatment,i)[,"post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
+   }
+   rowRanges(rds) <- rowRanges(se)
+   colData(rds) <- colData(se)
+   assays(rds) <- assays(se)
+   names(assays(rds)) <- "counts"
+   rds@step <- 1
+   rds@treatmentBams <- list(rep(NA, length(mulRds@treatmentBams)))
+   rds@controlBams <- list(rep(NA, length(mulRds@controlBams)))
+   rds@cores <- 1
+   return(rds)
+}
