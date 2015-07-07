@@ -475,8 +475,8 @@ createRoarMultipleBam <- function(name, mulRds, treatmentSE, controlSE)
    assays(rds) <- assays(se)
    names(assays(rds)) <- "counts"
    rds@step <- 1
-   rds@treatmentBams <- list(rep(NA, length(mulRds@treatmentBams)))
-   rds@controlBams <- list(rep(NA, length(mulRds@controlBams)))
+   rds@treatmentBams <- vector(mode = "list", length = length(mulRds@treatmentBams))
+   rds@controlBams <- vector(mode = "list", length = length(mulRds@controlBams))   
    rds@cores <- 1
    return(rds)
 }
