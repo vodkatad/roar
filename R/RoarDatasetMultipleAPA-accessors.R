@@ -177,8 +177,12 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          totRes <- lapply(rds@roars, totalResults)
-         return(do.call(rbind, totRes))
-         # We need more than gene names: APA ids are in prePostDef.
+         r <- do.call(rbind, totRes)
+         rownames(r) <- unlist(lapply(names(totRes), function(x) {
+                                 paste(x, rownames(totRes[[x]]), sep="_") }))
+         return(r)
+         # For names do.call/rbind added APA ids only when there were multiple
+         # choices for the same gene. There could be best ways to add names.
          # XXX TODO knit together results in various manners and get FPKM.
       }
 )
