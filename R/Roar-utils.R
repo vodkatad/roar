@@ -73,7 +73,18 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- gaps(geneGr)
    # Remove first intron: it is not useful in any way.
    introns <- tail(introns, n=length(introns)-1)
-   lastApa <- tail(apaGr, n=1)
+   gid <- ""
+   fakeApaEndGene <- GRanges(
+      seqnames = Rle(c(chr)),
+      strand = strand,
+      ranges = IRanges(
+         start= end(tail(geneGr, n=1)),
+         width= 1,
+      DataFrame(gid)
+      )
+   )
+   apaGr <- c(apaGr, fakeApaEndGene)
+   lastApa <- gid
    names <- unlist(strsplit(mcols(lastApa)$apa, '_', fixed=TRUE))
    lastApa_name <- names[1]
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
@@ -144,49 +155,13 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          }
       }
    }
-   # We could be ok like this (last APA inside an exon, we stop there)
-   # or we could have a last APA after the last exon that we want to consider.
-   #if (an APA outside hits) {
-   foundOutside <- FALSE
-   if (!all(countSubjectHits(hits) == 1)) {
-      foundOutside <- TRUE
-      out_apas <- apaGr[countSubjectHits(hits) == 0]
-      # If we did not see an overlap (should be rare) we have a single fragment 
-      # starting at the beginning of the last exon.
-      if (begin == -1) {
-         begin <- start(tail(geneGr, n=1)) 
-         lastExonB <- length(begins)+1 # That's always 1 I know.
-      } 
-      for (j in 1:length(out_apas)) {
-         begins <- c(begins, begin)
-         ends <- c(ends, start(out_apas[j]))
-         # We add 1 to avoid overlapping PRE/POST fragments 
-         # - APA are considered before the cut.
-         # In the previous gtf we skipped the "cut" base altogether.
-         # XXX need to decide.
-         begin <- end(out_apas[j])+1
-         firstApa_name <- unlist(
-            strsplit(mcols(out_apas[j])$apa, '_', fixed=TRUE))[1]
-         apa_name <- paste(firstApa_name, lastApa_name, sep="-")
-         apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
-                                              name=apa_name,
-                                              PREstart=lastExonB, 
-                                              PREend=length(begins))
-         apaFrI <- apaFrI+1
-      }
-   }
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
    ovHits <- findOverlaps(fragments, geneGr)
    ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
    mcols(fragments)$length <- rep(0, length(fragments))
    mcols(fragments[queryHits(ovHits)])$length  <- ovLen
-   if (foundOutside) {
-      # If there is an APA outside the gene we should correct its length.
-      outsideGeneLength <- end(tail(fragments, n=1)) - end(tail(geneGr, n=1)) +1
-      mcols(fragments[length(fragments)])$length = mcols(fragments[length(fragments)])$length + outsideGeneLength
-   }
-   # The last apaFragment is build from a single apa only and we don't want it
+   # The last apaFragment is build from a single apa (end of gene) only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
    apaFragmentsPrePost <- head(apaFragmentsPrePost,
@@ -206,7 +181,18 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- sort(gaps(geneGr), decreasing=TRUE)
    # Remove last intron: it is not useful in any way.
    introns <- head(introns, n=length(introns)-1)
-   lastApa <- tail(apaGr, n=1)
+   gid <- ""
+   fakeApaEndGene <- GRanges(
+      seqnames = Rle(c(chr)),
+      strand = strand,
+      ranges = IRanges(
+         start= start(tail(geneGr, n=1)),
+         width= 1,
+         DataFrame(gid)
+      )
+   )
+   apaGr <- c(apaGr, fakeApaEndGene)
+   lastApa <- gid
    names <- unlist(strsplit(mcols(lastApa)$apa, '_', fixed=TRUE))
    lastApa_name <- names[1]
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
@@ -278,37 +264,6 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          }
       }
    }
-   # We could be ok like this (last APA inside an exon, we stop there)
-   # or we could have a last APA after the last exon that we want to consider.
-   #if (an APA outside hits) {
-   foundOutside <- FALSE
-   if (!all(countSubjectHits(hits) == 1)) {
-      foundOutside <- TRUE
-      out_apas <- apaGr[countSubjectHits(hits) == 0]
-      # If we did not see an overlap (should be rare) we have a single fragment 
-      # starting at the beginning of the last exon.
-      if (begin == -1) {
-         begin <- end(tail(geneGr, n=1)) 
-         lastExonB <- length(begins)+1 # That's always 1 I know.
-      } 
-      for (j in 1:length(out_apas)) {
-         begins <- c(begins, begin)
-         ends <- c(ends, start(out_apas[j]))
-         # We add 1 to avoid overlapping PRE/POST fragments 
-         # - APA are considered before the cut.
-         # In the previous gtf we skipped the "cut" base altogether.
-         # XXX need to decide.
-         begin <- end(out_apas[j])-1
-         firstApa_name <- unlist(
-            strsplit(mcols(out_apas[j])$apa, '_', fixed=TRUE))[1]
-         apa_name <- paste(firstApa_name, lastApa_name, sep="-")
-         apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
-                                              name=apa_name,
-                                              PREstart=lastExonB, 
-                                              PREend=length(begins))
-         apaFrI <- apaFrI+1
-      }
-   }
    # here begins and ends are to be switched.
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=ends, end=begins))
@@ -316,11 +271,6 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
    mcols(fragments)$length <- rep(0, length(fragments))
    mcols(fragments[queryHits(ovHits)])$length  <- ovLen
-   if (foundOutside) {
-      # If there is an APA outside the gene we should correct its length.
-      outsideGeneLength <- end(tail(fragments, n=1)) - end(tail(geneGr, n=1)) +1
-      mcols(fragments[length(fragments)])$length = mcols(fragments[length(fragments)])$length + outsideGeneLength
-   }
    # The last apaFragment is build from a single apa only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
