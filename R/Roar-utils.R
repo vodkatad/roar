@@ -82,7 +82,8 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          names = ""
       )
    )
-   mcols(fakeApaEndGene) <- DataFrame(gene=gene_id, apa="", type="apa")
+   mcols(fakeApaEndGene) <- mcols(apaGr)[1,]
+   mcols(fakeApaEndGene)[1,"apa"] <- ""
    apaGr <- c(apaGr, fakeApaEndGene)
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
    apaFrI <- 1
@@ -187,7 +188,8 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
          names = ""
       )
    )
-   mcols(fakeApaEndGene) <- DataFrame(gene=gene_id, apa="", type="apa")
+   mcols(fakeApaEndGene) <- mcols(apaGr)[1,]
+   mcols(fakeApaEndGene)[1,"apa"] <- ""
    apaGr <- c(apaGr, fakeApaEndGene)
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
    apaFrI <- 1
