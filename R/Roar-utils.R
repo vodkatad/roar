@@ -73,20 +73,17 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- gaps(geneGr)
    # Remove first intron: it is not useful in any way.
    introns <- tail(introns, n=length(introns)-1)
-   gid <- ""
    fakeApaEndGene <- GRanges(
-      seqnames = Rle(c(chr)),
+      seqnames = chr,
       strand = strand,
       ranges = IRanges(
-         start= end(tail(geneGr, n=1)),
-         width= 1,
-      DataFrame(gid)
+         start = end(tail(geneGr, n=1)),
+         width = 1,
+         names = ""
       )
    )
+   mcols(fakeApaEndGene) <- DataFrame(gene=gene_id, apa="", type="apa")
    apaGr <- c(apaGr, fakeApaEndGene)
-   lastApa <- gid
-   names <- unlist(strsplit(mcols(lastApa)$apa, '_', fixed=TRUE))
-   lastApa_name <- names[1]
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
    apaFrI <- 1
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
@@ -146,7 +143,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
             begin <- end(overlapping_apas[j])+1
             firstApa_name <- unlist(
                strsplit(mcols(overlapping_apas[j])$apa, '_', fixed=TRUE))[1]
-            apa_name <- paste(firstApa_name, lastApa_name, sep="-")
+            apa_name <- firstApa_name
             apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
                                                    name=apa_name,
                                                    PREstart=lastExonB, 
@@ -181,20 +178,17 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- sort(gaps(geneGr), decreasing=TRUE)
    # Remove last intron: it is not useful in any way.
    introns <- head(introns, n=length(introns)-1)
-   gid <- ""
    fakeApaEndGene <- GRanges(
       seqnames = Rle(c(chr)),
       strand = strand,
       ranges = IRanges(
          start= start(tail(geneGr, n=1)),
          width= 1,
-         DataFrame(gid)
+         names = ""
       )
    )
+   mcols(fakeApaEndGene) <- DataFrame(gene=gene_id, apa="", type="apa")
    apaGr <- c(apaGr, fakeApaEndGene)
-   lastApa <- gid
-   names <- unlist(strsplit(mcols(lastApa)$apa, '_', fixed=TRUE))
-   lastApa_name <- names[1]
    apaFragmentsPrePost <- vector("list", length(apaGr)-1)
    apaFrI <- 1
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
@@ -255,7 +249,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
             begin <- end(overlapping_apas[j])-1
             firstApa_name <- unlist(
                strsplit(mcols(overlapping_apas[j])$apa, '_', fixed=TRUE))[1]
-            apa_name <- paste(firstApa_name, lastApa_name, sep="-")
+            apa_name <- firstApa_name
             apaFragmentsPrePost[[apaFrI]] <- new("ApaFragmentPrePost",
                                                  name=apa_name,
                                                  PREstart=lastExonB, 
