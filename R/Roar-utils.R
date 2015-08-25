@@ -85,7 +85,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    mcols(fakeApaEndGene) <- mcols(apaGr)[1,]
    mcols(fakeApaEndGene)[1,"apa"] <- ""
    apaGr <- c(apaGr, fakeApaEndGene)
-   apaFragmentsPrePost <- vector("list", length(apaGr)-1)
+   apaFragmentsPrePost <- vector("list", length(apaGr)-1) # should be without -1 TODO
    apaFrI <- 1
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
    # no idea how. 
@@ -156,9 +156,17 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
    ovHits <- findOverlaps(fragments, geneGr)
-   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
+   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr))) # tutte +1?
    mcols(fragments)$length <- rep(0, length(fragments))
-   mcols(fragments[queryHits(ovHits)])$length  <- ovLen
+   # A single fragment can overlap multiple exons and we need to sum here their lengths:
+   # i.e. ovlen is longer than length(fragments), with queryHits we get the right reps but
+   # not sums. The only way I am able to imagine a solution is with a for.
+   indexes_fr <- queryHits(ovHits)
+   for (k in 1:length(ovLen)) {
+      mcols(fragments[indexes_fr[k]])$length  <- mcols(fragments[indexes_fr[k]])$length + ovLen[k]
+   }
+   #mcols(fragments[queryHits(ovHits)])$length  <- ovLen # But for length is here XXX FIXME
+   
    # The last apaFragment is build from a single apa (end of gene) only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
@@ -266,7 +274,16 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    ovHits <- findOverlaps(fragments, geneGr)
    ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
    mcols(fragments)$length <- rep(0, length(fragments))
-   mcols(fragments[queryHits(ovHits)])$length  <- ovLen
+   
+   # A single fragment can overlap multiple exons and we need to sum here their lengths:
+   # i.e. ovlen is longer than length(fragments), with queryHits we get the right reps but
+   # not sums. The only way I am able to imagine a solution is with a for.
+   indexes_fr <- queryHits(ovHits)
+   for (k in 1:length(ovLen)) {
+      mcols(fragments[indexes_fr[k]])$length  <- mcols(fragments[indexes_fr[k]])$length + ovLen[k]
+   }
+   #mcols(fragments[queryHits(ovHits)])$length  <- ovLen # But for length is here XXX FIXME
+   
    # The last apaFragment is build from a single apa only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
