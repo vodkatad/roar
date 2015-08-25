@@ -5,7 +5,6 @@ RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
    RoarDatasetMultipleAPA(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, gtfGRanges)
 }
 
-
 RoarDatasetMultipleAPA <- function(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, gtfGRanges) {
    apas_melted <- gtfGRanges[mcols(gtfGRanges)$type=="apa"]
    genes_melted <- gtfGRanges[mcols(gtfGRanges)$type=="gene"]
