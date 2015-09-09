@@ -355,10 +355,10 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 setMethod("sumRoarCounts", signature(rds="RoarDataset"),
           function(rds) {
              res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)[1]), 
-                               counts_treatment=sum(colSums(assay(rds,1))["treatment_pre"],
-                                                   assay(rds,1)["treatment_post"]), 
-                               counts_control=sum(colSums(assay(rds,1))["control_pre"],
-                                                   assay(rds,1)["control_post"]))
+                               counts_treatment=sum(colSums(assay(rds,1))[1],
+                                                   assay(rds,1)[2]), 
+                               counts_control=sum(colSums(assay(rds,1))[3],
+                                                   assay(rds,1)[4]))
              return(res)
           }
 )
@@ -392,30 +392,32 @@ setMethod("countResults", signature(rds="RoarDataset"),
    }
 )
 
+.standardFilter <- function(rds, fpkmCutoff) {
+   # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
+   # a negative/NA m/M-roar.
+   # P-value correction? In the single samples case it seems sensible to do that,
+   # otherwise we will report all pvalues (and correct their product.)
+   # Due to chr by chr scanning bonferroni correction has been removed.
+   dat <- fpkmResults(rds)
+   # mM_treatment, mM_control , roar columns filtering (< 0 / NA)
+   # dat <- subset(dat, mM_treatment >= 0) # subset is ok for interactive use only
+   dat <- dat[is.finite(dat$mM_treatment) & dat$mM_treatment >= 0,]
+   #dat <- subset(dat, mM_control >= 0)
+   dat <- dat[is.finite(dat$mM_control) & dat$mM_control >= 0,]
+   #dat <- subset(dat, !is.na(roar))
+   # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
+   dat <- dat[is.finite(dat$roar),]
+   # treatmentValue/controlValue filtering (<= fpkmCutoff)
+   #dat <- subset(dat, treatmentValue > fpkmCutoff)
+   #dat <- subset(dat, controlValue > fpkmCutoff)
+   dat <- dat[dat$treatmentValue > fpkmCutoff,]
+   dat <- dat[dat$controlValue > fpkmCutoff,]
+   return(dat)
+}                  
 setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
-   function(rds, fpkmCutoff) {
-      # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
-      # a negative/NA m/M-roar.
-      # P-value correction? In the single samples case it seems sensible to do that,
-      # otherwise we will report all pvalues (and correct their product.)
-      # Due to chr by chr scanning bonferroni correction has been removed.
-      dat <- fpkmResults(rds)
-      # mM_treatment, mM_control , roar columns filtering (< 0 / NA)
-      # dat <- subset(dat, mM_treatment >= 0) # subset is ok for interactive use only
-      dat <- dat[is.finite(dat$mM_treatment) & dat$mM_treatment >= 0,]
-      #dat <- subset(dat, mM_control >= 0)
-      dat <- dat[is.finite(dat$mM_control) & dat$mM_control >= 0,]
-      #dat <- subset(dat, !is.na(roar))
-      # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
-      dat <- dat[is.finite(dat$roar),]
-      # treatmentValue/controlValue filtering (<= fpkmCutoff)
-      #dat <- subset(dat, treatmentValue > fpkmCutoff)
-      #dat <- subset(dat, controlValue > fpkmCutoff)
-      dat <- dat[dat$treatmentValue > fpkmCutoff,]
-      dat <- dat[dat$controlValue > fpkmCutoff,]
-      return(dat)
-   }                  
-)
+          .standardFilter)
+setMethod("standardFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric"),
+          .standardFilter)
 
 setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {

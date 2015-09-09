@@ -229,3 +229,58 @@ setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
              return(res)
           }
 )
+
+setMethod("pvalueFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric", pvalCutoff="numeric"),
+          function(rds, fpkmCutoff, pvalCutoff) {
+               dat <- standardFilter(rds, fpkmCutoff)
+               if (nrow(dat) > 0) {
+                  resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
+                   FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
+                  dat <- do.call(rbind, resby)
+                  if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+                     # In this case we add to dat a col that says how many comparisons yielded
+                     # a pvalue < pvalCutoff.
+                     # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+                     if(nrow(dat) != 0) {
+                        cols <- grep("^pvalue_", colnames(dat))
+                        sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+                        # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+                        dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+                     }
+                  } else {
+                     dat <- dat[dat$pval < pvalCutoff,]
+                  }   
+                  return(dat)
+               } else {
+                  return(data.frame())
+               }
+         }                  
+)
+
+setMethod("pvalueCorrectFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric", pvalCutoff="numeric", method="character"),
+          function(rds, fpkmCutoff, pvalCutoff, method) {
+            dat <- standardFilter(rds, fpkmCutoff)
+            if (nrow(dat) > 0) {   
+               resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
+                            FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
+               dat <- do.call(rbind, resby)
+               if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+                  # In this case we add to dat a col that says how many comparisons yielded
+                  # a pvalue < pvalCutoff.
+                  # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+                  if(nrow(dat) != 0) {
+                     cols <- grep("^pvalue_", colnames(dat))
+                     sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+                     # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+                     dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+                  }
+               } else {
+                  dat$pval <- p.adjust(dat$pval, method=method)
+                  dat <- dat[dat$pval < pvalCutoff,]
+               }   
+               return(dat)
+            } else {
+               return(data.frame())
+            }    
+         }
+)
