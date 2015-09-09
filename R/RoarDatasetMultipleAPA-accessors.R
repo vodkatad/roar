@@ -224,7 +224,7 @@ setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
              res$counts_control.y <- NULL
              res$counts_treatment.x <- NULL
              res$counts_treatment.y <- NULL
-             res$len <- NULL
+             #res$len <- NULL
              rownames(res) <- rownames(counts)
              return(res)
           }
