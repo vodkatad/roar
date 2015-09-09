@@ -338,7 +338,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds) {
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
-      res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",mcols(rds@postCoords)$gene_id)), 
+      res <- data.frame(row.names=sub("^\\s+","", sub("_POST","", mcols(rds@postCoords)$gene_id)), 
                         mM_treatment=assay(rds,2)[,"treatment_pre"], 
                         mM_control=assay(rds,2)[,"treatment_post"],
                         roar=assay(rds,2)[,"control_pre"],
@@ -350,6 +350,17 @@ setMethod("totalResults", signature(rds="RoarDataset"),
       }
       return(res)
    }
+)
+
+setMethod("sumRoarCounts", signature(rds="RoarDataset"),
+          function(rds) {
+             res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)[1]), 
+                               counts_treatment=sum(colSums(assay(rds,1))["treatment_pre"],
+                                                   assay(rds,1)["treatment_post"]), 
+                               counts_control=sum(colSums(assay(rds,1))["control_pre"],
+                                                   assay(rds,1)["control_post"]))
+             return(res)
+          }
 )
 
 # This function will add to the totalResults dataframe RPKM gotten on the pre portions, then

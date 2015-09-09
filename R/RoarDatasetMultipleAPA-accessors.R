@@ -186,3 +186,46 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
       }
 )
 
+setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
+          function(rds) 
+          {
+             # We cannot call fpkmResults on the roars objects because in this
+             # case we want FPKM from the whole gene. Therefore we
+             # need to sum all the fragments counts. We work on every rds@roars.
+             fpkmList <- lapply(rds@roars, sumRoarCounts)
+             fpkmDf <- do.call(rbind, fpkmList)
+             #t(sapply(rds@roars, s1)) # the same
+             totRes <- totalResults(rds)
+             totRes$geneName <- sapply(rownames(totRes), function(x) unlist(strsplit(x,"_", fixed=T))[1])
+             res <- merge(totRes, fpkmDf, by.x="geneName", by.y="row.names")
+             rownames(res) <- rownames(totRes)
+             res$geneName <- NULL
+             return(res)
+          }
+)
+
+setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
+          function(rds) 
+          {
+             counts <- countResults(rds)
+             lengths <- sapply(rds@fragments, function(x) { sum(mcols(x)$length)})
+             lengthsdf <- data.frame(len=lengths)
+             counts$genes <- sapply(rownames(counts), function(x) unlist(strsplit(x,"_", fixed=T))[1])
+             countsonly <- counts[,c("counts_treatment", "counts_control","genes")]
+             countsonly <- unique(countsonly)
+             sumTreatment <- sum(countsonly[,"counts_treatment"])
+             sumControl <- sum(countsonly[,"counts_control"])
+             dat <- merge(countsonly, lengthsdf, by.x="genes", by.y="row.names")
+             dat$treatmentFpkm <- (dat[,"counts_treatment"]*1000000000)/(dat[,"len"]*sumTreatment)
+             dat$controlFpkm <- (dat[,"counts_control"]*1000000000)/(dat[,"len"]*sumControl)
+             res <- merge(counts, dat, by="genes")
+             res$genes <- NULL
+             res$counts_control.x <- NULL
+             res$counts_control.y <- NULL
+             res$counts_treatment.x <- NULL
+             res$counts_treatment.y <- NULL
+             res$len <- NULL
+             rownames(res) <- rownames(counts)
+             return(res)
+          }
+)

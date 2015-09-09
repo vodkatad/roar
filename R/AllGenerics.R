@@ -4,6 +4,7 @@ setGeneric("computePvals", def=function(rds) { standardGeneric("computePvals") }
 setGeneric("computePairedPvals", def=function(rds, treatmentSamples, controlSamples) { standardGeneric("computePairedPvals") }, valueClass=c("RoarDataset", "RoarDatasetMultipleAPA"))
 setGeneric("totalResults", def=function(rds) { standardGeneric("totalResults") }, valueClass="data.frame")
 setGeneric("fpkmResults", def=function(rds) { standardGeneric("fpkmResults") }, valueClass="data.frame")
+setGeneric("sumRoarCounts", def=function(rds) { standardGeneric("sumRoarCounts") }, valueClass="data.frame")
 setGeneric("countResults", def=function(rds) { standardGeneric("countResults") }, valueClass="data.frame")
 setGeneric("standardFilter", def=function(rds, fpkmCutoff) { standardGeneric("standardFilter") }, valueClass="data.frame")
 setGeneric("pvalueFilter", def=function(rds, fpkmCutoff, pvalCutoff) { standardGeneric("pvalueFilter") }, valueClass="data.frame")
