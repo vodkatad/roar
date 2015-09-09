@@ -55,7 +55,7 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
    stop("One of the given files does not exist or is not readable")  
 }
 
-gtfGRanges<- import(opt$gtf, asRangedData=FALSE)
+gtfGRanges<- import(opt$gtf)
 chrs <- seqlevels(gtfGRanges)
 
 orderBam <- function(bam) {
