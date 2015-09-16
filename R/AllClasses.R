@@ -20,7 +20,6 @@ setClass("RoarDataset",
 # prototype -> default values
 
 setClass("RoarDatasetMultipleAPA",
-          #contains = "RangedSummarizedExperiment", # Superclasses
          representation = representation( # Slots
             treatmentBams = "list",  #list of GAlignments 
             controlBams = "list",

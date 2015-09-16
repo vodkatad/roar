@@ -11,11 +11,11 @@
      }
      \arguments{
        \item{assays}{
-           A list of matrixes/dataframes.
+           A list of matrices/dataframes.
         }
         \item{wantedColumns}{
            The name of the columns ("pre" or "post") whose means should be computed.
-           Average will be calculated on the corresponding rows of the list of matrixes/dataframe,
+           Average will be calculated on the corresponding rows of the list of matrices/dataframe,
            working on the given column.
         }
       }

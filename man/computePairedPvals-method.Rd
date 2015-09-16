@@ -9,7 +9,7 @@
        paired one for the treatment (i.e. cells derived from the same plate divided in two groups
        and treated or not). For example in the below code sample treatment sample n.1 (rd1) is paired with control n.2 (rd4)
        and rd2 with rd3. The pvalue resulting from Fisher test applied on the different samples pairings will
-       be combined with the Fisher method, therefore the couples of samples should be independent between each other.
+       be combined with the Fisher method, therefore the pairs of samples should be independent between each other.
       }
      \usage{
       computePairedPvals(rds, treatmentSamples, controlSamples)
