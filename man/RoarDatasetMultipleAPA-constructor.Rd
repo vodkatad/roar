@@ -8,7 +8,7 @@
       A MultipleAPA analysis computes several roar values and p-values for each gene: one 
       for every possible combination of APA-canonical end of a gene (i.e. the
       end of its last exon). This is more efficient than performing several different ``standard'' roar analyses
-      with the corresponding PRE and POST portions because reads overlaps are computed only once.
+      choosing the PRE and POST portions corresponding to different APAs because reads overlaps are computed only once.
      }
      \usage{
       RoarDatasetMultipleAPA(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, gtfGRanges)
