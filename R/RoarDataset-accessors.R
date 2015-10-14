@@ -4,7 +4,7 @@
 RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    # The format will be assumed using the file extension. Will work everytime?
    # Do we need to force a genome(eg. hg19)? It doesn't seem so.
-   gtfGRanges<- import(gtf, asRangedData=FALSE)
+   gtfGRanges <- import(gtf)
    ordered <- order(mcols(gtfGRanges)$gene_id)
    gtfGRanges <- gtfGRanges[ordered]
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
@@ -178,8 +178,8 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       #roar = (m/M_treatment)/(m/M_control)
       # We must obtain the list of lengths from rds@postCoords and rowRanges(rds) (which is pre).
       if ("length" %in% names(mcols(rds))) {
-         preLen <- mcols(rds)$length
-         postLen <- mcols(rds@postCoords)$length
+         preLen <- as.numeric(mcols(rds)$length)
+         postLen <- as.numeric(mcols(rds@postCoords)$length)
       } else {
          preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
          postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
@@ -342,7 +342,7 @@ setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
       dat <- totalResults(rds)
       if ("length" %in% names(mcols(rds))) {
-         preLen <- mcols(rds)$length
+         preLen <- as.numeric(mcols(rds)$length)
          } else {
          preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
       }
