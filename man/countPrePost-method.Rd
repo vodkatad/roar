@@ -1,5 +1,8 @@
-\name{countPrePost}
+\name{countPrePost} %rename to methods.Rd
      \alias{countPrePost}
+     \alias{countPrePost,RoarDataset,logical}
+     \alias{countPrePost,RoarDatasetMultipleAPA,logical}
+
      \title{Counts reads falling over PRE/POST portions of the given transcripts}
      \description{
        This is the first step in the Roar analyses: it counts reads overlapping with the
@@ -18,11 +21,16 @@
      }
      \usage{
       countPrePost(rds, stranded=FALSE)
+      %\S4method{countOverlaps}{GenomicRanges,GenomicRanges}(query, subject,
+    %maxgap=0L, minoverlap=1L,
+    %type=c("any", "start", "end", "within", "equal"),
+    %algorithm=c("nclist", "intervaltree"),
+    %ignore.strand=FALSE)
      }
      \arguments{
        \item{rds}{
            The \code{\linkS4class{RoarDataset}} which contains the alignments and annotation informations over which
-           counts will be performed.}
+           counts will be performed.} % or a RoarDatasetMultipleAPA...
        \item{stranded}{
            A logical indicating if strandness should be considered when counting reads or not.
            Default=FALSE.
