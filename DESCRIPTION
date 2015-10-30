@@ -10,5 +10,5 @@ biocViews: Sequencing, HighThroughputSequencing, RNAseq, Transcription
 License: GPL-3
 Depends: R (>= 3.0.1)
 Imports: GenomicRanges, IRanges, SummarizedExperiment, GenomicAlignments(>= 0.99.4), methods, rtracklayer, S4Vectors
-Suggests: RUnit, BiocGenerics, RNAseqData.HNRNPC.bam.chr14
+Suggests: BiocGenerics, RNAseqData.HNRNPC.bam.chr14, testthat
 URL: https://github.com/vodkatad/roar/
