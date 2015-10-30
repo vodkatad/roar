@@ -1,2 +1,6 @@
 library("GenomicAlignments")
+print(getwd())
+source(file.path("..", "R", "Roar-utils.R"))
+#print(f)
+#print(file.exists(f))
 BiocGenerics:::testPackage("roar")

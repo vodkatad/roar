@@ -1,5 +1,5 @@
 RoarDatasetMultipleAPAFromFiles <- function(treatmentBams, controlBams, gtf) {
-   gtfGRanges <- import(gtf, asRangedData=FALSE)
+   gtfGRanges <- import(gtf)
    treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignments)
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    RoarDatasetMultipleAPA(treatmentBamsGenomicAlignments, controlBamsGenomicAlignments, gtfGRanges)

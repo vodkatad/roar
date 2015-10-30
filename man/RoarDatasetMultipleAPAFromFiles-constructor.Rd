@@ -10,7 +10,7 @@
            choosing the PRE and POST portions corresponding to different APAsbecause reads overlaps are computed only once.
      }
      \usage{
-      RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
+      RoarDatasetMultipleAPAFromFiles(treatmentBams, controlBams, gtf)
      }
      \arguments{
             \item{treatmentBams}{
@@ -37,12 +37,12 @@
         }
       }
       \value{
-         A \code{\link[=RoarDataset-class]{RoarDataset}} object ready to be analyzed via the other methods.
+         A \code{\link[=RoarDatasetMultipleAPA-class]{RoarDatasetMultipleAPA}} object ready to be analyzed via the other methods.
       }
      \seealso{
-       \code{\link{RoarDataset}}
+       \code{\link{RoarDatasetMultipleAPA}}
      }
      \examples{
-     #rds <- RoarDatasetFromFiles(treatmentBams, controlBams, gtf)
+     #rds <- RoarDatasetMultipleAPAFromFiles(treatmentBams, controlBams, gtf)
     }
 \keyword{RoarDatasetFromFiles}

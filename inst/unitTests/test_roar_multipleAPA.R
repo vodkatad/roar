@@ -173,6 +173,7 @@ test_getApaGenesFractionsPlusStrandIntronExon <- function() {
 # counts 
 # A simple sample gene with 3 exons is sufficient? Are there extreme cases for intron/exon structure? 
 # Apa on the boundaries.
+# fpkm
 
 # unordered calls gets fixed or not
 # paired pvals

@@ -43,6 +43,7 @@
        \code{\link{RoarDatasetMultipleAPAFromFiles}}
      }
      \examples{   
+      library(GenomicAlignments)
       gene <- c("A", "B", NA, NA)
       type <- c("gene","gene","apa", "apa")
       apa <- c(NA, NA, "apa1_A", "apa2_B")
