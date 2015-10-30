@@ -19,6 +19,12 @@
        \item{rds}{
            The \code{\linkS4class{RoarDataset}} which contains the counts over PRE-POST portions
            in the two conditions to be compared via roar.}
+       \item{qwidthTreatment} { A number that represents the length of reads in the treatment samples. By
+       default it is obtained from the alignments inside this function directly but it could also be passed
+       as an argument - used in RoarDatasetMultipleAPA analyses for efficiency.}
+       \item{qwidthControl} { A number that represents the length of reads in the control samples. By
+       default it is obtained from the alignments inside this function directly but it could also be passed
+       as an argument - used in RoarDatasetMultipleAPA analyses for efficiency.}
       }
       \value{
          The \code{\linkS4class{RoarDataset}} object given as rds with the computeRoars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
