@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.7.1
+-----------------------
+
+NEW FEATURES
+   
+    o Now the gtf can contain an attribute that represents the lengths of PRE and POST portions on the transcriptome. If this
+      is omitted the lengths on the genome are used (like before). Note that right now every gtf entry (or none of them) should have it.
+      
+BUG FIXES
+
+    o No changes classified as 'bug fixes'
+
 CHANGES IN VERSION 1.1.2
 -----------------------
 
