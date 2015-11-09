@@ -31,6 +31,9 @@
            The prefix of gene_id should be an identifier for the gene and each identifier has to be
            associated with only one "_PRE" and one "_POST", leading to two genomic region associated to each   
            gene_id.
+           The gtf can also contain an attribute that represents the lengths of PRE and POST portions on the transcriptome.
+           If this is omitted the lengths on the genome are used instead. Note that right now every gtf entry
+           (or none of them) should have it.
         }
       }
       \value{
