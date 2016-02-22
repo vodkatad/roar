@@ -41,7 +41,7 @@ getPreCoordsSE <- function(gtfGRanges) {
 # I removed stranded="logical" from the signature because it has a default value, which
 # is also set in setGeneric.
 setMethod("countPrePost", signature(rds="RoarDataset"),
-   function(rds, stranded=FALSE) {
+   function(rds, stranded = FALSE) {
       #if (!is(rds, "RoarDataset")) {
       #   stop("countPrePost could be applied only to RoarDataset objects")
       #} # Why is this needed? Is it needed?
@@ -166,7 +166,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
 )
 
 setMethod("computeRoars", signature(rds="RoarDataset"),
-   function(rds) {
+   function(rds, qwidthTreatment = NA, qwidthControl = NA) {
       goOn <- checkStep(rds, 1)
       if (!goOn[[1]]) {
          return(rds)
@@ -178,8 +178,8 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       #roar = (m/M_treatment)/(m/M_control)
       # We must obtain the list of lengths from rds@postCoords and rowRanges(rds) (which is pre).
       if ("length" %in% names(mcols(rds))) {
-         preLen <- mcols(rds)$length
-         postLen <- mcols(rds@postCoords)$length
+         preLen <- as.numeric(mcols(rds)$length)
+         postLen <- as.numeric(mcols(rds@postCoords)$length)
       } else {
          preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
          postLen <- end(rds@postCoords) - start(rds@postCoords) + 1
@@ -197,16 +197,34 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          assay(rds,1)[,"control_pre"] <- meanAcrossAssays(assays(rds@countsControl), "pre")
          assay(rds,1)[,"control_post"] <- meanAcrossAssays(assays(rds@countsControl), "post")
          # Also the length correction should consider all the samples!
-         lenTreatment <- unlist(lapply(rds@treatmentBams, qwidth))
-         lenControl <- unlist(lapply(rds@controlBams, qwidth))
-         corrTreatment <- mean(lenTreatment)
-         corrControl <- mean(lenControl)
+         if (is.na(qwidthTreatment)) {
+            lenTreatment <- unlist(lapply(rds@treatmentBams, qwidth))
+            corrTreatment <- mean(lenTreatment)
+         } else {
+            corrTreatment <- qwidthTreatment
+         }
+            
+         if (is.na(qwidthControl)) {
+            lenControl <- unlist(lapply(rds@controlBams, qwidth))
+            corrControl <- mean(lenControl)
+         } else {
+            corrControl <- qwidthControl
+         }
       } else {
-         corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
          # qwidth(x): Returns an integer vector of length length(x) containing the length 
          # of the query *after* hard clipping (i.e. the length of the query sequence 
          # that is stored in the corresponding SAM/BAM record).
-         corrControl <- mean(qwidth(rds@controlBams[[1]])) 
+         if (is.na(qwidthTreatment)) {
+            corrTreatment <- mean(qwidth(rds@treatmentBams[[1]]))
+         } else {
+            corrTreatment <- qwidthTreatment
+         }
+         
+         if (is.na(qwidthControl)) {
+            corrControl <- mean(qwidth(rds@controlBams[[1]])) 
+         } else {
+            corrControl <- qwidthControl
+         }
       }
       # Ok, now if we had a single sample for both conditions we had the data charged in
       # countPrePost, otherwise we have the means (in the same SE/RDS object).
@@ -320,7 +338,7 @@ setMethod("totalResults", signature(rds="RoarDataset"),
    function(rds) {
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
-      res <- data.frame(row.names=sub("^\\s+","",sub("_POST","",mcols(rds@postCoords)$gene_id)), 
+      res <- data.frame(row.names=sub("^\\s+","", sub("_POST","", mcols(rds@postCoords)$gene_id)), 
                         mM_treatment=assay(rds,2)[,"treatment_pre"], 
                         mM_control=assay(rds,2)[,"treatment_post"],
                         roar=assay(rds,2)[,"control_pre"],
@@ -332,6 +350,18 @@ setMethod("totalResults", signature(rds="RoarDataset"),
       }
       return(res)
    }
+)
+
+
+setMethod("sumRoarCounts", signature(rds="RoarDataset"),
+          function(rds) {
+             res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)[1]), 
+                               counts_treatment=sum(colSums(assay(rds,1))[1],
+                                                   assay(rds,1)[2]), 
+                               counts_control=sum(colSums(assay(rds,1))[3],
+                                                   assay(rds,1)[4]))
+             return(res)
+          }
 )
 
 # This function will add to the totalResults dataframe RPKM gotten on the pre portions, then
@@ -362,31 +392,33 @@ setMethod("countResults", signature(rds="RoarDataset"),
       return(dat)
    }
 )
-
+   
+.standardFilter <- function(rds, fpkmCutoff) {
+   # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
+   # a negative/NA m/M-roar.
+   # P-value correction? In the single samples case it seems sensible to do that,
+   # otherwise we will report all pvalues (and correct their product.)
+   # Due to chr by chr scanning bonferroni correction has been removed.
+   dat <- fpkmResults(rds)
+   # mM_treatment, mM_control , roar columns filtering (< 0 / NA)
+   # dat <- subset(dat, mM_treatment >= 0) # subset is ok for interactive use only
+   dat <- dat[is.finite(dat$mM_treatment) & dat$mM_treatment >= 0,]
+   #dat <- subset(dat, mM_control >= 0)
+   dat <- dat[is.finite(dat$mM_control) & dat$mM_control >= 0,]
+   #dat <- subset(dat, !is.na(roar))
+   # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
+   dat <- dat[is.finite(dat$roar),]
+   # treatmentValue/controlValue filtering (<= fpkmCutoff)
+   #dat <- subset(dat, treatmentValue > fpkmCutoff)
+   #dat <- subset(dat, controlValue > fpkmCutoff)
+   dat <- dat[dat$treatmentValue > fpkmCutoff,]
+   dat <- dat[dat$controlValue > fpkmCutoff,]
+   return(dat)
+}                  
 setMethod("standardFilter", signature(rds="RoarDataset", fpkmCutoff="numeric"),
-   function(rds, fpkmCutoff) {
-      # Here we need to: remove all genes with a mean FPKM <= fpkmCutoff, 
-      # a negative/NA m/M-roar.
-      # P-value correction? In the single samples case it seems sensible to do that,
-      # otherwise we will report all pvalues (and correct their product.)
-      # Due to chr by chr scanning bonferroni correction has been removed.
-      dat <- fpkmResults(rds)
-      # mM_treatment, mM_control , roar columns filtering (< 0 / NA)
-      # dat <- subset(dat, mM_treatment >= 0) # subset is ok for interactive use only
-      dat <- dat[is.finite(dat$mM_treatment) & dat$mM_treatment >= 0,]
-      #dat <- subset(dat, mM_control >= 0)
-      dat <- dat[is.finite(dat$mM_control) & dat$mM_control >= 0,]
-      #dat <- subset(dat, !is.na(roar))
-      # Changed is.na to is.finite to avoid Inf/-Inf, did not add a unitTest as long as it's trivial.
-      dat <- dat[is.finite(dat$roar),]
-      # treatmentValue/controlValue filtering (<= fpkmCutoff)
-      #dat <- subset(dat, treatmentValue > fpkmCutoff)
-      #dat <- subset(dat, controlValue > fpkmCutoff)
-      dat <- dat[dat$treatmentValue > fpkmCutoff,]
-      dat <- dat[dat$controlValue > fpkmCutoff,]
-      return(dat)
-   }                  
-)
+          .standardFilter)
+setMethod("standardFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric"),
+          .standardFilter)
 
 setMethod("pvalueFilter", signature(rds="RoarDataset", fpkmCutoff="numeric", pvalCutoff="numeric"),
    function(rds, fpkmCutoff, pvalCutoff) {

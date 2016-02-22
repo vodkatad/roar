@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.7.2
+   o New code to efficiently consider more than a single APA foreach gene - under active development (man pages, vignettes and
+   UnitTests are being updated).
+
+-----------------------
+
 CHANGES IN VERSION 1.7.1
 -----------------------
 
@@ -36,3 +42,4 @@ NEW FEATURES
 BUG FIXES
 
     o No changes classified as 'bug fixes'
+
