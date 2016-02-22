@@ -1,5 +1,7 @@
-\name{countPrePost}
+\name{countPrePost} 
      \alias{countPrePost}
+     \alias{countPrePost,RoarDataset,logical}
+     \alias{countPrePost,RoarDatasetMultipleAPA}
      \title{Counts reads falling over PRE/POST portions of the given transcripts}
      \description{
        This is the first step in the Roar analyses: it counts reads overlapping with the
@@ -11,26 +13,30 @@
        1- reads that align on only one of the given features are assigned to that feature, even if the
        overlap is not complete 
        2- reads that align on both a PRE and a POST feature of the same gene (spanning reads) are 
-       assigned
-       to the POST one, considering that they have clearly been obtained from the longer isoform
+       assigned to the POST one, considering that they have clearly been obtained from the longest isoform
        
        If the stranded argument is set to TRUE then strandness is considered when counting reads.
+       When rds is a \code{\link{RoarDatasetMultipleAPA}} counts are obtained on more than two portions for
+       each transcript in order to be able to efficiently evaluate multiple APA sites. 
+       The options stranded=TRUE is still not implemented for \code{\linkS4class{RoarDatasetMultipleAPA}}.
+       
      }
      \usage{
+      %\S4method{countPrePost}{RoarDataset,logical}(rds, stranded=FALSE)
+      %\S4method{countPrePost}{RoarDatasetMultipleAPA,logical}(rds, stranded=FALSE)
       countPrePost(rds, stranded=FALSE)
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} which contains the alignments and annotation informations over which
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} which contains the             alignments and annotation informations over which
            counts will be performed.}
        \item{stranded}{
            A logical indicating if strandness should be considered when counting reads or not.
-           Default=FALSE.
+           Default=FALSE. \bold{WARNING}: not implemented (ignored) when using \code{\linkS4class{RoarDatasetMultipleAPA}}.
        }
       }
       \value{
          The \code{\linkS4class{RoarDataset}} object given as rds with the counting reads phase of the analysis done. Counts will be held in the RoarDataset object itself in the case of single samples, while
-         in two slots otherwise, but end user normally should not analyze those directly.
       }
      \examples{
    library(GenomicAlignments)

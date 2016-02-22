@@ -1,6 +1,8 @@
 \name{computeRoars}
      \alias{computeRoars}
-     \title{Computes m/M and roar values for this \code{\linkS4class{RoarDataset}} object}
+     \alias{computeRoars, RoarDataset, numeric, numeric}
+     \alias{computeRoars, RoarDatasetMultipleAPA, numeric, numeric}
+     \title{Computes m/M and roar values}
      \description{
        This is the second step in the Roar analyses: it computes the ratio of prevalence
        of the short and long isoforms for every gene in the treatment and control condition (m/M) and their
@@ -13,12 +15,21 @@
        on average counts.
      }
      \usage{
-      computeRoars(rds)
+         %\S4method{computeRoars}{RoarDataset,numeric,numeric}(rds, qwidthTreatment=NA, qwidthControl=NA)
+         %\S4method{computeRoars}{RoarDataset,numeric,numeric}(rds, qwidthTreatment, qwidthControl)
+         computeRoars(rds, qwidthTreatment=NA, qwidthControl=NA)
+         computeRoars(rds, qwidthTreatment, qwidthControl)
      }
      \arguments{
        \item{rds}{
            The \code{\linkS4class{RoarDataset}} which contains the counts over PRE-POST portions
            in the two conditions to be compared via roar.}
+         \item{qwidthTreatment}{ The mean length of the reads in the treatment bam files - used internally for the interaction between
+            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects. The default (NA) calculates
+            this value from the bam and should not be changed.}
+         \item{qwidthControl}{The mean length of the reads in the control bam files - used internally for the interaction between
+            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects. The default (NA) calculates
+            this value from the bam and should not be changed.}
       }
       \value{
          The \code{\linkS4class{RoarDataset}} object given as rds with the computeRoars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
