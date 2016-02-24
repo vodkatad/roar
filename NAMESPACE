@@ -1,8 +1,6 @@
+import(methods, BiocGenerics, S4Vectors, IRanges, GenomicRanges, SummarizedExperiment, GenomicAlignments)
 importFrom(rtracklayer, import)
-importFrom(S4Vectors, DataFrame, Rle)
-import(methods, GenomicRanges, SummarizedExperiment, GenomicAlignments, IRanges)
 importFrom(stats, fisher.test, p.adjust, pchisq)
-importFrom(utils, head, tail)
 
 exportClasses("RoarDataset")
 
