@@ -1,6 +1,9 @@
 \name{totalResults}
      \alias{totalResults}
-     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
+     \alias{totalResults, RoarDataset}
+     \alias{totalResults, RoarDatasetMultipleAPA}
+     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}}
+     or a \code{\linkS4class{RoarDatasetMultipleAPA}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values and pvalues.
@@ -10,21 +13,27 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
+           The \code{\linkS4class{RoarDataset}} or \code{\linkS4class{RoarDatasetMultipleAPA}} with all the analysis 
+           steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.}
       }
       \value{
-         The \code{\linkS4class{RoarDataset}} object given as rds with all the analysis steps performed.
-         If one or more steps hadn't been performed they will be called automatically.
+         The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} object given as rds 
+         with all the analysis steps performed.
+         If one or more steps hadn't been performed they will be called automatically (\bold{WARNING}: only
+         working for \code{\linkS4class{RoarDataset}} right now).
          The resulting dataframe will have the "gene_id" of the initial annotation as row names (without
          the trailing "_PRE"/"_POST") and as columns the m/M ratio for the treatment and control conditions,
          the roar value and the Fisher test pvalue (respectively: mM_treatment, mM_control, roar, pval).
          If more than one sample has been given for a condition the "pval" column will contain the
-         multiplication of all the comparisons pvalue and there will be other columns containing
+         product of all the comparisons pvalue and there will be other columns containing
          the pvalues resulting from all the pairwise treatment vs control contrasts, with names "pvalue_X_Y" 
          where
          X represent the position of the sample in the treatment list of bam files (or GappedAlignment) and
          Y the position for the control list.
+         When using \code{\linkS4class{RoarDatasetMultipleAPA}} this dataframe will report multiple
+         results for each gene that corresponds to the pairings between every APA associated with that
+         gene in the gtf and the gene's end - rownames in this case will be in the form geneid_apaid.
          \bold{WARNING}: this method does not filter in any way the results, therefore there will be negative
          m/M values/ROAR and also NA - in these cases there aren't enough information to draw a conclusion
          about the shortening/lengthening of the gene in the given samples and thus the pvalues

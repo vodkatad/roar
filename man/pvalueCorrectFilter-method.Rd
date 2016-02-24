@@ -1,20 +1,25 @@
 \name{pvalueCorrectFilter}
      \alias{pvalueCorrectFilter}
-     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
+     \alias{pvalueCorrectFilter, RoarDataset}
+     \alias{pvalueCorrectFilter, RoarDatasetMultipleAPA}
+     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object
+          or a \code{\linkS4class{RoarDatasetMultipleAPA}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
          with an expression estimate bigger than a given cutoff will be considered. Also pvalues, corrected
-         considering for multiple testing, will be considered for filtering.
+         considering multiple testing, will be considered for filtering.
      }
      \usage{
       pvalueCorrectFilter(rds, fpkmCutoff, pvalCutoff, method)
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
+           with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically.}
+            If one or more steps hadn't been performed they will be called automatically
+            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
        \item{fpkmCutoff}{
          The cutoff that will be used to determine if a gene is expressed or not.}
        \item{pvalCutoff}{
@@ -23,7 +28,10 @@
        paired samples or single samples, not used for multiple unpaired samples.)}
       }
       \value{
-         The resulting dataframe will be identical to that returned by \code{link{standardFilter}} but
+         For \code{\linkS4class{RoarDataset}}:
+         
+         The resulting dataframe will be identical to that returned by \code{\link{standardFilter}} 
+         but
          after gene expression filtering and pvalue correction another step will be performed:
          for single samples comparisons or multiple paired samples comparisons
          only genes with a corrected (with the given method)
@@ -33,6 +41,8 @@
          dataframe. This column will contain an integer number representing the number of comparisons
          between the samples of the two conditions that results in a nominal pvalue lower than the given    
          cutoff (pvalCutoff). 
+         
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
       } 
      \examples{

@@ -1,6 +1,9 @@
 \name{pvalueFilter}
      \alias{pvalueFilter}
-     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
+     \alias{pvalueFilter, RoarDataset}
+     \alias{pvalueFilter, RoarDatasetMultipleAPA}
+     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object
+          or a \code{\linkS4class{RoarDatasetMultipleAPA}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
@@ -12,16 +15,21 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
+           with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically.}
+            If one or more steps hadn't been performed they will be called automatically
+            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
        \item{fpkmCutoff}{
          The cutoff that will be used to determine if a gene is expressed or not.}
        \item{pvalCutoff}{
          The cutoff that will be used to determine if a pvalue is significative or not.}
       }
       \value{
-         The resulting dataframe will be identical to that returned by \code{link{standardFilter}} but
+         For \code{\linkS4class{RoarDataset}}: 
+         
+         
+         The resulting dataframe will be identical to that returned by \code{\link{standardFilter}} but
          after gene expression filtering and pvalue correction another step will be performed:
          for single samples comparisons only genes with a nominal pvalue smaller than the given cutoff
          will be considered, while for multiple samples a column (nUnderCutoff) will be added to the
@@ -31,6 +39,8 @@
          the pvalues of the requested pairings will be listed together with the combined pvalued
          obtained with the Fisher method and the filtering will be done on this pvalue.
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
+        
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
       } 
      \examples{
    library("GenomicAlignments")

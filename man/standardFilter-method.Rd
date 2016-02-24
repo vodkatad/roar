@@ -1,6 +1,9 @@
 \name{standardFilter}
      \alias{standardFilter}
-     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
+     \alias{standardFilter, RoarDataset}
+     \alias{standardFilter, RoarDatasetMultipleAPA}
+     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object
+          or a \code{\linkS4class{RoarDatasetMultipleAPA}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM). Only the genes
@@ -13,16 +16,22 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
+           with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically.}
+            If one or more steps hadn't been performed they will be called automatically 
+            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
       \item{fpkmCutoff}{
          The cutoff that will be used to determine if a gene is expressed or not.}
       }
       \value{
-         The resulting dataframe will be identical to that returned by \code{link{fpkmResults}} but
+         For \code{\linkS4class{RoarDataset}}: 
+         
+         The resulting dataframe will be identical to that returned by \code{\link{fpkmResults}} but
          it will contains rows relative only with genes with an expression estimate (treatment or controlValue)
          bigger than the given fpkmCutoff in both the conditions.
+         
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
          %The pvalues (for multiple samples their multiplication, i.e.
          %the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
          %only considering those genes, that are considered as "expressed" in both the biological conditions

@@ -22,17 +22,21 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} which contains the counts over PRE-POST portions
-           in the two conditions to be compared via roar.}
-         \item{qwidthTreatment}{ The mean length of the reads in the treatment bam files - used internally for the interaction between
-            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects. The default (NA) calculates
-            this value from the bam and should not be changed.}
-         \item{qwidthControl}{The mean length of the reads in the control bam files - used internally for the interaction between
-            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects. The default (NA) calculates
-            this value from the bam and should not be changed.}
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} which contains the   
+           counts over PRE-POST portions in the two conditions to be compared via roar.}
+         \item{qwidthTreatment}{ The mean length of the reads in the treatment bam files
+            - used internally for the interaction between
+            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects.
+            The default (NA) calculates this value from the bam and should not be changed.}
+         \item{qwidthControl}{The mean length of the reads in the control bam files 
+            - used internally for the interaction between
+            \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}} objects. 
+            The default (NA) calculates this value from the bam and should not be changed.}
       }
       \value{
-         The \code{\linkS4class{RoarDataset}} object given as rds with the computeRoars phase of the           analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples, while
+         The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} object given as rds             with the computeRoars phase of the  
+         analysis done. m/M and roars will be held in the RoarDataset object itself in the case of single samples,
+         while
          in two slots otherwise, but end user normally should not analyze those directly but use
          \code{\link{totalResults}} or \code{\link{fpkmResults}} at the end of the analysis. 
       }

@@ -1,6 +1,9 @@
 \name{fpkmResults}
      \alias{fpkmResults}
-     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object}
+     \alias{fpkmResults, RoarDataset}
+     \alias{fpkmResults, RoarDatasetMultipleAPA}
+     \title{Returns a dataframe with results of the analysis for a \code{\linkS4class{RoarDataset}} object
+          or a \code{\linkS4class{RoarDatasetMultipleAPA}} object}
      \description{
          The last step of a classical Roar analyses: it returns a dataframe containing m/M values, roar 
          values, pvalues and estimates of expression (a measure recalling FPKM).
@@ -10,18 +13,22 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} with all the analysis steps (\code{\link{countPrePost}},
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
+           with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically.}
+            If one or more steps hadn't been performed they will be called automatically s
+            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
       }
       \value{
-         The resulting dataframe will be identical to that returned by \code{link{totalResults}} but
+         The resulting dataframe will be identical to that returned by \code{\link{totalResults}} but
          with two columns added: "treatmentValue" and "controlValue". These columns will contain a number
          that indicates the level of expression of the relative gene in the treatment (or control) condition.
-         This number derives from the counts (averages across samples when applicable) 
-         obtained for the PRE portion of the gene and is similar
+         For \code{\linkS4class{RoarDataset}} this number derives from the counts (averages across samples when 
+         applicable) obtained for the PRE portion of the gene and is similar
          to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette
          for more details.
+         
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
       }
      \examples{
    library(GenomicAlignments)

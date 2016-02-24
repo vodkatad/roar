@@ -25,7 +25,9 @@ Objects of thiss class should be created using the functions
 the raw \code{\link{new}} method should never be invoked by end users. Then
 to perform the analysis the user should call, in order: countPrePost, computeRoars, computePvals and
 one of the methods to format results. This class is used to allow
-efficient analyses that allow to study more than one APA site for each gene.
+efficient analyses that allow to study more than one APA site for each gene: internally
+it uses a \code{\link{RoarDataset}} object that stores PRE/POST counts for all possible alternative
+APA choices for each gene.
 }
 \section{Slots}{
   \describe{
@@ -37,7 +39,7 @@ efficient analyses that allow to study more than one APA site for each gene.
     \item{\code{prePostDef}:}{Object of class \code{"list"} - private object representing all possible short and long isoforms. }
     \item{\code{roars}:}{Object of class \code{"list"} - private object with a list of \code{\link{RoarDataset}} objects, each one representing all possible PRE/POST choices for a single gene. }
     \item{\code{corrTreatment}:}{\code{"numeric"} slot - private, integer representing the mean length of reads for the treatment samples. }
-    \item{\code{corrTreatment}:}{\code{"numeric"} slot - private, integer representing the mean length of reads for the control samples. }
+    \item{\code{corrControl}:}{\code{"numeric"} slot - private, integer representing the mean length of reads for the control samples. }
     \item{\code{paired}:}{\code{"logical"} slot - private. }
     \item{\code{step}:}{\code{"numeric"} slot - private. }
     \item{\code{cores}:}{\code{"numeric"} slot - private. }
