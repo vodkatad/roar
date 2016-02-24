@@ -25,13 +25,14 @@
          The cutoff that will be used to determine if a gene is expressed or not.}
       }
       \value{
-         For \code{\linkS4class{RoarDataset}}: 
+         For \code{\linkS4class{RoarDataset}} and \code{\linkS4class{RoarDatasetMultipleAPA}}: 
          
          The resulting dataframe will be identical to that returned by \code{\link{fpkmResults}} but
          it will contains rows relative only with genes with an expression estimate (treatment or controlValue)
-         bigger than the given fpkmCutoff in both the conditions.
-         
-         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
+         bigger than the given fpkmCutoff in both the conditions and with sensitive m/M and roar values (it
+         removes negative or NA
+         m/M values/roar - these values arise when there aren't enough information to draw a conclusion
+         about the shortening/lengthening of the gene).
          %The pvalues (for multiple samples their multiplication, i.e.
          %the value in the "pval" column) will then be corrected for multiple comparisons (Bonferroni method)
          %only considering those genes, that are considered as "expressed" in both the biological conditions

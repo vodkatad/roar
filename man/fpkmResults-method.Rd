@@ -29,6 +29,8 @@
          for more details.
          
          For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
+         % per ora c'e` anche la length riportata, che e` la somma delle lunghezze di tutti i framemnti di esoni
+         % che consideriamo.
       }
      \examples{
    library(GenomicAlignments)

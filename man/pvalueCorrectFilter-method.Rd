@@ -28,11 +28,12 @@
        paired samples or single samples, not used for multiple unpaired samples.)}
       }
       \value{
+         % this does the same as pvalueFilter but correct pvalues for multiple samples setups.
          For \code{\linkS4class{RoarDataset}}:
          
          The resulting dataframe will be identical to that returned by \code{\link{standardFilter}} 
          but
-         after gene expression filtering and pvalue correction another step will be performed:
+         after gene expression filtering another step will be performed:
          for single samples comparisons or multiple paired samples comparisons
          only genes with a corrected (with the given method)
          pvalue (for paired datasets this is the combined pvalue obtained with the Fisher method)

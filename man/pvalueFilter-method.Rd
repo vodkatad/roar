@@ -28,9 +28,8 @@
       \value{
          For \code{\linkS4class{RoarDataset}}: 
          
-         
          The resulting dataframe will be identical to that returned by \code{\link{standardFilter}} but
-         after gene expression filtering and pvalue correction another step will be performed:
+         after gene expression and m/M values filtering another step will be performed:
          for single samples comparisons only genes with a nominal pvalue smaller than the given cutoff
          will be considered, while for multiple samples a column (nUnderCutoff) will be added to the
          dataframe. This column will contain an integer number representing the number of comparisons
@@ -41,6 +40,7 @@
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
         
          For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
+         % For each gene we select the APA choice that is associated with the smallest p-value (after fpkm filtering) # then proceed exactly like roar [NDRY ALERT FIXME].
       } 
      \examples{
    library("GenomicAlignments")

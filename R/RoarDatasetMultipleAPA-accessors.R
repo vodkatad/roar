@@ -33,7 +33,8 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
                               rds@geneCoords, 
                               rds@apaCoords)
       rds@fragments <- GRangesList(allFragmentsAndPrePostDef[1,]) 
-      #Right subsetting?
+      #Right subsetting? Yes because in this situation mapply gives us a matrix with 
+      #columns == gene names and rows that are fragments and prePostDef (SIMPLIFY=TRUE).
       rds@prePostDef <- allFragmentsAndPrePostDef[2,]
       # A GRangesList with GRanges for all fragments defining pre/post
       # in a gene and a list with info on APA choices and which
@@ -77,8 +78,7 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          # A more insightful comment would be what I expected...fuck you past Elena.
          # It's like an rbind for counts as long as we have only counts as assays columns 
          # and rowRanges are our genes. The order of fragments inside genes is kept while
-         # not their relative order but we will get them from names later on so it's ok.
-         #return(plus)
+         # not their relative order but we will get them from names later on so it's ok. 
       }
       if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
          # We obtain counts for both conditions on gene fragments and them sum 
@@ -105,7 +105,6 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
    }       
 )
 
-# BOf, why?
 setMethod("generateRoarsSingleBam", signature(rds="RoarDatasetMultipleAPA", 
                                               "RangedSummarizedExperiment",
                                               "RangedSummarizedExperiment"),
@@ -186,100 +185,105 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
 )
 
 setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
-          function(rds) 
-          {
-             # We cannot call fpkmResults on the roars objects because in this
-             # case we want FPKM from the whole gene. Therefore we
-             # need to sum all the fragments counts. We work on every rds@roars.
-             fpkmList <- lapply(rds@roars, sumRoarCounts)
-             fpkmDf <- do.call(rbind, fpkmList)
-             #t(sapply(rds@roars, s1)) # the same
-             totRes <- totalResults(rds)
-             totRes$geneName <- sapply(rownames(totRes), function(x) unlist(strsplit(x,"_", fixed=T))[1])
-             res <- merge(totRes, fpkmDf, by.x="geneName", by.y="row.names")
-             rownames(res) <- rownames(totRes)
-             res$geneName <- NULL
-             return(res)
-          }
+      function(rds) 
+      {
+         # We cannot call fpkmResults on the roars objects because in this
+         # case we want FPKM for whole genes. Therefore we
+         # need to sum all the fragments counts. We work on every rds@roars.
+         fpkmList <- lapply(rds@roars, sumRoarCounts)
+         fpkmDf <- do.call(rbind, fpkmList)
+         #t(sapply(rds@roars, s1)) # the same
+         totRes <- totalResults(rds)
+         totRes$geneName <- sapply(rownames(totRes), function(x) unlist(strsplit(x,"_", fixed=T))[1])
+         res <- merge(totRes, fpkmDf, by.x="geneName", by.y="row.names")
+         rownames(res) <- rownames(totRes)
+         res$geneName <- NULL
+         return(res)
+      }
 )
 
 setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
-          function(rds) 
-          {
-             counts <- countResults(rds)
-             lengths <- sapply(rds@fragments, function(x) { sum(mcols(x)$length)})
-             lengthsdf <- data.frame(length=lengths)
-             counts$genes <- sapply(rownames(counts), function(x) unlist(strsplit(x,"_", fixed=T))[1])
-             countsonly <- counts[,c("counts_treatment", "counts_control","genes")]
-             countsonly <- unique(countsonly)
-             sumTreatment <- sum(countsonly[,"counts_treatment"])
-             sumControl <- sum(countsonly[,"counts_control"])
-             dat <- merge(countsonly, lengthsdf, by.x="genes", by.y="row.names")
-             dat$treatmentFpkm <- (dat[,"counts_treatment"]*1000000000)/(dat[,"length"]*sumTreatment)
-             dat$controlFpkm <- (dat[,"counts_control"]*1000000000)/(dat[,"length"]*sumControl)
-             res <- merge(counts, dat, by="genes")
-             res$genes <- NULL
-             res$counts_control.x <- NULL
-             res$counts_control.y <- NULL
-             res$counts_treatment.x <- NULL
-             res$counts_treatment.y <- NULL
-             #res$length <- NULL
-             rownames(res) <- rownames(counts)
-             return(res)
-          }
+      function(rds) 
+      {
+         counts <- countResults(rds)
+         lengths <- sapply(rds@fragments, function(x) { sum(mcols(x)$length)})
+         # We put in rds@fragments mcol length the lengths of the exon portions of 
+         # the fragments that we are considering.
+         lengthsdf <- data.frame(length=lengths)
+         counts$genes <- sapply(rownames(counts), function(x) unlist(strsplit(x,"_", fixed=T))[1])
+         countsonly <- counts[,c("counts_treatment", "counts_control","genes")]
+         countsonly <- unique(countsonly)
+         sumTreatment <- sum(countsonly[,"counts_treatment"])
+         sumControl <- sum(countsonly[,"counts_control"])
+         dat <- merge(countsonly, lengthsdf, by.x="genes", by.y="row.names")
+         dat$treatmentFpkm <- (dat[,"counts_treatment"]*1000000000)/(dat[,"length"]*sumTreatment)
+         dat$controlFpkm <- (dat[,"counts_control"]*1000000000)/(dat[,"length"]*sumControl)
+         res <- merge(counts, dat, by="genes")
+         res$genes <- NULL
+         res$counts_control.x <- NULL
+         res$counts_control.y <- NULL
+         res$counts_treatment.x <- NULL
+         res$counts_treatment.y <- NULL
+         #res$length <- NULL
+         rownames(res) <- rownames(counts)
+         return(res)
+      }
 )
 
 setMethod("pvalueFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric", pvalCutoff="numeric"),
-          function(rds, fpkmCutoff, pvalCutoff) {
-               dat <- standardFilter(rds, fpkmCutoff)
-               if (nrow(dat) > 0) {
-                  resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
-                   FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
-                  dat <- do.call(rbind, resby)
-                  if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
-                     # In this case we add to dat a col that says how many comparisons yielded
-                     # a pvalue < pvalCutoff.
-                     # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
-                     if(nrow(dat) != 0) {
-                        cols <- grep("^pvalue_", colnames(dat))
-                        sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
-                        # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
-                        dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
-                     }
-                  } else {
-                     dat <- dat[dat$pval < pvalCutoff,]
-                  }   
-                  return(dat)
-               } else {
-                  return(data.frame())
+      function(rds, fpkmCutoff, pvalCutoff) {
+         dat <- standardFilter(rds, fpkmCutoff)
+         if (nrow(dat) > 0) {
+            resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
+                        FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
+            dat <- do.call(rbind, resby)
+            # For each gene we select the APA choice that is associated with the smallest p-value (after fpkm filtering)
+            # then proceed exactly like roar [NDRY ALERT FIXME].
+            if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+               # In this case we add to dat a col that says how many comparisons yielded
+               # a pvalue < pvalCutoff.
+               # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+               if(nrow(dat) != 0) {
+                  cols <- grep("^pvalue_", colnames(dat))
+                  sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+                  # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+                  dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
                }
-         }                  
+            } else {
+               dat <- dat[dat$pval < pvalCutoff,]
+            }   
+            return(dat)
+         } else {
+            return(data.frame())
+         }
+      }                  
 )
 
 setMethod("pvalueCorrectFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCutoff="numeric", pvalCutoff="numeric", method="character"),
-          function(rds, fpkmCutoff, pvalCutoff, method) {
-            dat <- standardFilter(rds, fpkmCutoff)
-            if (nrow(dat) > 0) {   
-               resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
-                            FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
-               dat <- do.call(rbind, resby)
-               if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
-                  # In this case we add to dat a col that says how many comparisons yielded
-                  # a pvalue < pvalCutoff.
-                  # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
-                  if(nrow(dat) != 0) {
-                     cols <- grep("^pvalue_", colnames(dat))
-                     sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
-                     # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
-                     dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
-                  }
-               } else {
-                  dat$pval <- p.adjust(dat$pval, method=method)
-                  dat <- dat[dat$pval < pvalCutoff,]
-               }   
-               return(dat)
+      function(rds, fpkmCutoff, pvalCutoff, method) 
+      {
+         dat <- standardFilter(rds, fpkmCutoff)
+         if (nrow(dat) > 0) {   
+            resby <- by(dat, INDICES=as.factor(sapply(rownames(dat), function(x) unlist(strsplit(x,"_", fixed=T))[1])), 
+                        FUN = function(x) {res<-x[with(x, order(x[,4])),]; res[1,]})
+            dat <- do.call(rbind, resby)
+            if ((length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) && !rds@paired) {
+               # In this case we add to dat a col that says how many comparisons yielded
+               # a pvalue < pvalCutoff.
+               # esany <- apply(data, 1, function(x) {any(x[seq(1,12)] < 0.05)})
+               if(nrow(dat) != 0) {
+                  cols <- grep("^pvalue_", colnames(dat))
+                  sel <- apply(dat, 1, function(x) {x[cols] < pvalCutoff})
+                  # This yields a transposed dat with cols rows and TRUE/FALSE. ncol = nrows of dat
+                  dat$nUnderCutoff <- apply(sel, 2, function(x){length(x[x==TRUE])})
+               }
             } else {
-               return(data.frame())
-            }    
-         }
+               dat$pval <- p.adjust(dat$pval, method=method)
+               dat <- dat[dat$pval < pvalCutoff,]
+            }   
+            return(dat)
+         } else {
+            return(data.frame())
+         }    
+      }
 )
