@@ -24,14 +24,15 @@
            to be considered.}
        \item{gtfGRanges}{
            A \code{\link{GRanges}} containing a suitable annotation of alternative APA sites and gene exonic structure.
-            Minimal requirements are: metadata columns called "gene", "apa" and "type."
-           APA should be single bases falling over one of the given genes and need to have the metadata column "type" equal to "apa" and the "apa" 
-           column
+           Minimal requirements are: metadata columns called "gene", "apa" and "type."
+           APA should be single bases falling over one of the given genes and need to have the
+           metadata column "type" equal to "apa" and the "apa"  column
            composed of unambiguous id and the corresponding gene id pasted together with an underscore. The "gene"
            metadata columns for these entries should not be initialized.
-           All the studied gene exons need to be reported, in this case the metadata column "gene" should contain the gene id (the same
+           All the studied gene exons need to be reported, in this case the metadata column "gene" should contain 
+           the gene id (the same
            one reported for each gene APAs) while "type" should be set to "gene" and "apa" to NA.
-           All apa entries assigned to a gene should have coordinates that falls inside it (otherwise XXX TODO CHECK) and every gene that
+           All apa entries assigned to a gene should have coordinates that falls inside it (otherwise XXX TODO CHECK) and             every gene that
            appears should contain at least one APA.
            
         }
