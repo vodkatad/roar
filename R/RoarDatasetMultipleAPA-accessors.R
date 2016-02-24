@@ -182,7 +182,6 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
          return(r)
          # For names do.call/rbind added APA ids only when there were multiple
          # choices for the same gene. There could be best ways to add names.
-         # XXX TODO knit together results in various manners and get FPKM.
       }
 )
 

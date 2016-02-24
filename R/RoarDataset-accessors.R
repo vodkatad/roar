@@ -354,12 +354,14 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 
 
 setMethod("sumRoarCounts", signature(rds="RoarDataset"),
+          # Used by multipleAPA where we summarize gene info using counts/FPKM for the whole gene.
           function(rds) {
              res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)[1]), 
                                counts_treatment=sum(colSums(assay(rds,1))[1],
                                                    assay(rds,1)[2]), 
                                counts_control=sum(colSums(assay(rds,1))[3],
                                                    assay(rds,1)[4]))
+             # In this case several rows of the same roar obj will have counts on different
              return(res)
           }
 )

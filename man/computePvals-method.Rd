@@ -1,6 +1,8 @@
 \name{computePvals}
      \alias{computePvals}
-     \title{Computes pvalues (Fisher test) for this \code{\linkS4class{RoarDataset}} object}
+     \alias{computePvals, RoarDataset}
+     \alias{computePvals, RoarDatasetMultipleAPA}
+     \title{Computes pvalues (Fisher test) on the read counts in this roar analysis}
      \description{
        This is the third step in the Roar analyses: it applies a Fisher test comparing counts falling
        on the PRE and POST portion in the treatment and control conditions for every gene. 
@@ -12,11 +14,14 @@
      }
      \arguments{
        \item{rds}{
-           The \code{\linkS4class{RoarDataset}} which contains the counts over PRE-POST portions
+           The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
+           which contains the counts over PRE-POST portions
            in the two conditions to be compared via pvalues.}
       }
       \value{
-         The \code{\linkS4class{RoarDataset}} object given as rds with the compute pvalue phase of the analysis done. Pvalues will be held in the RoarDataset object itself in the case of single samples, while
+         The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} object given as rds
+         with the compute pvalue phase of the analysis done. Pvalues will be held in the RoarDataset object itself in 
+         the case of single samples, while
          in a separate slot otherwise, but end user normally should not analyze those directly but use
          \code{\link{totalResults}} or \code{\link{fpkmResults}} at the end of the analysis. 
       }

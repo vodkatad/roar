@@ -18,7 +18,7 @@
        If the stranded argument is set to TRUE then strandness is considered when counting reads.
        When rds is a \code{\link{RoarDatasetMultipleAPA}} counts are obtained on more than two portions for
        each transcript in order to be able to efficiently evaluate multiple APA sites. 
-       The options stranded=TRUE is still not implemented for \code{\linkS4class{RoarDatasetMultipleAPA}}.
+       The option stranded=TRUE is still not implemented for \code{\linkS4class{RoarDatasetMultipleAPA}}.
        
      }
      \usage{
