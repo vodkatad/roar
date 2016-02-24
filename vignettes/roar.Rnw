@@ -68,6 +68,12 @@ The prefix of gene\_id should be a unique identifier for the gene and each ident
 associated with only one ``\_PRE'' and one ``\_POST'', leading to two genomic regions associated to each   
 gene\_id.
 
+The gtf can also contain an attribute (\emph{metadata column} for the \Rclass{GRanges} object) 
+that represents the lengths of PRE and POST portions on the transcriptome.
+If this is omitted the lengths on the genome are used instead (this will results in somewhat inaccurate
+length corrections for genes with either the PRE or the POST portion comprising an intron). 
+Note that right now every gtf entry (or none of them) should have it.
+
 In the package we added a file (examples/apa.gtf) that follows these directives: it is build
 upon the hg19 human genome release using PolyA\_DB (\cite{Cheng2006}) version 2 to obtain
 coordinates of alternative polyadenylation (from now on addressed as APA) sites.
@@ -227,7 +233,7 @@ the lists passed to the \Rclass{RoarDataset} constructors).
 All other functions are simply helper functions: \emph{fpkmResults} adds columns "treatmentValue" and 
 "controlValue"
 representing the level of expression of the relative gene in the two conditions, while
-\emph{countResults} puts in that columns the number of read that were counted on the PRE portion of genes.
+\emph{countResults} puts in that columns the number of reads that were counted on the PRE portion of genes.
 
 \emph{standardFilter} get a parameter with a cutoff for the FPKM value and 
 selects only genes with an expression
@@ -259,6 +265,32 @@ over the genes given in the annotation, therefore when doing the analysis ``step
 (eg. with roarWrapper\_chrByChr) their values will be different than those obtained
 performing the analysis all together. \emph{countResults} could be used in this situations
 to save single steps counts and then calculate ``whole'' FPKM values.
+
+\subsection{MultipleAPA analyses}
+
+In order to allow users to efficiently study polyadenylation for gene harbouring more than one alternative
+polyadenylation site with a single analysis we have developed the \Rclass{RoarDatasetMultipleAPA}
+class.
+A MultipleAPA analysis computes several roar values and p-values for each gene: one for every 
+possible combinations of APA-canonical end of a gene (i.e. the end of its last exon). 
+This is more efficient than performing several different ``standard'' roar analyses choosing 
+the PRE and POST portions corresponding to different APAs because reads overlaps are computed only once.
+
+The gtf or \Rclass{Granges} used for this kind af analyses are different from the ones described
+previously: they should containing a suitable annotation of alternative APA sites and gene exonic structure.
+Minimal requirements are: attributes (metadata columns for \Rclass{Granges}) called "gene", "apa" and "type."
+APA should be single bases falling over one of the given genes and need to have the
+metadata column "type" equal to "apa" and the "apa" column with unambiguous ids and the corresponding gene id pasted together with an underscore. 
+The "gene" metadata columns for these entries should not be initialized.
+All the studied gene exons need to be reported, in this case the metadata column "gene" should contain 
+the gene id (the same one reported for each gene APAs) while "type" should be set to "gene" and "apa" to NA.
+All apa entries assigned to a gene should have coordinates that falls inside it (otherwise XXX TODO CHECK) and every gene that appears should contain at least one APA.
+
+Annotation files that follow these rules can be found at \url{http://94.91.177.36:6638/roar/}. 
+From the user point of view the steps needed to perform a multipleAPA analysis are exactly the same of
+the standard one, the only difference lies in the output of methods that report results as long as in this
+case we have more than a single roar value for each gene. The details are reported in the corresponding
+man pages.
 
 \section{Appendix}\label{appendix}
 \subsection{m/M calculations}
