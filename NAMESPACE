@@ -1,4 +1,4 @@
-import(methods, BiocGenerics, S4Vectors, IRanges, GenomicRanges, SummarizedExperiment, GenomicAlignments)
+import(methods, BiocGenerics, S4Vectors, IRanges, GenomicRanges, SummarizedExperiment, GenomicAlignments, GenomeInfoDb)
 importFrom(rtracklayer, import)
 importFrom(stats, fisher.test, p.adjust, pchisq)
 

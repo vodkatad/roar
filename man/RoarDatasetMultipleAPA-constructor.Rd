@@ -32,7 +32,7 @@
            All the studied gene exons need to be reported, in this case the metadata column "gene" should contain 
            the gene id (the same
            one reported for each gene APAs) while "type" should be set to "gene" and "apa" to NA.
-           All apa entries assigned to a gene should have coordinates that falls inside it (otherwise XXX TODO CHECK) and             every gene that
+           All apa entries assigned to a gene should have coordinates that falls inside it and every gene that
            appears should contain at least one APA.
            
         }
