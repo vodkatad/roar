@@ -5,7 +5,7 @@
 Department of Molecular Biotechnologies and Health Sciences,\\ MBC, University of Turin, Italy\\
 }
 \usepackage{Sweave}
-
+\usepackage{hyperref}
 % From dexseq vignette
 \newcommand{\Robject}[1]{{\small\texttt{#1}}}
 \newcommand{\Rfunction}[1]{\Robject{#1}}
