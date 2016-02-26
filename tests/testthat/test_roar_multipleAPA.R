@@ -133,7 +133,7 @@ test_that("test_badIntegrationTest",
        features <- unlist(GRangesList(geneGr, geneGr2, apas1, apas2)) 
        # c() was complaining for disjoint chr (seqinfo)
        
-       # FIXME if cigar=300M nothing was seen!
+       # FIXME if cigar=300M nothing was seen! Due to the reads converted to single base!
        rd1 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(3301), 
                           cigar = "1M", strand = strand("+"))
        rd2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(3301), 
@@ -156,14 +156,28 @@ test_that("test_badIntegrationTest",
        # We have 3 reads on the PRE of the second choice APA and 1 on the post for gene A and the opposite for gene B.
        rds <- RoarDatasetMultipleAPA(reads, reads, features)
        rds <- countPrePost(rds)
-       counts_geneA = matrix(c(0, 4, 0, 4, 3, 1, 3, 1), byrow = TRUE, ncol = 4)
-       colnames(counts_geneA) = c("treatment_pre","treatment_post","control_pre","control_post")
+       counts_geneA <- matrix(c(0, 4, 0, 4, 3, 1, 3, 1), byrow = TRUE, ncol = 4)
+       colnames(counts_geneA) <- c("treatment_pre","treatment_post","control_pre","control_post")
        expect_equal(counts_geneA, assay(rds@roars[[1]],1))
-       counts_geneB = matrix(c(0, 4, 0, 4, 1, 3, 1, 3), byrow = TRUE, ncol = 4)
-       colnames(counts_geneB) = c("treatment_pre","treatment_post","control_pre","control_post")
+       counts_geneB <- matrix(c(0, 4, 0, 4, 1, 3, 1, 3), byrow = TRUE, ncol = 4)
+       colnames(counts_geneB) <- c("treatment_pre","treatment_post","control_pre","control_post")
        expect_equal(counts_geneB, assay(rds@roars[[2]],1))
-       #rds <- computeRoars(rds)
-       #rds <- computePvals(rds)
-       #res <- countResults(rds)
+       rds <- computeRoars(rds)
+       rds <- computePvals(rds)
+       res <- countResults(rds)
+       mM <- c(-1,1,-1,-0.77777777)
+       counts <- c(0, 3, 0, 1)
+       countsResults <- data.frame(mM_treatment = mM, mM_control= mM, roar=rep(1,4), pval=rep(1,4),
+                                   counts_treatment=counts, counts_control=counts)
+       rownames(countsResults) <- c("A_apa1","A_apa2","B_apa1", "B_apa2")
+       expect_equal(countsResults, res)
+       fpkm <- c(0, 125000000, 0, 41666667)
+       countsResults$length <- c(101,6,101,6)
+       countsResults$treatmentValue <- fpkm
+       countsResults$controlValue <- fpkm
+       countsResults$counts_control <- NULL
+       countsResults$counts_treatment <- NULL
+       res <- fpkmResults(rds)
+       expect_equal(countsResults, res)
     })
 

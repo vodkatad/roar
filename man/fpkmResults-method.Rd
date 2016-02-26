@@ -25,12 +25,15 @@
          that indicates the level of expression of the relative gene in the treatment (or control) condition.
          For \code{\linkS4class{RoarDataset}} this number derives from the counts (averages across samples when 
          applicable) obtained for the PRE portion of the gene and is similar
-         to the FPKM standard measure of expression deriving from RNAseq experiment. See the vignette
-         for more details.
+         to the RPKM standard measure of expression used in RNAseq experiment. Specifically
+         we correct the counts on the PRE portions dividing them by portion length and total numer
+         of reads aligned on all PRE portions and the multiply the results for 1000000000.
+         See the vignette for more details.
          
-         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
-         % per ora c'e` anche la length riportata, che e` la somma delle lunghezze di tutti i framemnti di esoni
-         % che consideriamo.
+         For \code{\linkS4class{RoarDatasetMultipleAPA}} the same procedure is applied to all the possible
+         PRE choices for genes. Note that summing all the counts for every PRE portion assigned to a gene
+         could lead to count some reads multiple times when summing all the PRE portions counts therefore
+         this measure is not completely comparable with the one obtained with the single APA analysis.
       }
      \examples{
    library(GenomicAlignments)

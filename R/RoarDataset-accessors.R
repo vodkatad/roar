@@ -354,14 +354,16 @@ setMethod("totalResults", signature(rds="RoarDataset"),
 
 
 setMethod("sumRoarCounts", signature(rds="RoarDataset"),
-          # Used by multipleAPA where we summarize gene info using counts/FPKM for the whole gene.
+          # Used by multipleAPA where we summarize gene info using counts/FPKM for different possible
+          # PRE for genes. So we get the counts on the different PRE portions of roar objects.
           function(rds) {
-             res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)[1]), 
-                               counts_treatment=sum(colSums(assay(rds,1))[1],
-                                                   assay(rds,1)[2]), 
-                               counts_control=sum(colSums(assay(rds,1))[3],
-                                                   assay(rds,1)[4]))
-             # In this case several rows of the same roar obj will have counts on different
+             res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)), 
+                               counts_treatment=assay(rds,1)[,1],
+                               counts_control=assay(rds,1)[,3])
+             # In this case several rows of the same roar obj will have counts for different choices
+             # and we choose to report them all (reporting the "whole" gene counts is not possible at
+             # this stage cause if we sum up with colSums counts we will count some reads multiple times
+             # and we do not have counts for fragments available anymore.)
              return(res)
           }
 )

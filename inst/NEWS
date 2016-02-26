@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.7.6
+-----------------------
+    
+BUG FIXES
+
+    o Now correcly using only reads falling on PRE portions in methods countResults and fpkmResults
+      also for RoarDatasetMultipleAPA objects.
+    
 CHANGES IN VERSION 1.7.2
 -----------------------
     o New code to efficiently consider more than a single APA foreach gene 
