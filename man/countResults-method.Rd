@@ -25,9 +25,9 @@
          that indicates the level of expression of the relative gene in the treatment (or control) condition.
          For \code{\linkS4class{RoarDataset}} this number represents the counts (averaged across samples when       
          applicable) 
-         obtained for the PRE portion of the gene. See the vignette
+         obtained for the PRE portion of the gene. For \code{\linkS4class{RoarDatasetMultipleAPA}} every
+         possible PRE choice will have its corresponding reads counts assigned. See the vignette
          for more details.
-         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
       }
      \examples{
    library(GenomicAlignments)
