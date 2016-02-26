@@ -226,7 +226,7 @@ setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
          dat <- merge(counts, lengthsdf, by="row.names")
          dat$treatmentValue <- (dat[,"counts_treatment"]*1000000000)/(dat[,"length"]*sumTreatment)
          dat$controlValue <- (dat[,"counts_control"]*1000000000)/(dat[,"length"]*sumControl)
-         rownames(dat) <- rownames(counts)
+         rownames(dat) <- dat$Row.names
          dat$genes <- NULL
          dat$counts_control <- NULL
          dat$counts_treatment <- NULL

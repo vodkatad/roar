@@ -64,14 +64,14 @@ getApaGenesFractions <- function(geneGr, apaGr)
    } 
 }
 
-# We need to have the seqlengths to have a correct last intron. TODO
-# maybe we could avoid doing this...we need to have faith in the gtf tough
 getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
 {   
    geneGr <- sort(geneGr)
    apaGr <- sort(apaGr)
+   seqlengths(seqinfo(geneGr))<-rep(NA, length(seqinfo(geneGr)))
    introns <- gaps(geneGr)
    # Remove first intron: it is not useful in any way.
+   # TODO: if there are chr lenghts we will get also a last intron? Yes. Bad fix: remove them.
    introns <- tail(introns, n=length(introns)-1)
    fakeApaEndGene <- GRanges(
       seqnames = chr,
@@ -85,7 +85,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    mcols(fakeApaEndGene) <- mcols(apaGr)[1,]
    mcols(fakeApaEndGene)[1,"apa"] <- ""
    apaGr <- c(apaGr, fakeApaEndGene)
-   apaFragmentsPrePost <- vector("list", length(apaGr)-1) # should be without -1 TODO
+   apaFragmentsPrePost <- vector("list", length(apaGr)-1)
    apaFrI <- 1
    # We start by doing it iteratively and non R/Bioc stylishly because I've got
    # no idea how. 
@@ -93,18 +93,17 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # and with info about being overlappant or not.
    # Then we run over this GRanges that should have all the needed info
    # to generate a GRanges res with intervals and maybe also a list of 
-   # pre/post indexes for every APA?
+   # pre/post indexes for every APA.
    mcols(geneGr) <- NULL
-   mcols(geneGr)$type <- 'e'   
+   mcols(geneGr)$type <- 'e'
    if (length(introns) != 0) {
       mcols(introns)$type <- 'i'  
    }   
    whole <- sort(c(geneGr, introns))
    hits <- findOverlaps(whole, apaGr)
-   # We have downstream apas so we can't do this.
-   #if (!all(countSubjectHits(hits) == 1)) {
-   #   stop("Error: a given apa does not overlap its gene")
-   #}
+   if (!all(countSubjectHits(hits) == 1)) {
+      stop("Error: a given apa does not overlap its gene or an apa is not of width 1")
+   }
    
    foundov <- length(unique(whole[queryHits(hits)]))
    mcols(whole)$overlap <- rep(FALSE, length(whole))   
@@ -140,7 +139,6 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
             # We add 1 to avoid overlapping PRE/POST fragments 
             # - APA are considered before the cut.
             # In the previous gtf we skipped the "cut" base altogether.
-            # XXX need to decide.
             begin <- end(overlapping_apas[j])+1
             firstApa_name <- unlist(
                strsplit(mcols(overlapping_apas[j])$apa, '_', fixed=TRUE))[1]
@@ -156,7 +154,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
    ovHits <- findOverlaps(fragments, geneGr)
-   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr))) # tutte +1?
+   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
    mcols(fragments)$length <- rep(0, length(fragments))
    # A single fragment can overlap multiple exons and we need to sum here their lengths:
    # i.e. ovlen is longer than length(fragments), with queryHits we get the right reps but
@@ -165,8 +163,6 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    for (k in 1:length(ovLen)) {
       mcols(fragments[indexes_fr[k]])$length  <- mcols(fragments[indexes_fr[k]])$length + ovLen[k]
    }
-   #mcols(fragments[queryHits(ovHits)])$length  <- ovLen # But for length is here XXX FIXME
-   
    # The last apaFragment is build from a single apa (end of gene) only and we don't want it
    #fragments <- head(fragments, n=length(fragments)-1)
    # But the fragment is ok!
@@ -185,6 +181,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    geneGr <- sort(geneGr, decreasing=TRUE)
    apaGr <- sort(apaGr, decreasing=TRUE)
    introns <- sort(gaps(geneGr), decreasing=TRUE)
+   seqlengths(seqinfo(geneGr))<-rep(NA, length(seqinfo(geneGr)))
    # Remove last intron: it is not useful in any way.
    introns <- head(introns, n=length(introns)-1)
    fakeApaEndGene <- GRanges(
@@ -207,7 +204,7 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    # and with info about being overlappant or not.
    # Then we run over this GRanges that should have all the needed info
    # to generate a GRanges res with intervals and maybe also a list of 
-   # pre/post indexes for every APA?
+   # pre/post indexes for every APA.
    mcols(geneGr) <- NULL
    mcols(geneGr)$type <- 'e'   
    if (length(introns) != 0) {
@@ -215,10 +212,9 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    }   
    whole <- sort(c(geneGr, introns), decreasing=TRUE)
    hits <- findOverlaps(whole, apaGr)
-   # We have downstream apas so we can't do this.
-   #if (!all(countSubjectHits(hits) == 1)) {
-   #   stop("Error: a given apa does not overlap its gene")
-   #}
+   if (!all(countSubjectHits(hits) == 1)) {
+      stop("Error: a given apa does not overlap its gene or an apa is not of width 1")
+   }
    
    foundov <- length(unique(whole[queryHits(hits)]))
    mcols(whole)$overlap <- rep(FALSE, length(whole))   
@@ -255,7 +251,6 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
             # We add 1 to avoid overlapping PRE/POST fragments 
             # - APA are considered before the cut.
             # In the previous gtf we skipped the "cut" base altogether.
-            # XXX need to decide.
             begin <- end(overlapping_apas[j])-1
             firstApa_name <- unlist(
                strsplit(mcols(overlapping_apas[j])$apa, '_', fixed=TRUE))[1]
