@@ -72,7 +72,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    introns <- gaps(geneGr)
    # Remove first intron: it is not useful in any way.
    # TODO: if there are chr lenghts we will get also a last intron? Yes. Bad fix: remove them.
-   introns <- tail(introns, n=length(introns)-1)
+   introns <- tail(introns, n=length(introns)-1) # TODO add check to avoid removing introns if first exon begin == 0/1
    fakeApaEndGene <- GRanges(
       seqnames = chr,
       strand = strand,
