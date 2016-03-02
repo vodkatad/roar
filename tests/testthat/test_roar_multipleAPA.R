@@ -90,7 +90,7 @@ test_that("test_getApaGenesFractionsPlusStrandSingleIntron",
             width = c(511, 1789, 10)), DataFrame(length = c(500, 
             900, 10)))
         expect_identical(res[[1]], wanted)
-    })
+})
 
 test_that("test_RoarDatasetMultipleAPA_error_mismatch_gene_apa", 
     {
@@ -107,7 +107,7 @@ test_that("test_RoarDatasetMultipleAPA_error_mismatch_gene_apa",
             list(c(rd1, rd1)), features), error = function(e) e)
         expect_equal("All the genes in the gtf should have at least one apa", 
             obs$message)
-    })
+})
 
 test_that("test_badIntegrationTest", 
     {
@@ -179,5 +179,57 @@ test_that("test_badIntegrationTest",
        countsResults$counts_treatment <- NULL
        res <- fpkmResults(rds)
        expect_equal(countsResults, res)
-    })
+})
 
+test_that("test_badIntegrationTestMinusStrand", 
+   {
+      chr <- rep("chr1", 4)
+      strand <- rep("-", 4)
+      gene <- rep("A", 4)
+      type <- rep("gene", 4)
+      apa <- rep(NA, 4)
+      geneGr <- GRanges(seqnames = chr, strand = strand, ranges = IRanges(start = c(2, 4, 12, 19), width = c(1,4, 4, 3)), DataFrame(gene, apa, type))
+      apas1 <- GRanges(seqnames = c(chr[1], chr[1], chr[1]), strand = c(strand[1], strand[1], strand[1]), 
+                       ranges = IRanges(start = c(5, 7, 17), width = c(1, 1, 1)), 
+                       DataFrame(gene = rep(gene[1], 3), apa = paste0(c("apa1_", "apa2_","apa3_"), gene[1]), type = rep("apa", 3)))
+      features <- unlist(GRangesList(geneGr, apas1))
+      
+      r18_2 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(18), 
+                         cigar = "1M", strand = strand("-"))
+      r13_3 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(13), 
+                         cigar = "4M", strand = strand("-"))
+      r7_10 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(7), 
+                         cigar = "1M", strand = strand("-"))
+      r2_100 <- GAlignments("a", seqnames = Rle("chr1"), pos = as.integer(2), 
+                         cigar = "1M", strand = strand("-"))
+      treatment_reads <- list(c(rep(r18_2,2), rep(r13_3,3), rep(r7_10, 10), rep(r2_100,100)))
+      control_reads <- list(c(rep(r18_2,100), rep(r13_3,10), rep(r7_10, 3), rep(r2_100,2)))
+      rds <- RoarDatasetMultipleAPA(treatment_reads, control_reads, features)
+      rds <- countPrePost(rds)
+      
+      wanted_fragments_A <- GRanges(seqnames = rep(chr[1], 6), strand = rep(strand[1], 6), 
+                                  ranges = IRanges(start = c(17,8,7,5,3,2), width = c(5, 9, 1, 2, 2, 1)), 
+                                  DataFrame(length=c(3, 4, 1, 2, 1, 1)))
+      expect_equal(wanted_fragments_A, rds@fragments[['A']])
+      
+      counts_geneA <- matrix(c(2, 113, 100, 15, 10, 100, 3, 2, 10, 100, 3, 2), byrow = TRUE, ncol = 4)
+      colnames(counts_geneA) <- c("treatment_pre","treatment_post","control_pre","control_post")
+      expect_equal(counts_geneA, assay(rds@roars[[1]],1))
+      
+      rds <- computeRoars(rds)
+      rds <- computePvals(rds)
+      res <- fpkmResults(rds)
+      
+      mM_t <- c(-0.946440938822624,-0.5921739130434782,-0.9307246376811594)
+      mM_c <- c(19.579710144927535, 5.391304347826088, 0.1304347826086958)
+      roars <- c(-0.04833784217524875, -0.10983870967741934, -7.135555555555548)
+      fishers <- c(1.505474e-45, 0.01008237, 0.01008237)
+      fpkm_c <- c(314465408.8050314, 28301886.79245283, 9433962.264150944)
+      fpkm_t <- c(30303030.303030305, 454545454.54545456, 151515151.5151515)
+      wanted_fpkmResults <- data.frame(mM_treatment = mM_t, mM_control = mM_c, roar = roars, pval = fishers, length=c(3,1,3),
+                                       treatmentValue = fpkm_t, controlValue = fpkm_c)
+      rownames(wanted_fpkmResults) <- c("A_apa3", "A_apa2", "A_apa1")
+      expect_equal(wanted_fpkmResults, res, tolerance = .000002)
+      
+      # TODO ADD checks on filters to be safe from row order issues
+})
