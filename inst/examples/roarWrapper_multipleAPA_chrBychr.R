@@ -1,4 +1,4 @@
-#!/mnt/red/data/R_devel/R-devel/bin/Rscript
+#!/usr/bin/env Rscript
 # Script to perform Roar analysis. 
 # Requires a gtf with _PRE and _POST gene_ids and bam files from the two 
 # conditions to be compared.
