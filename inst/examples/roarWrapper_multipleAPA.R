@@ -1,4 +1,4 @@
-#!/home/data/work/R-devel/bin/Rscript
+#!/usr/bin/env Rscript
 # Script to perform Roar analysis. 
 # Requires a gtf with _PRE and _POST gene_ids and bam files from the two 
 # conditions to be compared.
@@ -45,49 +45,16 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
 }
 
 # Get counts
-ptm <- proc.time()
 rds <- RoarDatasetMultipleAPAFromFiles(treatmentBams, controlBams, opt$gtf)
-gap <- proc.time() - ptm
-cat("create obj", "\n", file=stderr())
-cat(gap,"\n", file=stderr())
-ptm <- proc.time()
-
 rds <- countPrePost(rds, FALSE)
-gap <- proc.time() - ptm
-cat("count", "\n", file=stderr())
-cat(gap,"\n", file=stderr())
-ptm <- proc.time()
-
 # Get m/M and Roar
 rds <- computeRoars(rds)
-gap <- proc.time() - ptm
-cat("computeRoar", "\n", file=stderr())
-cat(gap,"\n", file=stderr())
-ptm <- proc.time()
-
 # Fisher test
 rds <- computePvals(rds)
-gap <- proc.time() - ptm
-cat("computePvals", "\n", file=stderr())
-cat(gap,"\n", file=stderr())
-ptm <- proc.time()
-
-
-results <- totalResults(rds)
-gap <- proc.time() - ptm
-cat("results", "\n", file=stderr())
-cat(gap,"\n", file=stderr())
-ptm <- proc.time()
-
+results <- fpkmResults(rds)
 write.table(results, sep="\t", quote=FALSE)
-
-garbage <- lapply(rds@roars, function(x) { export(x@prePostCoords, con = "prova2.gtf", append=TRUE)})
-
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)
 # write.table(filteredResults, sep="\t", quote=FALSE)
-
-# pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
-# write.table(pvals, sep="\t", quote=FALSE)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
