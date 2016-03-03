@@ -160,7 +160,7 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       # We keep as "our" rds objects this SE, while those with counts are just slots.
       # In the case of multiple samples the primary object will be empty treatment now and will be filled
       # during the computeRoars step.
-      rds@step <- 1;
+      rds@step <- 1
       return(rds)
    }
 )
