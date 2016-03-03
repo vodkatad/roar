@@ -29,6 +29,11 @@ RoarDatasetMultipleAPA <- function(treatmentBamsGenomicAlignments, controlBamsGe
 
 setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
    function(rds, stranded=FALSE) {
+      goOn <- checkStep(rds, 0)
+      if (!goOn[[1]]) {
+         return(rds)
+      }
+      rds <- goOn[[2]]
       allFragmentsAndPrePostDef <- mapply(getApaGenesFractions,
                               rds@geneCoords, 
                               rds@apaCoords)
@@ -101,6 +106,7 @@ setMethod("countPrePost", signature(rds="RoarDatasetMultipleAPA"),
          rds@corrTreatment <- mean(unlist(lapply(rds@treatmentBams, qwidth)))
          rds@corrControl <- mean(unlist(lapply(rds@controlBams, qwidth)))
       }
+      rds@step <- 1
       return(rds)
    }       
 )
@@ -146,8 +152,14 @@ setMethod("generateRoarsMultipleBam", signature(rds="RoarDatasetMultipleAPA",
 setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
+         goOn <- checkStep(rds, 1)
+         if (!goOn[[1]]) {
+            return(rds)
+         }
+         rds <- goOn[[2]]
          rds@roars <- lapply(rds@roars, computeRoars, 
                              rds@corrTreatment, rds@corrControl)
+         rds@step <- 2
          return(rds)
       }
 )
@@ -155,7 +167,13 @@ setMethod("computeRoars", signature(rds="RoarDatasetMultipleAPA"),
 setMethod("computePvals", signature(rds="RoarDatasetMultipleAPA"),
       function(rds)
       {
+         goOn <- checkStep(rds, 2)
+         if (!goOn[[1]]) {
+            return(rds)
+         }
+         rds <- goOn[[2]]
          rds@roars <- lapply(rds@roars, computePvals)
+         rds@step <- 3
          return(rds)
       }
 )
@@ -165,8 +183,14 @@ setMethod("computePairedPvals",
             treatmentSamples="numeric", controlSamples="numeric"),
       function(rds, treatmentSamples, controlSamples) 
       {
+         goOn <- checkStep(rds, 2)
+         if (!goOn[[1]]) {
+            return(rds)
+         }
+         rds <- goOn[[2]]
          rds@roars <- lapply(rds@roars, computePairedPvals, 
                              treatmentSamples, controlSamples)
+         rds@step <- 3
          return(rds)
       }
 )
@@ -174,6 +198,8 @@ setMethod("computePairedPvals",
 setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
+         goOn <- checkStep(rds, 3)
+         rds <- goOn[[2]]
          totRes <- lapply(rds@roars, totalResults)
          r <- do.call(rbind, totRes)
          rownames(r) <- unlist(lapply(names(totRes), function(x) {
@@ -187,6 +213,7 @@ setMethod("totalResults", signature(rds="RoarDatasetMultipleAPA"),
 setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
+         totRes <- totalResults(rds)
          # We cannot call fpkmResults on the roars objects because in this
          # case we want FPKM_pre for every different PRE choice. Therefore 
          # we work on every rds@roars with an ad hoc method that
@@ -196,7 +223,6 @@ setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
          rownames(countsDf) <- unlist(lapply(names(countsList), function(x) {
             paste(x, rownames(countsList[[x]]), sep="_") }))
          #t(sapply(rds@roars, s1)) # the same
-         totRes <- totalResults(rds)
          res <- merge(totRes, countsDf, by="row.names", sort=FALSE)
          rownames(res) <- res$Row.names
          res$Row.names <- NULL
@@ -290,4 +316,17 @@ setMethod("pvalueCorrectFilter", signature(rds="RoarDatasetMultipleAPA", fpkmCut
             return(data.frame())
          }    
       }
+)
+
+setMethod("show", "RoarDatasetMultipleAPA",
+          function(object) {
+             cat("RoarDatasetMultipleAPA object\n")
+             cat("N. of treatment alignments:", length(object@treatmentBams), "\n")
+             cat("N. of control alignments:", length(object@controlBams), "\n")
+             cat("N. of genes in study:", length(object@geneCoords) , "\n")
+             cat("N. of cores:", object@cores, "\n")
+             cat("Analysis step reached [0-3]:", object@step, "\n")
+             cat("Paired (TRUE is still not implemented)?", object@paired, "\n")
+             cat("\n")     
+          }
 )

@@ -14,4 +14,5 @@ setGeneric("generateRoarsSingleBam", def=function(rds, treatmentSE, controlSE) {
 setGeneric("generateRoarsMultipleBam", def=function(rds, treatmentSE, controlSE) {
    standardGeneric("generateRoarsMultipleBam") }, valueClass="RoarDatasetMultipleAPA")
 setGeneric("cores", def=function(rds) { standardGeneric("cores") }, valueClass="numeric")
+setGeneric("sumRoarCounts", def=function(rds) { standardGeneric("sumRoarCounts") }, valueClass="data.frame")
 #setGeneric("cores<-", def=function(rds, value) { standardGeneric("cores<-") })

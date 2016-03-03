@@ -19,8 +19,7 @@
            The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
            with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically 
-            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
+            If one or more steps hadn't been performed they will be called automatically.}
       \item{fpkmCutoff}{
          The cutoff that will be used to determine if a gene is expressed or not.}
       }
