@@ -16,8 +16,7 @@
            The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} 
            with all the analysis steps (\code{\link{countPrePost}},
             \code{\link{computeRoars}}, \code{\link{computePvals}}) performed.
-            If one or more steps hadn't been performed they will be called automatically. 
-            (\bold{WARNING}: only working for \code{\linkS4class{RoarDataset}} right now).}
+            If one or more steps hadn't been performed they will be called automatically.}
       }
       \value{
          The resulting dataframe will be identical to that returned by \code{link{totalResults}} but

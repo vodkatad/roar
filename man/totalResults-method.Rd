@@ -20,8 +20,7 @@
       \value{
          The \code{\linkS4class{RoarDataset}} or the \code{\linkS4class{RoarDatasetMultipleAPA}} object given as rds 
          with all the analysis steps performed.
-         If one or more steps hadn't been performed they will be called automatically (\bold{WARNING}: only
-         working for \code{\linkS4class{RoarDataset}} right now).
+         If one or more steps hadn't been performed they will be called automatically.
          The resulting dataframe will have the "gene_id" of the initial annotation as row names (without
          the trailing "_PRE"/"_POST") and as columns the m/M ratio for the treatment and control conditions,
          the roar value and the Fisher test pvalue (respectively: mM_treatment, mM_control, roar, pval).
