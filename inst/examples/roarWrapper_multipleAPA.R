@@ -16,7 +16,9 @@ arguments <- matrix(c(
    'debug', 'd', 1, "character",
    'gtf' , 'a', 1, "character",
    'treatment'  , 't', 1, "character",
-   'control'  , 'c', 1, "character"
+   'control'  , 'c', 1, "character",
+   'outgtf', 'o', 1 "character",
+   'outfpkm', 'f', 1, "character"
 ), ncol=4, byrow=T)
 
 library(getopt)
@@ -32,6 +34,10 @@ if (is.null(opt$gtf)) {
 
 if (is.null(opt$treatment) | is.null(opt$control)) {
    stop("Missing treatment or control [-t, -c followed by comma separated bam files] param")
+}
+
+if (is.null(opt$outgtf) | is.null(opt$outfpkm)) {
+   stop("Missing -o or -f")
 }
 
 library(roar)
@@ -73,7 +79,7 @@ cat(gap,"\n", file=stderr())
 ptm <- proc.time()
 
 
-results <- totalResults(rds)
+results <- fpkmResults(rds)
 gap <- proc.time() - ptm
 cat("results", "\n", file=stderr())
 cat(gap,"\n", file=stderr())
@@ -81,13 +87,13 @@ ptm <- proc.time()
 
 write.table(results, sep="\t", quote=FALSE)
 
-garbage <- lapply(rds@roars, function(x) { export(x@prePostCoords, con = "prova2.gtf", append=TRUE)})
+garbage <- lapply(rds@roars, function(x) { export(x@prePostCoords, con =  opt$outgtf, append=TRUE)})
 
 # filteredResults <- standardFilter(rds, fpkmCutoff=1)
 # write.table(filteredResults, sep="\t", quote=FALSE)
 
-# pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
-# write.table(pvals, sep="\t", quote=FALSE)
+pvals <- pvalueFilter(rds, fpkmCutoff = 1, pvalCutoff = 0.05)
+write.table(pvals, sep="\t", quote=FALSE, file="", file = opt$outfpkm)
 
 if (!is.null(opt$debug)) {
    save.image(file=opt$debug)
