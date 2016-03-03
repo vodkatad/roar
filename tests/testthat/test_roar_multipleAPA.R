@@ -167,12 +167,13 @@ test_that("test_badIntegrationTest",
        res <- countResults(rds)
        mM <- c(-1,1,-1,-0.77777777)
        counts <- c(0, 3, 0, 1)
+       lengths <- c(101, 6, 101, 6)
        countsResults <- data.frame(mM_treatment = mM, mM_control= mM, roar=rep(1,4), pval=rep(1,4),
-                                   counts_treatment=counts, counts_control=counts)
+                                   counts_treatment=counts, counts_control=counts, length=lengths)
        rownames(countsResults) <- c("A_apa1","A_apa2","B_apa1", "B_apa2")
        expect_equal(countsResults, res)
        fpkm <- c(0, 125000000, 0, 41666667)
-       countsResults$length <- c(101,6,101,6)
+       countsResults$length <- lengths
        countsResults$treatmentValue <- fpkm
        countsResults$controlValue <- fpkm
        countsResults$counts_control <- NULL

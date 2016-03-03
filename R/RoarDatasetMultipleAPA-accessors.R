@@ -191,13 +191,29 @@ setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
          # case we want FPKM_pre for every different PRE choice. Therefore 
          # we work on every rds@roars with an ad hoc method that
          # gets PRE counts for every choice.
-         fpkmList <- lapply(rds@roars, sumRoarCounts)
-         fpkmDf <- do.call(rbind, fpkmList)
-         rownames(fpkmDf) <- unlist(lapply(names(fpkmList), function(x) {
-            paste(x, rownames(fpkmList[[x]]), sep="_") }))
+         countsList <- lapply(rds@roars, sumRoarCounts)
+         countsDf <- do.call(rbind, countsList)
+         rownames(countsDf) <- unlist(lapply(names(countsList), function(x) {
+            paste(x, rownames(countsList[[x]]), sep="_") }))
          #t(sapply(rds@roars, s1)) # the same
          totRes <- totalResults(rds)
-         res <- merge(totRes, fpkmDf, by="row.names", sort=FALSE)
+         res <- merge(totRes, countsDf, by="row.names", sort=FALSE)
+         rownames(res) <- res$Row.names
+         res$Row.names <- NULL
+         # FIXED: these lengths were wrong: lengths <- sapply(rds@fragments, function(x) { sum(mcols(x)$length)}) 
+         # these were lengths of all the considered fragments but we are not able to retrieve their
+         # correct counts at this point.
+         # We need a dataframe with gene_apa as rownames and PRE lengths as values (one foreach choice for all genes).
+         lens <- unlist(lapply(names(rds@roars), function(x) {
+            names <- gsub("_PRE", "", mcols(rds@roars[[x]])$gene_id);
+            len <-mcols(rds@roars[[x]])$length;
+            y<- rbind(paste0(x, "_", names), len); 
+            colnames(y) <- y[1,];
+            z <- y[2,];
+            class(z)<-"numeric";
+            z}))
+         lengthsdf <- data.frame(length=lens, row.names=names(lens))
+         res <- merge(res, lengthsdf, by="row.names", sort=FALSE)
          rownames(res) <- res$Row.names
          res$Row.names <- NULL
          return(res)
@@ -208,30 +224,13 @@ setMethod("fpkmResults", signature(rds="RoarDatasetMultipleAPA"),
       function(rds) 
       {
          counts <- countResults(rds)
-         # FIXED: these lengths were wrong: lengths <- sapply(rds@fragments, function(x) { sum(mcols(x)$length)}) 
-         # these were lengths of all the considered fragments but we are not able to retrieve their
-         # correct counts at this point.
-         # We need a dataframe with gene_apa as rownames and PRE lengths as values (one foreach choice for all genes).
-         lens <- unlist(lapply(names(rds@roars), function(x) {
-               names <- gsub("_PRE", "", mcols(rds@roars[[x]])$gene_id);
-               len <-mcols(rds@roars[[x]])$length;
-               y<- rbind(paste0(x, "_", names), len); 
-               colnames(y) <- y[1,];
-               z <- y[2,];
-               class(z)<-"numeric";
-               z}))
-         lengthsdf <- data.frame(length=lens, row.names=names(lens))
          sumTreatment <- sum(counts[,"counts_treatment"])
          sumControl <- sum(counts[,"counts_control"])
-         dat <- merge(counts, lengthsdf, by="row.names", sort=FALSE)
-         dat$treatmentValue <- (dat[,"counts_treatment"]*1000000000)/(dat[,"length"]*sumTreatment)
-         dat$controlValue <- (dat[,"counts_control"]*1000000000)/(dat[,"length"]*sumControl)
-         rownames(dat) <- dat$Row.names
-         dat$genes <- NULL
-         dat$counts_control <- NULL
-         dat$counts_treatment <- NULL
-         dat$Row.names <- NULL
-         return(dat)
+         counts$treatmentValue <- (counts[,"counts_treatment"]*1000000000)/(counts[,"length"]*sumTreatment)
+         counts$controlValue <- (counts[,"counts_control"]*1000000000)/(counts[,"length"]*sumControl)
+         counts$counts_control <- NULL
+         counts$counts_treatment <- NULL
+         return(counts)
       }
 )
 

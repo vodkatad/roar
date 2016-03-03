@@ -34,6 +34,8 @@
          PRE choices for genes. Note that summing all the counts for every PRE portion assigned to a gene
          could lead to count some reads multiple times when summing all the PRE portions counts therefore
          this measure is not completely comparable with the one obtained with the single APA analysis.
+         The length column added in this case contains the length of the PRE portions (counting only
+         exonic bases).
       }
      \examples{
    library(GenomicAlignments)

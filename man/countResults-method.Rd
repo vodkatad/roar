@@ -26,7 +26,8 @@
          For \code{\linkS4class{RoarDataset}} this number represents the counts (averaged across samples when       
          applicable) 
          obtained for the PRE portion of the gene. For \code{\linkS4class{RoarDatasetMultipleAPA}} every
-         possible PRE choice will have its corresponding reads counts assigned. See the vignette
+         possible PRE choice will have its corresponding reads counts assigned and also the length of
+         the PRE portion (counting only exonic bases). See the vignette
          for more details.
       }
      \examples{
