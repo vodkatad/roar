@@ -376,7 +376,7 @@ setMethod("fpkmResults", signature(rds="RoarDataset"),
    function(rds) {
       dat <- totalResults(rds)
       if ("length" %in% names(mcols(rds))) {
-         preLen <- mcols(rds)$length
+         preLen <- as.numeric(mcols(rds)$length)
          } else {
          preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
       }
