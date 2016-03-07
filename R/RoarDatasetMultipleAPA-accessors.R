@@ -230,16 +230,12 @@ setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
          # these were lengths of all the considered fragments but we are not able to retrieve their
          # correct counts at this point.
          # We need a dataframe with gene_apa as rownames and PRE lengths as values (one foreach choice for all genes).
-         lens <- unlist(lapply(names(rds@roars), function(x) {
-            names <- gsub("_PRE", "", mcols(rds@roars[[x]])$gene_id);
-            len <-mcols(rds@roars[[x]])$length;
-            y<- rbind(paste0(x, "_", names), len); 
-            colnames(y) <- y[1,];
-            z <- y[2,];
-            class(z)<-"numeric";
-            z}))
-         lengthsdf <- data.frame(length=lens, row.names=names(lens))
-         res <- merge(res, lengthsdf, by="row.names", sort=FALSE)
+         lens <- t(as.data.frame(lapply(names(rds@roars), function(x) {
+            names <- gsub("_PRE", "", mcols(rds@roars[[x]])$gene_id)
+            len <-mcols(rds@roars[[x]])$length
+            t(data.frame(length=len, row.names=paste0(x, "_", names)))
+            })))
+         res <- merge(res, lens, by="row.names", sort=FALSE)
          rownames(res) <- res$Row.names
          res$Row.names <- NULL
          return(res)
