@@ -186,7 +186,7 @@ test_that("test_badIntegrationTestMinusStrand",
    {
       chr <- rep("chr1", 4)
       strand <- rep("-", 4)
-      gene <- rep("A", 4)
+      gene <- rep("1", 4)
       type <- rep("gene", 4)
       apa <- rep(NA, 4)
       geneGr <- GRanges(seqnames = chr, strand = strand, ranges = IRanges(start = c(2, 4, 12, 19), width = c(1,4, 4, 3)), DataFrame(gene, apa, type))
@@ -211,7 +211,7 @@ test_that("test_badIntegrationTestMinusStrand",
       wanted_fragments_A <- GRanges(seqnames = rep(chr[1], 6), strand = rep(strand[1], 6), 
                                   ranges = IRanges(start = c(17,8,7,5,3,2), width = c(5, 9, 1, 2, 2, 1)), 
                                   DataFrame(length=c(3, 4, 1, 2, 1, 1)))
-      expect_equal(wanted_fragments_A, rds@fragments[['A']])
+      expect_equal(wanted_fragments_A, rds@fragments[['1']])
       
       counts_geneA <- matrix(c(2, 113, 100, 15, 10, 100, 3, 2, 10, 100, 3, 2), byrow = TRUE, ncol = 4)
       colnames(counts_geneA) <- c("treatment_pre","treatment_post","control_pre","control_post")
@@ -229,7 +229,7 @@ test_that("test_badIntegrationTestMinusStrand",
       fpkm_t <- c(30303030.303030305, 454545454.54545456, 151515151.5151515)
       wanted_fpkmResults <- data.frame(mM_treatment = mM_t, mM_control = mM_c, roar = roars, pval = fishers, length=c(3,1,3),
                                        treatmentValue = fpkm_t, controlValue = fpkm_c)
-      rownames(wanted_fpkmResults) <- c("A_apa3", "A_apa2", "A_apa1")
+      rownames(wanted_fpkmResults) <- c("1_apa3", "1_apa2", "1_apa1")
       expect_equal(wanted_fpkmResults, res, tolerance = .000002)
       
       # TODO ADD checks on filters to be safe from row order issues
