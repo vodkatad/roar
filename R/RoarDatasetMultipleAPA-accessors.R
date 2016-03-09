@@ -234,7 +234,7 @@ setMethod("countResults", signature(rds="RoarDatasetMultipleAPA"),
             names <- gsub("_PRE", "", mcols(rds@roars[[x]])$gene_id)
             len <-mcols(rds@roars[[x]])$length
             t(data.frame(length=len, row.names=paste0(x, "_", names)))
-            })))
+            }), check.names=FALSE))
          res <- merge(res, lens, by="row.names", sort=FALSE)
          rownames(res) <- res$Row.names
          res$Row.names <- NULL
