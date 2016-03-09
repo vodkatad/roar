@@ -308,7 +308,7 @@ test_that("test_totalResults_mulSamples", {
 })
 
 test_that("test_totalResults_singleSamples", {
-    gene_id <- c("A_PRE", "A_POST", "B_PRE", "B_POST")
+    gene_id <- c("1_PRE", "1_POST", "2_PRE", "2_POST")
     features <- GRanges(seqnames = Rle(rep("chr1", length(gene_id))), 
         strand = strand(rep("+", length(gene_id))), ranges = IRanges(start = c(1000, 
             2000, 1, 2), width = c(1000, 900, 1, 2)), DataFrame(gene_id))
@@ -337,7 +337,7 @@ test_that("test_totalResults_singleSamples", {
     assay(rds, 2)[2, 3] <- 7
     assay(rds, 2)[2, 4] <- 8
     dat <- totalResults(rds)
-    dat_wanted <- data.frame(row.names = c("A", "B"), mM_treatment = c(1, 
+    dat_wanted <- data.frame(row.names = c("1", "2"), mM_treatment = c(1, 
         5), mM_control = c(2, 6), roar = c(3, 7), pval = c(4, 
         8))
     expect_equal(dat_wanted, dat, tolerance = 1e-6, check.attributes=F)
