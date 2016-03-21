@@ -38,8 +38,8 @@
          obtained with the Fisher method and the filtering will be done on this pvalue.
         % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
         
-         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
-         % For each gene we select the APA choice that is associated with the smallest p-value (after fpkm filtering) # then proceed exactly like roar [NDRY ALERT FIXME].
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: 
+         for each gene we select the APA choice that is associated with the smallest p-value then proceed exactly as above.
       } 
      \examples{
    library("GenomicAlignments")
