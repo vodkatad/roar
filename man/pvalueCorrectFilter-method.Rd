@@ -42,8 +42,8 @@
          between the samples of the two conditions that results in a nominal pvalue lower than the given    
          cutoff (pvalCutoff). 
          
-         For \code{\linkS4class{RoarDatasetMultipleAPA}}: TODO
-        % \bold{WARNING}: the given cutoff will be used to determine significativeness of corrected pvalues in one situation (single sample for both conditions) and of nominal one in the other one.
+         For \code{\linkS4class{RoarDatasetMultipleAPA}}: 
+         for each gene we select the APA choice that is associated with the smallest p-value then proceed exactly as above.
       } 
      \examples{
    library("GenomicAlignments")
