@@ -47,7 +47,7 @@ if (!all(sapply(c(treatmentBams, controlBams, opt$gtf), checkReadable))) {
 }
 
 
-gtfGRanges<- import(opt$gtf, asRangedData=FALSE)
+gtfGRanges<- import(opt$gtf)
 chrs <- seqlevels(gtfGRanges)
 
 orderBam <- function(bam) {
