@@ -1,7 +1,7 @@
 Package: roar
 Type: Package
 Title: Identify differential APA usage from RNA-seq alignments
-Version: 1.8.0
+Version: 1.9.0
 Date: 2016-03-21
 Author: Elena Grassi
 Maintainer: Elena Grassi <grassi.e@gmail.com>
