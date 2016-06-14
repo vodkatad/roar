@@ -284,13 +284,30 @@ metadata column "type" equal to "apa" and the "apa" column with unambiguous ids 
 The "gene" metadata columns for these entries should not be initialized.
 All the studied gene exons need to be reported, in this case the metadata column "gene" should contain 
 the gene id (the same one reported for each gene APAs) while "type" should be set to "gene" and "apa" to NA.
-All apa entries assigned to a gene should have coordinates that falls inside it (otherwise XXX TODO CHECK) and every gene that appears should contain at least one APA.
+All apa entries assigned to a gene should have coordinates that falls inside it and every gene that appears 
+should contain at least one APA.
 
 Annotation files that follow these rules can be found at \url{http://94.91.177.36:6638/roar/}. 
 From the user point of view the steps needed to perform a multipleAPA analysis are exactly the same of
 the standard one, the only difference lies in the output of methods that report results as long as in this
 case we have more than a single roar value for each gene. The details are reported in the corresponding
 man pages.
+
+\subsection{Genes with overlapping 3'UTRs}
+
+When two genes overlap reads that align on the shared coordinates could not be 
+assigned to either of them in a straightforward way - in the single APA analyses we
+discard those reads while for technical reasons in the multiple APA analyses we will count this
+kind of reads for all the genes that they align onto, without considering overlaps between genes.
+In order to overcome this problem in the multipleAPA analyses it is possible to filter
+the gtf or \Rclass{Granges} annotation used before creating the \Rclass{RoarDatasetMultipleAPA} object removing
+all genes with overlapping portions. 
+
+Note that for the single APA analyses roar alignment procedure could
+detect overlaps only
+between the given PRE and POST portions and therefore possible overlaps with other portions of genes
+are not considered - again it is possible to filter the used annotations beforehand.
+
 
 \section{Appendix}\label{appendix}
 \subsection{m/M calculations}
