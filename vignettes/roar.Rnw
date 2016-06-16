@@ -298,8 +298,10 @@ man pages.
 
 When two genes overlap reads that align on the shared coordinates could not be 
 assigned to either of them in a straightforward way - in the single APA analyses we
-discard those reads while for technical reasons in the multiple APA analyses we will count this
-kind of reads for all the genes that they align onto, without considering overlaps between genes.
+discard those reads while for technical reasons in the multiple APA analyses we perform
+the alignment separately for genes on the plus and minus strand, thus the
+reads that overlap genes on different strands will be counted for all of them, while those
+on genes on the same strand will be correctly discarded.
 In order to overcome this problem in the multipleAPA analyses it is possible to filter
 the gtf or \Rclass{Granges} annotation used before creating the \Rclass{RoarDatasetMultipleAPA} object removing
 all genes with overlapping portions. 
