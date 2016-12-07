@@ -11,7 +11,24 @@ RoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
    controlBamsGenomicAlignments <- lapply(controlBams, readGAlignments)
    se <- getPreCoordsSE(gtfGRanges)
    new("RoarDataset", se, treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
-       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1, mates=FALSE)
+}
+
+PairedRoarDatasetFromFiles <- function(treatmentBams, controlBams, gtf) {
+   # The format will be assumed using the file extension. Will work everytime?
+   # Do we need to force a genome(eg. hg19)? It doesn't seem so.
+   gtfGRanges<- import(gtf)
+   ordered <- order(mcols(gtfGRanges)$gene_id)
+   gtfGRanges <- gtfGRanges[ordered]
+   treatmentBamsGenomicAlignments <- lapply(treatmentBams, readGAlignmentPairs, strandMode=2) 
+   # strandMode= 0 for unstranded but does not
+   #work:
+   #Error in .local(x, use.names, use.mcols, ...) : 
+   #object 'x_unlisted' not found
+   controlBamsGenomicAlignments <- lapply(controlBams, readGAlignmentPairs, strandMode=2)
+   se <- getPreCoordsSE(gtfGRanges)
+   new("RoarDataset", se, treatmentBams=treatmentBamsGenomicAlignments, controlBams=controlBamsGenomicAlignments, 
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1, mates=TRUE)
 }
 
 RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
@@ -22,7 +39,7 @@ RoarDataset <- function(treatmentGappedAlign, controlGappedAlign, gtfGRanges) {
    gtfGRanges <- gtfGRanges[ordered]
    se <- getPreCoordsSE(gtfGRanges)
    new("RoarDataset", se, treatmentBams=treatmentGappedAlign, controlBams=controlGappedAlign, 
-       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1)
+       prePostCoords=gtfGRanges, step=0, paired=FALSE, cores=1, mates=FALSE)
 }
 
 # Could have used setMethod("initialize", "xx",) but in this way should have had a gtf filename slot.
@@ -52,10 +69,10 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
       }
       rds <- goOn[[2]]
       summOv <- function(x) {
-         summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores)
+         summarizeOverlaps(features=rds@prePostCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores, singleEnd = !rds@mates)
       }
       summOvPost <- function(x) {
-         summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores)
+         summarizeOverlaps(features=rds@postCoords, reads=x, ignore.strand=!stranded, mc.cores=rds@cores, singleEnd = !rds@mates)
       } 
       
       # Now we need to keep means and totals of counts over PRE/POST for the two lists.

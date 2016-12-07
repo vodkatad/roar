@@ -382,6 +382,7 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    rds@treatmentBams <- list(NA)
    rds@controlBams <- list(NA)
    rds@cores <- 1
+   rds@mates <- FALSE
    return(rds)
 }
 
