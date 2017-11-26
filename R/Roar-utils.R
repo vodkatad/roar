@@ -154,7 +154,7 @@ getApaGenesFractionsPlusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=begins, end=ends))
    ovHits <- findOverlaps(fragments, geneGr)
-   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
+   ovLen <- width(overlapsRanges(ranges(fragments), ranges(geneGr), hits=ovHits))
    mcols(fragments)$length <- rep(0, length(fragments))
    # A single fragment can overlap multiple exons and we need to sum here their lengths:
    # i.e. ovlen is longer than length(fragments), with queryHits we get the right reps but
@@ -267,7 +267,8 @@ getApaGenesFractionsMinusStrand <- function(geneGr, apaGr, chr, strand, gene_id)
    fragments <- GRanges(seqnames=chr, strand=strand, 
                         ranges=IRanges(start=ends, end=begins))
    ovHits <- findOverlaps(fragments, geneGr)
-   ovLen <- width(ranges(ovHits, ranges(fragments), ranges(geneGr)))
+   ovLen <- width(overlapsRanges(ranges(fragments), ranges(geneGr), hits=ovHits))
+   
    mcols(fragments)$length <- rep(0, length(fragments))
    
    # A single fragment can overlap multiple exons and we need to sum here their lengths:
