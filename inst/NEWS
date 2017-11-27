@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.15.2
+-----------------------
+    
+    o Updated the vignette with a new url for gtf files
+    o ranges() for Hits -> overlapsRanges()
+
 CHANGES IN VERSION 1.9.1
 -----------------------
     

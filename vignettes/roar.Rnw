@@ -287,7 +287,7 @@ the gene id (the same one reported for each gene APAs) while "type" should be se
 All apa entries assigned to a gene should have coordinates that falls inside it and every gene that appears 
 should contain at least one APA.
 
-Annotation files that follow these rules can be found at \url{http://94.91.177.36:6638/roar/}. 
+Annotation files that follow these rules can be found at \url{https://github.com/vodkatad/roar/wiki/Identify-differential-APA-usage-from-RNA-seq-alignments}. 
 From the user point of view the steps needed to perform a multipleAPA analysis are exactly the same of
 the standard one, the only difference lies in the output of methods that report results as long as in this
 case we have more than a single roar value for each gene. The details are reported in the corresponding
