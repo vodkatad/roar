@@ -33,6 +33,11 @@ setClass("RoarDatasetMultipleAPA",
             corrTreatment = "numeric",
             corrControl = "numeric",
             cores = "numeric"
+         ),
+         prototype = list(
+            geneCoords = GRangesList(),
+            apaCoords = GRangesList(),
+            fragments = GRangesList()
          )
 )
 
