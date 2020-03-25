@@ -103,14 +103,14 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
          # reads falling there are counted two times.
          treatmentSEpost <- summOvPost(rds@treatmentBams[[1]])
          controlSEpost <- summOvPost(rds@controlBams[[1]])
-         assay(se,1)[,"treatment_pre"] <- assays(treatmentSE)$counts[preElems,]
-         assay(se,1)[,"treatment_post"] <- assays(treatmentSEpost)$counts 
-         assay(se,1)[,"control_pre"] <- assays(controlSE)$counts[preElems,]
-         assay(se,1)[,"control_post"] <- assays(controlSEpost)$counts
+         assay(se,1,withDimnames=TRUE)[,"treatment_pre"] <- assays(treatmentSE,withDimnames=TRUE)$counts[preElems,]
+         assay(se,1,withDimnames=TRUE)[,"treatment_post"] <- assays(treatmentSEpost,withDimnames=TRUE)$counts 
+         assay(se,1,withDimnames=TRUE)[,"control_pre"] <- assays(controlSE,withDimnames=TRUE)$counts[preElems,]
+         assay(se,1,withDimnames=TRUE)[,"control_post"] <- assays(controlSEpost,withDimnames=TRUE)$counts
          rowRanges(rds) <- rowRanges(se)
          colData(rds) <- colData(se)
-         assays(rds) <- assays(se)
-         names(assays(rds)) <- "counts"
+         assays(rds,withDimnames=TRUE) <- assays(se,withDimnames=TRUE)
+         names(assays(rds,withDimnames=TRUE)) <- "counts"
       } else {
          # As long as we need all the raw counts for the Fisher tests it is better to
          # keep them here as separate assays and compute (and keep) means in the computeRoar function.
@@ -140,23 +140,23 @@ setMethod("countPrePost", signature(rds="RoarDataset"),
             #assay(countsTreatment,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
             #assay(countsTreatment,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2, 
             #                                   dimnames=list(rep(NULL,length(rds@prePostCoords)/2), c("pre","post")))
-            assay(countsTreatment,i)[,"pre"] <- assays(treatmentSE)$counts[preElems,]
-            assay(countsTreatment,i)[,"post"] <- assays(treatmentSEpost)$counts 
+            assay(countsTreatment,i,withDimnames=TRUE)[,"pre"] <- assays(treatmentSE,withDimnames=TRUE)$counts[preElems,]
+            assay(countsTreatment,i,withDimnames=TRUE)[,"post"] <- assays(treatmentSEpost,withDimnames=TRUE)$counts 
          }
          for (i in 1:length(rds@controlBams)) {
             controlSE <- summOv(rds@controlBams[[i]])
             controlSEpost <- summOvPost(rds@controlBams[[i]])
             #assay(countsControl,i) <- matrix(nrow=length(rds@prePostCoords)/2, ncol=2)
-            assay(countsControl,i)[,"pre"] <- assays(controlSE)$counts[preElems,]
-            assay(countsControl,i)[,"post"] <- assays(controlSEpost)$counts 
+            assay(countsControl,i,withDimnames=TRUE)[,"pre"] <- assays(controlSE,withDimnames=TRUE)$counts[preElems,]
+            assay(countsControl,i,withDimnames=TRUE)[,"post"] <- assays(controlSEpost,withDimnames=TRUE)$counts 
          }
          rds@countsTreatment <- countsTreatment
          rds@countsControl <- countsControl
       }
       rowRanges(rds) <- rowRanges(se)
       colData(rds) <- colData(se)
-      assays(rds) <- assays(se)
-      names(assays(rds)) <- "counts"
+      assays(rds,withDimnames=TRUE) <- assays(se,withDimnames=TRUE)
+      names(assays(rds,withDimnames=TRUE)) <- "counts"
       # We keep as "our" rds objects this SE, while those with counts are just slots.
       # In the case of multiple samples the primary object will be empty treatment now and will be filled
       # during the computeRoars step.
@@ -192,10 +192,10 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
          # given col name (ie. "pre").
          # lapply(assays(testse), function(x) { x[,"a"]})
          # rowMeans(as.data.frame(a))
-         assay(rds,1)[,"treatment_pre"] <- meanAcrossAssays(assays(rds@countsTreatment), "pre") # here peak of memory usage?
-         assay(rds,1)[,"treatment_post"] <- meanAcrossAssays(assays(rds@countsTreatment),"post")
-         assay(rds,1)[,"control_pre"] <- meanAcrossAssays(assays(rds@countsControl), "pre")
-         assay(rds,1)[,"control_post"] <- meanAcrossAssays(assays(rds@countsControl), "post")
+         assay(rds,1,withDimnames=TRUE)[,"treatment_pre"] <- meanAcrossAssays(assays(rds@countsTreatment,withDimnames=TRUE), "pre") # here peak of memory usage?
+         assay(rds,1,withDimnames=TRUE)[,"treatment_post"] <- meanAcrossAssays(assays(rds@countsTreatment,withDimnames=TRUE),"post")
+         assay(rds,1,withDimnames=TRUE)[,"control_pre"] <- meanAcrossAssays(assays(rds@countsControl,withDimnames=TRUE), "pre")
+         assay(rds,1,withDimnames=TRUE)[,"control_post"] <- meanAcrossAssays(assays(rds@countsControl,withDimnames=TRUE), "post")
          # Also the length correction should consider all the samples!
          if (is.na(qwidthTreatment)) {
             lenTreatment <- unlist(lapply(rds@treatmentBams, qwidth))
@@ -233,12 +233,12 @@ setMethod("computeRoars", signature(rds="RoarDataset"),
       # The countsTreatment/control slot are still kept as long as we will need them in computePvals.
       postLenTreatment <- postLen + corrTreatment - 1
       postLenControl <- postLen + corrControl - 1
-      mMtreatment <- (assay(rds,1)[,"treatment_pre"]*postLenTreatment)/(assay(rds,1)[,"treatment_post"]*preLen)-1
-      mMcontrol <- (assay(rds,1)[,"control_pre"]*postLenControl)/(assay(rds,1)[,"control_post"]*preLen)-1
+      mMtreatment <- (assay(rds,1,withDimnames=TRUE)[,"treatment_pre"]*postLenTreatment)/(assay(rds,1,withDimnames=TRUE)[,"treatment_post"]*preLen)-1
+      mMcontrol <- (assay(rds,1,withDimnames=TRUE)[,"control_pre"]*postLenControl)/(assay(rds,1,withDimnames=TRUE)[,"control_post"]*preLen)-1
       roar <- mMtreatment / mMcontrol
       pVal <- rep(NA, length(roar))
-      assay(rds,2) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal, row.names=NULL))
-      names(assays(rds)) <- c("counts", "stats")
+      assay(rds,2,withDimnames=TRUE) <- as.matrix(data.frame(treatment_pre=mMtreatment, treatment_post=mMcontrol, control_pre=roar, control_post=pVal, row.names=NULL))
+      names(assays(rds,withDimnames=TRUE)) <- c("counts", "stats")
       rds@step <- 2
       return(rds)
    }
@@ -253,7 +253,7 @@ setMethod("computePvals", signature(rds="RoarDataset"),
       rds <- goOn[[2]]
       if (length(rds@treatmentBams) == 1 && length(rds@controlBams) == 1) {
          if (cores(rds) == 1) {
-            assay(rds,2)[,"control_post"] <- apply(assay(rds,1), 1, getFisher)
+            assay(rds,2,withDimnames=TRUE)[,"control_post"] <- apply(assay(rds,1,withDimnames=TRUE), 1, getFisher)
          } else {
             stop("TODO")
          }
@@ -265,8 +265,8 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          # in still another SE slot with a number of columns in the matrix equal to
          # the number of combinations. The product of all the pvalues will be put in the
          # rds/SE object in place of the pvalue for the single sample case.
-         countsTreatmentAssays <- assays(rds@countsTreatment)
-         countsControlAssays <- assays(rds@countsControl)
+         countsTreatmentAssays <- assays(rds@countsTreatment,withDimnames=TRUE)
+         countsControlAssays <- assays(rds@countsControl,withDimnames=TRUE)
          nTreatment <- length(countsTreatmentAssays)
          nControl <- length(countsControlAssays)
          comparisons <- nTreatment*nControl
@@ -282,10 +282,10 @@ setMethod("computePvals", signature(rds="RoarDataset"),
          for (i in 1:nTreatment) { # the y
             for (j in 1:nControl) { # the x
                mat <- cbind(countsTreatmentAssays[[i]], countsControlAssays[[j]])
-               assay(rds@pVals,1)[,nControl*(i-1)+j] <- apply(mat, 1, getFisher)
+               assay(rds@pVals,1,withDimnames=TRUE)[,nControl*(i-1)+j] <- apply(mat, 1, getFisher)
             }
          }
-         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, prod)
+         assay(rds, 2,withDimnames=TRUE)[,"control_post"] <- apply(assay(rds@pVals,1,withDimnames=TRUE), 1, prod)
          # Here in theory we could remove countsTreatment/control slots, TODO check memory footprint and decide.
       }
       rds@step <- 3
@@ -309,8 +309,8 @@ setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="n
       } else if (max(treatmentSamples) > length(rds@treatmentBams) || max(controlSamples) > length(rds@controlBams)) {
          stop("The given treatmentSamples or controlSamples numbers are wrong: the max is bigger than the given number of alignments")
       } else {     
-         countsTreatmentAssays <- assays(rds@countsTreatment)
-         countsControlAssays <- assays(rds@countsControl)
+         countsTreatmentAssays <- assays(rds@countsTreatment,withDimnames=TRUE)
+         countsControlAssays <- assays(rds@countsControl,withDimnames=TRUE)
          comparisons <- length(treatmentSamples)
          rds@pVals <- SummarizedExperiment(assays = matrix(nrow=length(rds@prePostCoords)/2, ncol=comparisons),
                                            rowRanges=rowRanges(rds), 
@@ -323,9 +323,9 @@ setMethod("computePairedPvals", signature(rds="RoarDataset", treatmentSamples="n
          # Ok, I know that we are in R, but this seems straightforward to me.
          for (i in 1:length(treatmentSamples)) { 
             mat <- cbind(countsTreatmentAssays[[treatmentSamples[i]]], countsControlAssays[[controlSamples[i]]])
-            assay(rds@pVals,1)[,i] <- apply(mat, 1, getFisher)
+            assay(rds@pVals,1,withDimnames=TRUE)[,i] <- apply(mat, 1, getFisher)
          }
-         assay(rds, 2)[,"control_post"] <- apply(assay(rds@pVals,1), 1, combineFisherMethod)
+         assay(rds, 2,withDimnames=TRUE)[,"control_post"] <- apply(assay(rds@pVals,1,withDimnames=TRUE), 1, combineFisherMethod)
          # Here in theory we could remove countsTreatment/control slots, TODO check memory footprint and decide.
       }
       rds@paired <- TRUE
@@ -339,12 +339,12 @@ setMethod("totalResults", signature(rds="RoarDataset"),
       goOn <- checkStep(rds, 3)
       rds <- goOn[[2]]
       res <- data.frame(row.names=sub("^\\s+","", sub("_POST","", mcols(rds@postCoords)$gene_id)), 
-                        mM_treatment=assay(rds,2)[,"treatment_pre"], 
-                        mM_control=assay(rds,2)[,"treatment_post"],
-                        roar=assay(rds,2)[,"control_pre"],
-                        pval=assay(rds,2)[,"control_post"])
+                        mM_treatment=assay(rds,2,withDimnames=TRUE)[,"treatment_pre"], 
+                        mM_control=assay(rds,2,withDimnames=TRUE)[,"treatment_post"],
+                        roar=assay(rds,2,withDimnames=TRUE)[,"control_pre"],
+                        pval=assay(rds,2,withDimnames=TRUE)[,"control_post"])
       if (length(rds@treatmentBams) != 1 || length(rds@controlBams) != 1) {
-         pvals <- data.frame(assay(rds@pVals,1))
+         pvals <- data.frame(assay(rds@pVals,1,withDimnames=TRUE))
          colnames(pvals) <- rownames(colData(rds@pVals))
          res <- cbind(res, pvals)
       }
@@ -358,8 +358,8 @@ setMethod("sumRoarCounts", signature(rds="RoarDataset"),
           # PRE for genes. So we get the counts on the different PRE portions of roar objects.
           function(rds) {
              res <- data.frame(row.names=sub("^\\s+","",sub("_POST","", mcols(rds@postCoords)$gene_id)), 
-                               counts_treatment=assay(rds,1)[,1],
-                               counts_control=assay(rds,1)[,3])
+                               counts_treatment=assay(rds,1,withDimnames=TRUE)[,1],
+                               counts_control=assay(rds,1,withDimnames=TRUE)[,3])
              # In this case several rows of the same roar obj will have counts for different choices
              # and we choose to report them all (reporting the "whole" gene counts is not possible at
              # this stage cause if we sum up with colSums counts we will count some reads multiple times
@@ -380,10 +380,10 @@ setMethod("fpkmResults", signature(rds="RoarDataset"),
          } else {
          preLen <- end(rowRanges(rds)) - start(rowRanges(rds)) + 1
       }
-      sumPreTreatment <- sum(assay(rds, 1)[,"treatment_pre"])
-      sumPreControl <- sum(assay(rds, 1)[,"control_pre"])
-      dat$treatmentValue <- (assay(rds, 1)[,"treatment_pre"]*1000000000)/(preLen*sumPreTreatment)
-      dat$controlValue <- (assay(rds, 1)[,"control_pre"]*1000000000)/(preLen*sumPreControl)
+      sumPreTreatment <- sum(assay(rds, 1, withDimnames=TRUE)[,"treatment_pre"])
+      sumPreControl <- sum(assay(rds, 1, withDimnames=TRUE)[,"control_pre"])
+      dat$treatmentValue <- (assay(rds, 1, withDimnames=TRUE)[,"treatment_pre"]*1000000000)/(preLen*sumPreTreatment)
+      dat$controlValue <- (assay(rds, 1, withDimnames=TRUE)[,"control_pre"]*1000000000)/(preLen*sumPreControl)
       return(dat)
    }
 )
@@ -391,8 +391,8 @@ setMethod("fpkmResults", signature(rds="RoarDataset"),
 setMethod("countResults", signature(rds="RoarDataset"),
    function(rds) {
       dat <- totalResults(rds)
-      dat$treatmentValue <- assay(rds, 1)[,"treatment_pre"]
-      dat$controlValue <- assay(rds, 1)[,"control_pre"]
+      dat$treatmentValue <- assay(rds, 1, withDimnames=TRUE)[,"treatment_pre"]
+      dat$controlValue <- assay(rds, 1, withDimnames=TRUE)[,"control_pre"]
       return(dat)
    }
 )

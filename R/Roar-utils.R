@@ -368,16 +368,16 @@ createRoarSingleBam <- function(name, mulRds, treatmentSE, controlSE)
    # > assays(pada,1)$counts[names(rowRanges(pada))=="12"]
    # [1] 0 0
    # But which is faster?
-   control <- assays(controlSE,1)$counts[rownames(assays(controlSE,1)$counts)==name]
-   treatment <- assays(treatmentSE,1)$counts[rownames(assays(treatmentSE,1)$counts)==name]
-   assay(se,1)[,"treatment_pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
-   assay(se,1)[,"treatment_post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
-   assay(se,1)[,"control_pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
-   assay(se,1)[,"control_post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
+   control <- assays(controlSE,1,withDimnames=TRUE)$counts[rownames(assays(controlSE,1,withDimnames=TRUE)$counts)==name]
+   treatment <- assays(treatmentSE,1,withDimnames=TRUE)$counts[rownames(assays(treatmentSE,1,withDimnames=TRUE)$counts)==name]
+   assay(se,1, withDimnames=TRUE)[,"treatment_pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
+   assay(se,1, withDimnames=TRUE)[,"treatment_post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
+   assay(se,1, withDimnames=TRUE)[,"control_pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
+   assay(se,1, withDimnames=TRUE)[,"control_post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
    rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
-   assays(rds) <- assays(se)
-   names(assays(rds)) <- "counts"
+   assays(rds, withDimnames=TRUE) <- assays(se, withDimnames=TRUE)
+   names(assays(rds,withDimnames=TRUE)) <- "counts"
    rds@step <- 1
    # length should be preserved: XXX multipleSamples!
    rds@treatmentBams <- list(NA)
@@ -420,19 +420,19 @@ createRoarMultipleBam <- function(name, mulRds, treatmentSE, controlSE)
    )
    
    for (i in 1:length(controlSE)) {
-      control <- assays(controlSE[[i]],1)$counts[rownames(assays(controlSE[[i]],1)$counts)==name]
-      assay(rds@countsControl,i)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
-      assay(rds@countsControl,i)[,"post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
+      control <- assays(controlSE[[i]],1,withDimnames=TRUE)$counts[rownames(assays(controlSE[[i]],1,withDimnames=TRUE)$counts)==name]
+      assay(rds@countsControl,i,withDimnames=TRUE)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, control, "pre")
+      assay(rds@countsControl,i,withDimnames=TRUE)[,"post"] <- sapply(prePostDef, sumFragmentCounts, control, "post")
    }
    for (i in 1:length(treatmentSE)) {
-      treatment <- assays(treatmentSE[[i]],1)$counts[rownames(assays(treatmentSE[[i]],1)$counts)==name]
-      assay(rds@countsTreatment,i)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
-      assay(rds@countsTreatment,i)[,"post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
+      treatment <- assays(treatmentSE[[i]],1,withDimnames=TRUE)$counts[rownames(assays(treatmentSE[[i]],1,withDimnames=TRUE)$counts)==name]
+      assay(rds@countsTreatment,i,withDimnames=TRUE)[,"pre"] <- sapply(prePostDef, sumFragmentCounts, treatment, "pre")
+      assay(rds@countsTreatment,i,withDimnames=TRUE)[,"post"] <- sapply(prePostDef, sumFragmentCounts, treatment, "post")
    }
    rowRanges(rds) <- rowRanges(se)
    colData(rds) <- colData(se)
-   assays(rds) <- assays(se)
-   names(assays(rds)) <- "counts"
+   assays(rds,withDimnames=TRUE) <- assays(se,withDimnames=TRUE)
+   names(assays(rds,withDimnames=TRUE)) <- "counts"
    rds@step <- 1
    rds@treatmentBams <- vector(mode = "list", length = length(mulRds@treatmentBams))
    rds@controlBams <- vector(mode = "list", length = length(mulRds@controlBams))   
